@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
@@ -23,14 +24,24 @@ import java.io.File;
 )
 public class GalaxyCoreProxy {
 
-    @Inject
     @Getter
-    private Logger logger;
+    private final Logger logger;
+
+    @Getter
+    private final ProxyServer server;
 
     // CONFIGURATION //
     @Getter
     private DatabaseConfiguration databaseConfiguration;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    // API
     private ConfigNamespace proxyNamespace;
+
+    @Inject
+    public GalaxyCoreProxy(ProxyServer server, Logger logger) {
+        this.server = server;
+        this.logger = logger;
+    }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {

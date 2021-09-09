@@ -61,7 +61,7 @@ public class InternalConfiguration {
         YAMLConfiguration config = new YAMLConfiguration();
         try {
             config.read(configurationFile.toURI().toURL().openStream());
-            connection = config.getString(connection);
+            connection = config.getString("connection");
             mysqlHost = config.getString("mysql.host");
             mysqlPort = config.getInt("mysql.port");
             mysqlUser = config.getString("mysql.user");

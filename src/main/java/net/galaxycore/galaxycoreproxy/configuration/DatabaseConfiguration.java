@@ -1,6 +1,7 @@
 package net.galaxycore.galaxycoreproxy.configuration;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,9 +15,12 @@ public class DatabaseConfiguration {
     @Getter
     private Connection connection;
 
+    @SneakyThrows
     public DatabaseConfiguration(InternalConfiguration internalConfiguration) {
 
         this.internalConfiguration = internalConfiguration;
+        //IDK, but it doesn´t work without it
+        Class.forName("com.mysql.cj.jdbc.Driver");
 
         try {
             if(internalConfiguration.getConnection().equals("sqlite")) {
