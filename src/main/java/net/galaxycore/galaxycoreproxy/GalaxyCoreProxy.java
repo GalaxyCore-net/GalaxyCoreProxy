@@ -10,6 +10,7 @@ import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
+import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -34,8 +35,13 @@ public class GalaxyCoreProxy {
     @Getter
     private DatabaseConfiguration databaseConfiguration;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    @Getter
     // API
     private ConfigNamespace proxyNamespace;
+
+    // BLOCK TAB COMPLETION //
+    @Getter
+    private TabCompletionListener tabCompletionListener;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -54,6 +60,13 @@ public class GalaxyCoreProxy {
 
         proxyNamespace = databaseConfiguration.getNamespace("proxy");
 
+        // BLOCK TAB COMPLETION //
+        tabCompletionListener = new TabCompletionListener(this);
+
+    }
+
+    public void registerListener(Object listener) {
+        server.getEventManager().register(this, listener);
     }
 
     @Subscribe
