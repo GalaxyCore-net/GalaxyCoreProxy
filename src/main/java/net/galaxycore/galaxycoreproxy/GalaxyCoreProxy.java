@@ -1,15 +1,20 @@
 package net.galaxycore.galaxycoreproxy;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.Command;
+import com.velocitypowered.api.command.CommandMeta;
+import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import net.galaxycore.galaxycoreproxy.commands.HelpCommand;
 import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
+import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import org.slf4j.Logger;
 
@@ -43,6 +48,10 @@ public class GalaxyCoreProxy {
     @Getter
     private TabCompletionListener tabCompletionListener;
 
+    // COMMANDS //
+    @Getter
+    private HelpCommand helpCommand;
+
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
         this.server = server;
@@ -52,21 +61,39 @@ public class GalaxyCoreProxy {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
 
-        logger.info("Loaded GalaxyCore-Proxy plugin");
-
         // CONFIGURATION //
         InternalConfiguration internalConfiguration = new InternalConfiguration(new File("plugins/GalaxyCoreProxy/"));
         databaseConfiguration = new DatabaseConfiguration(internalConfiguration);
 
         proxyNamespace = databaseConfiguration.getNamespace("proxy");
 
+        proxyNamespace.setDefault("proxy.prefix", "§5GalaxyCore.net §7| §r");
+        proxyNamespace.setDefault("proxy.help", "§6Information\n" +
+                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\n" +
+                "§8» §e/report §8| §7Reporte einen Spieler\n" +
+                "§8» §cTeamSpeak§8: §7GalaxyCore.net\n" +
+                "§8» §cDiscord§8: §7dc.GalaxyCore.net\n" +
+                "§8» §cInfo§8: §7info.GalaxyCore.net\n");
+
+        PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
+
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener(this);
+
+        // COMMANDS //
+        helpCommand = new HelpCommand(this);
+
+        logger.info("Loaded GalaxyCore-Proxy plugin");
 
     }
 
     public void registerListener(Object listener) {
         server.getEventManager().register(this, listener);
+    }
+
+    public void registerCommand(Command command, String name, String... aliases) {
+        CommandMeta commandMeta = server.getCommandManager().metaBuilder(name).aliases(aliases).build();
+        server.getCommandManager().register(commandMeta, command);
     }
 
     @Subscribe
