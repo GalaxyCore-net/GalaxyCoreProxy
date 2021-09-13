@@ -15,6 +15,7 @@ import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
+import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import org.slf4j.Logger;
 
@@ -68,14 +69,21 @@ public class GalaxyCoreProxy {
         proxyNamespace = databaseConfiguration.getNamespace("proxy");
 
         proxyNamespace.setDefault("proxy.prefix", "§5GalaxyCore.net §7| §r");
-        proxyNamespace.setDefault("proxy.help", "§6Information\n" +
-                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\n" +
-                "§8» §e/report §8| §7Reporte einen Spieler\n" +
-                "§8» §cTeamSpeak§8: §7GalaxyCore.net\n" +
-                "§8» §cDiscord§8: §7dc.GalaxyCore.net\n" +
-                "§8» §cInfo§8: §7info.GalaxyCore.net\n");
 
         PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
+
+        // INTERNATIONALISATION //
+
+        I18N.init(this);
+
+        server.getScheduler().buildTask(this, I18N::load).schedule();
+
+        I18N.setDefaultByLang("de_DE", "proxy.help", "§6Information\\n" +
+                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\\n" +
+                "§8» §e/report §8| §7Reporte einen Spieler\\n" +
+                "§8» §cTeamSpeak§8: §7GalaxyCore.net\\n" +
+                "§8» §cDiscord§8: §7dc.GalaxyCore.net\\n" +
+                "§8» §cInfo§8: §7info.GalaxyCore.net\\n");
 
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener(this);

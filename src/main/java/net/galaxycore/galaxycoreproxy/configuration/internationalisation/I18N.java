@@ -19,9 +19,9 @@ public class I18N implements I18NPort {
 
     private final DatabaseConfiguration databaseConfiguration;
 
-    private final HashMap<String, I18N.MinecraftLocale> languages = new HashMap<String, I18N.MinecraftLocale>();
-    private final HashMap<UUID, I18N.MinecraftLocale> playerLocales = new HashMap<UUID, I18N.MinecraftLocale>();
-    private HashMap<I18N.MinecraftLocale, HashMap<String, String>> languageData = new HashMap<I18N.MinecraftLocale, HashMap<String, String>>();
+    private final HashMap<String, I18N.MinecraftLocale> languages = new HashMap<>();
+    private final HashMap<UUID, I18N.MinecraftLocale> playerLocales = new HashMap<>();
+    private HashMap<I18N.MinecraftLocale, HashMap<String, String>> languageData = new HashMap<>();
 
     private I18N(GalaxyCoreProxy proxy) {
         databaseConfiguration = proxy.getDatabaseConfiguration();
@@ -94,13 +94,13 @@ public class I18N implements I18NPort {
         StringBuilder bobTheSqlBuilder = new StringBuilder();
 
         languageData.forEach((minecraftLocale, localizedKV) -> localizedKV.forEach((key, value) ->
-                bobTheSqlBuilder.append("INSERT INTO `I18N_languageData` (`language_id`, `key`, `value`) SELECT '")
+                bobTheSqlBuilder.append("INSERT INTO `I18N_language_data` (`language_id`, `key`, `value`) SELECT '")
                         .append(minecraftLocale.id)
                         .append("', '")
                         .append(key)
                         .append("', '")
                         .append(value)
-                        .append("' WHERE NOT EXISTS(SELECT * FROM `I18N_languageData` WHERE `key`='")
+                        .append("' WHERE NOT EXISTS(SELECT * FROM `I18N_language_data` WHERE `key`='")
                         .append(key)
                         .append("' AND `language_id`=")
                         .append(minecraftLocale.id)
