@@ -2,6 +2,7 @@ package net.galaxycore.galaxycoreproxy.configuration;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import net.galaxycore.galaxycoreproxy.utils.SQLUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,6 +38,8 @@ public class DatabaseConfiguration {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+        SQLUtils.runScript(this, "proxy", "create");
 
     }
 
