@@ -10,6 +10,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import net.galaxycore.galaxycoreproxy.commands.BauserverCommand;
 import net.galaxycore.galaxycoreproxy.commands.HelpCommand;
 import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
@@ -52,6 +53,8 @@ public class GalaxyCoreProxy {
     // COMMANDS //
     @Getter
     private HelpCommand helpCommand;
+    @Getter
+    private BauserverCommand bauserverCommand;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -90,6 +93,7 @@ public class GalaxyCoreProxy {
 
         // COMMANDS //
         helpCommand = new HelpCommand(this);
+        bauserverCommand = new BauserverCommand(this);
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
