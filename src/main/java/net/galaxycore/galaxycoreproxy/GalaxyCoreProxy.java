@@ -12,6 +12,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.commands.BauserverCommand;
 import net.galaxycore.galaxycoreproxy.commands.HelpCommand;
+import net.galaxycore.galaxycoreproxy.commands.SendPerDHLCommand;
 import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
@@ -55,6 +56,8 @@ public class GalaxyCoreProxy {
     private HelpCommand helpCommand;
     @Getter
     private BauserverCommand bauserverCommand;
+    @Getter
+    private SendPerDHLCommand sendPerDHLCommand;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -81,12 +84,18 @@ public class GalaxyCoreProxy {
 
         server.getScheduler().buildTask(this, I18N::load).schedule();
 
-        I18N.setDefaultByLang("de_DE", "proxy.command.help", "§6Information\n" +
-                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\n" +
-                "§8» §e/report §8| §7Reporte einen Spieler\n" +
-                "§8» §cTeamSpeak§8: §7GalaxyCore.net\n" +
-                "§8» §cDiscord§8: §7dc.GalaxyCore.net\n" +
-                "§8» §cWebsite§8: §7GalaxyCore.net\n");
+        I18N.setDefaultByLang("de_DE", "proxy.command.help", "§6Information\\n" +
+                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\\n" +
+                "§8» §e/report §8| §7Reporte einen Spieler\\n" +
+                "§8» §cTeamSpeak§8: §7GalaxyCore.net\\n" +
+                "§8» §cDiscord§8: §7dc.GalaxyCore.net\\n" +
+                "§8» §cWebsite§8: §7GalaxyCore.net\\n");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.bauserver.int_required", "§cBitte gib eine ganze Zahl an!");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.wrong_usage", "§cBitte benutze §7/spd <Spieler> <Server>!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.target_not_found", "§cSpieler nicht gefunden!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server_not_found", "§cServer nicht gefunden!");
 
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener(this);
@@ -94,6 +103,7 @@ public class GalaxyCoreProxy {
         // COMMANDS //
         helpCommand = new HelpCommand(this);
         bauserverCommand = new BauserverCommand(this);
+        sendPerDHLCommand = new SendPerDHLCommand(this);
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
