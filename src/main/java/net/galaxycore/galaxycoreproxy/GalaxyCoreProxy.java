@@ -10,10 +10,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
-import net.galaxycore.galaxycoreproxy.commands.BauserverCommand;
-import net.galaxycore.galaxycoreproxy.commands.HelpCommand;
-import net.galaxycore.galaxycoreproxy.commands.SendPerDHLCommand;
-import net.galaxycore.galaxycoreproxy.commands.TeamCommand;
+import net.galaxycore.galaxycoreproxy.commands.*;
 import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
@@ -61,6 +58,8 @@ public class GalaxyCoreProxy {
     private SendPerDHLCommand sendPerDHLCommand;
     @Getter
     private TeamCommand teamCommand;
+    @Getter
+    private PluginCommand pluginCommand;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -108,6 +107,7 @@ public class GalaxyCoreProxy {
         bauserverCommand = new BauserverCommand(this);
         sendPerDHLCommand = new SendPerDHLCommand(this);
         teamCommand = new TeamCommand(this);
+        pluginCommand = new PluginCommand(this);
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
