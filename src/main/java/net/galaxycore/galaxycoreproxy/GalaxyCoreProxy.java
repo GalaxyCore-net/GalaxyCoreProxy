@@ -60,6 +60,8 @@ public class GalaxyCoreProxy {
     private TeamCommand teamCommand;
     @Getter
     private PluginCommand pluginCommand;
+    @Getter
+    private BroadcastCommand broadcastCommand;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -108,6 +110,7 @@ public class GalaxyCoreProxy {
         sendPerDHLCommand = new SendPerDHLCommand(this);
         teamCommand = new TeamCommand(this);
         pluginCommand = new PluginCommand(this);
+        broadcastCommand = new BroadcastCommand(this);
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
