@@ -3,7 +3,6 @@ package net.galaxycore.galaxycoreproxy;
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.Command;
 import com.velocitypowered.api.command.CommandMeta;
-import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
@@ -16,6 +15,7 @@ import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
+import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import org.slf4j.Logger;
@@ -63,6 +63,8 @@ public class GalaxyCoreProxy {
     private PluginCommand pluginCommand;
     @Getter
     private BroadcastCommand broadcastCommand;
+    @Getter
+    private JoinMeCommand joinMeCommand;
 
     // SCHEDULER //
     @Getter
@@ -87,6 +89,9 @@ public class GalaxyCoreProxy {
 
         proxyNamespace.setDefault("proxy.broadcast.delay", "1m");
 
+        proxyNamespace.setDefault("proxy.joinme.delay", "3m");
+        proxyNamespace.setDefault("proxy.joinme.cooldown", "1h");
+
         PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
 
         // INTERNATIONALISATION //
@@ -110,6 +115,13 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("de_DE", "proxy.scheduler.broadcast", "§6Folge uns doch auf Twitter: https://twitter.com/Galaxycore_net");
 
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.not_in_lobby", "§cDu kannst diesen Command nicht in der Lobby ausführen!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_not_found", "§cDieses JoinMe existiert nicht");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.click_to_join", "§cKlicke zum Beitreten");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.player_sent_joinme", "§6%player% §7hat ein JoinMe für §e%server% §7geschickt");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.in_cooldown", "§cDu befindest dich noch im Cooldown");
+
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener(this);
 
@@ -120,6 +132,7 @@ public class GalaxyCoreProxy {
         teamCommand = new TeamCommand(this);
         pluginCommand = new PluginCommand(this);
         broadcastCommand = new BroadcastCommand(this);
+        joinMeCommand = new JoinMeCommand(this);
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler(this);
