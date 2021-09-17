@@ -16,6 +16,7 @@ import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
 import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
+import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import org.slf4j.Logger;
 
@@ -63,6 +64,10 @@ public class GalaxyCoreProxy {
     @Getter
     private BroadcastCommand broadcastCommand;
 
+    // SCHEDULER //
+    @Getter
+    private BroadcastScheduler broadcastScheduler;
+
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
         this.server = server;
@@ -79,6 +84,8 @@ public class GalaxyCoreProxy {
         proxyNamespace = databaseConfiguration.getNamespace("proxy");
 
         proxyNamespace.setDefault("proxy.prefix", "§5GalaxyCore.net §7| §r");
+
+        proxyNamespace.setDefault("proxy.broadcast.delay", "1m");
 
         PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
 
@@ -101,6 +108,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.target_not_found", "§cSpieler nicht gefunden!");
         I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server_not_found", "§cServer nicht gefunden!");
 
+        I18N.setDefaultByLang("de_DE", "proxy.scheduler.broadcast", "§6Folge uns doch auf Twitter: https://twitter.com/Galaxycore_net");
+
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener(this);
 
@@ -111,6 +120,9 @@ public class GalaxyCoreProxy {
         teamCommand = new TeamCommand(this);
         pluginCommand = new PluginCommand(this);
         broadcastCommand = new BroadcastCommand(this);
+
+        // SCHEDULER //
+        broadcastScheduler = new BroadcastScheduler(this);
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
