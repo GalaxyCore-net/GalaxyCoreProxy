@@ -33,13 +33,11 @@ public class BroadcastScheduler implements Runnable {
                 break;
         }
         ScheduledTask scheduledTask = proxy.getServer().getScheduler().buildTask(proxy, this).repeat(period, periodUnit).delay(period, periodUnit).schedule();
-        proxy.getLogger().info(scheduledTask.status().name());
     }
 
     @Override
     public void run() {
         proxy.getServer().sendMessage(Component.text("\n" + I18N.getByLang("de_DE", "proxy.scheduler.broadcast") + "\n"));
-        proxy.getLogger().info("Sended Message");
     }
 
 }
