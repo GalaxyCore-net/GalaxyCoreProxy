@@ -1,15 +1,17 @@
 package net.galaxycore.galaxycoreproxy.configuration.internationalisation;
 
+import com.velocitypowered.api.proxy.Player;
 import lombok.Getter;
+import net.galaxycore.galaxycorecore.utils.FileUtils;
 import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
-import net.galaxycore.galaxycoreproxy.utils.FileUtils;
 import net.galaxycore.galaxycoreproxy.utils.SQLUtils;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class I18N implements I18NPort {
@@ -19,23 +21,23 @@ public class I18N implements I18NPort {
 
     private final DatabaseConfiguration databaseConfiguration;
 
-    private final HashMap<String, I18N.MinecraftLocale> languages = new HashMap<String, I18N.MinecraftLocale>();
-    private final HashMap<UUID, I18N.MinecraftLocale> playerLocales = new HashMap<UUID, I18N.MinecraftLocale>();
-    private HashMap<I18N.MinecraftLocale, HashMap<String, String>> languageData = new HashMap<I18N.MinecraftLocale, HashMap<String, String>>();
+    @Getter
+    private final HashMap<String, I18N.MinecraftLocale> languages = new HashMap<>();
+    private ConcurrentHashMap<I18N.MinecraftLocale, HashMap<String, String>> languageData = new ConcurrentHashMap<>();
 
     private I18N(GalaxyCoreProxy proxy) {
         databaseConfiguration = proxy.getDatabaseConfiguration();
         Logger logger = Logger.getLogger(this.getClass().getName());
 
+
         SQLUtils.runScript(databaseConfiguration, "i18n", "initialize");
 
         try {
-            if (!databaseConfiguration.getConnection().prepareStatement("SELECT id FROM I18N_languages;").executeQuery().next()){
-                databaseConfiguration.getConnection().prepareStatement("INSERT INTO I18N_languages (id, lang, head_data, english_name, local_name, date_fmt, time_fmt) VALUES (1, 'de_DE', 'head_de_DE', 'German', 'Deutsch', 'DD.MM.YYYY', 'mm:ss');").executeUpdate();
-                databaseConfiguration.getConnection().prepareStatement("INSERT INTO I18N_languages (id, lang, head_data, english_name, local_name, date_fmt, time_fmt) VALUES (2, 'fr_FR', 'head_fr_FR', 'French', 'Francais', 'DD.MM.YYYY', 'mm:ss');").executeUpdate();
+            if (!databaseConfiguration.getConnection().prepareStatement("SELECT id FROM I18N_languages;").executeQuery().next()) {
+                databaseConfiguration.getConnection().prepareStatement("INSERT INTO I18N_languages (lang, head_data, english_name, local_name, date_fmt, time_fmt) VALUES ('de_DE', '5e7899b4806858697e283f084d9173fe487886453774626b24bd8cfecc77b3f', 'German', 'Deutsch', 'DD.MM.YYYY', 'mm:ss');").executeUpdate();
+                databaseConfiguration.getConnection().prepareStatement("INSERT INTO I18N_languages (lang, head_data, english_name, local_name, date_fmt, time_fmt) VALUES ('en_GB', 'a1701f21835a898b20759fb30a583a38b994abf60d3912ab4ce9f2311e74f72', 'English', 'English', 'DD.MM.YYYY', 'mm:ss');").executeUpdate();
             }
-        }
-        catch (SQLException throwables) {
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
@@ -77,8 +79,21 @@ public class I18N implements I18NPort {
         return instanceRef.get().get(lang, key);
     }
 
-    public String get(String lang, String key){
+    public static String getByPlayer(Player player, String key) {
+        return instanceRef.get().get(player, key);
+    }
+
+    public String get(String lang, String key) {
         return languageData.get(languages.get(lang)).get(key);
+    }
+
+    public String get(Player player, String key) {
+        return get(getLocale(player), key);
+    }
+
+    @Override
+    public String getLocale(Player player) {
+        return I18NPlayerLoader.getLocale(player);
     }
 
     public void setDefault(String lang, String key, String value) {
@@ -91,32 +106,33 @@ public class I18N implements I18NPort {
     }
 
     public void retrieve() {
-        StringBuilder bobTheSqlBuilder = new StringBuilder();
+        languageData.forEach((minecraftLocale, localizedKV) -> localizedKV.forEach((key, value) -> {
+            try {
 
-        languageData.forEach((minecraftLocale, localizedKV) -> localizedKV.forEach((key, value) ->
-                bobTheSqlBuilder.append("INSERT INTO `I18N_language_data` (`language_id`, `key`, `value`) SELECT '")
-                        .append(minecraftLocale.id)
-                        .append("', '")
-                        .append(key)
-                        .append("', '")
-                        .append(value)
-                        .append("' WHERE NOT EXISTS(SELECT * FROM `I18N_language_data` WHERE `key`='")
-                        .append(key)
-                        .append("' AND `language_id`=")
-                        .append(minecraftLocale.id)
-                        .append(");\n")));
+                PreparedStatement isAvaiable = databaseConfiguration.getConnection().prepareStatement("SELECT id FROM I18N_language_data WHERE `language_id`=? AND `key`=?;");
 
-        try {
-            for (String query : bobTheSqlBuilder.toString().split("\n")) {
-                databaseConfiguration.getConnection().prepareStatement(query).executeUpdate();
+                isAvaiable.setInt(1, minecraftLocale.id);
+                isAvaiable.setString(2, key);
+
+                if (!isAvaiable.executeQuery().next()) {
+                    PreparedStatement stmt = databaseConfiguration.getConnection().prepareStatement(
+                            "INSERT INTO `I18N_language_data` (`language_id`, `key`, `value`) VALUES (?, ?, ?)"
+                    );
+
+                    stmt.setInt(1, minecraftLocale.id);
+                    stmt.setString(2, key);
+                    stmt.setString(3, value);
+
+                    stmt.executeUpdate();
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        }));
 
         try {
             ResultSet resultSet = databaseConfiguration.getConnection().prepareStatement(
-                    FileUtils.readSQLScript(
+                    FileUtils.readSqlScript(
                             "i18n",
                             "loadAll",
                             databaseConfiguration.getInternalConfiguration().getConnection()
@@ -124,9 +140,9 @@ public class I18N implements I18NPort {
                     )
             ).executeQuery();
 
-            languageData = new HashMap<>();
+            languageData = new ConcurrentHashMap<>();
 
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 MinecraftLocale locale = languages.get(resultSet.getString("lang"));
 
                 languageData.computeIfAbsent(locale, minecraftLocale -> new HashMap<>());
@@ -140,27 +156,6 @@ public class I18N implements I18NPort {
             throwables.printStackTrace();
         }
 
-        try {
-            ResultSet playerLocales = databaseConfiguration.getConnection().prepareStatement("SELECT core_playercache.uuid, I18N_languages.lang FROM core_playercache, I18N_player_data, I18N_languages WHERE core_playercache.id = I18N_player_data.id AND I18N_player_data.language_id = I18N_languages.id").executeQuery();
-
-            while (playerLocales.next()){
-                UUID uuid = UUID.fromString(playerLocales.getString("uuid"));
-                MinecraftLocale locale = languages.get(playerLocales.getString("lang"));
-
-                this.playerLocales.put(uuid, locale);
-            }
-
-            playerLocales.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public MinecraftLocale getLocale(UUID uuid) {
-        return playerLocales.get(uuid);
     }
 
     public static void load(){

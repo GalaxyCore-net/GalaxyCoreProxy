@@ -1,12 +1,16 @@
 package net.galaxycore.galaxycoreproxy.configuration.internationalisation;
 
-import java.util.UUID;
+import com.velocitypowered.api.proxy.Player;
+
+import java.util.HashMap;
 
 public interface I18NPort {
 
     void setDefault(String lang, String key, String value);
     String get(String lang, String key);
+    String get(Player player, String key);
     void retrieve();
-    I18N.MinecraftLocale getLocale(UUID uuid);
+    String getLocale(Player player);
+    HashMap<String, I18N.MinecraftLocale> getLanguages();
 
 }

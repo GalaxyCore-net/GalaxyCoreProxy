@@ -2,12 +2,12 @@ package net.galaxycore.galaxycoreproxy.tabcompletion;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.command.PlayerAvailableCommandsEvent;
-import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
+import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 
 public class TabCompletionListener {
 
-    public TabCompletionListener(GalaxyCoreProxy proxy) {
-        proxy.registerListener(this);
+    public TabCompletionListener() {
+        ProxyProvider.getProxy().registerListener(this);
     }
 
     @SuppressWarnings("UnstableApiUsage") // IDC

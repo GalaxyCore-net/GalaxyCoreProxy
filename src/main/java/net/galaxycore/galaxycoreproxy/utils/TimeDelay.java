@@ -3,7 +3,6 @@ package net.galaxycore.galaxycoreproxy.utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
 
 import java.util.concurrent.TimeUnit;
 
