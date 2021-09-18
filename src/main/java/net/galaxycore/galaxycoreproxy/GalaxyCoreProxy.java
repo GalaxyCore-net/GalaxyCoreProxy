@@ -68,8 +68,8 @@ public class GalaxyCoreProxy {
     private BroadcastCommand broadcastCommand;
     @Getter
     private JoinMeCommand joinMeCommand;
-    @Getter
-    private LoginCommand loginCommand;
+//     @Getter
+//     private LoginCommand loginCommand;
 
     // SCHEDULER //
     @Getter
@@ -152,7 +152,7 @@ public class GalaxyCoreProxy {
         pluginCommand = new PluginCommand(this);
         broadcastCommand = new BroadcastCommand(this);
         joinMeCommand = new JoinMeCommand(this);
-        loginCommand = new LoginCommand(this);
+        //loginCommand = new LoginCommand(this);
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler(this);
