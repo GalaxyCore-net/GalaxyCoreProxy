@@ -94,7 +94,7 @@ public class GalaxyCoreProxy {
 
         proxyNamespace = databaseConfiguration.getNamespace("proxy");
 
-        proxyNamespace.setDefault("proxy.prefix", "§5GalaxyCore.net §7| §r");
+        proxyNamespace.setDefault("global.prefix", "§5GalaxyCore.net §7| §r");
 
         proxyNamespace.setDefault("proxy.broadcast.delay", "1m");
 
