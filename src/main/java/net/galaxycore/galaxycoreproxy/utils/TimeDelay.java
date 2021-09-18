@@ -15,29 +15,28 @@ public class TimeDelay {
     private int delay;
     private TimeUnit delayUnit;
 
-    public static TimeDelay readTimeDelay(GalaxyCoreProxy proxy, String path) {
-        TimeDelay delay = new TimeDelay(1, TimeUnit.HOURS);
-        String configDelay = proxy.getProxyNamespace().get(path);
+    public static TimeDelay readTimeDelay(String delay) {
+        TimeDelay timeDelay = new TimeDelay(1, TimeUnit.HOURS);
         try {
-            delay.setDelay(Integer.parseInt(configDelay.substring(0, configDelay.length() - 1)));
+            timeDelay.setDelay(Integer.parseInt(delay.substring(0, delay.length() - 1)));
         }catch (Exception ignore) {}
-        switch (configDelay.substring(configDelay.length() - 1)) {
+        switch (delay.substring(delay.length() - 1)) {
             case "s":
-                delay.setDelayUnit(TimeUnit.SECONDS);
+                timeDelay.setDelayUnit(TimeUnit.SECONDS);
                 break;
             case "m":
-                delay.setDelayUnit(TimeUnit.MINUTES);
+                timeDelay.setDelayUnit(TimeUnit.MINUTES);
                 break;
             case "h":
-                delay.setDelayUnit(TimeUnit.HOURS);
+                timeDelay.setDelayUnit(TimeUnit.HOURS);
                 break;
             case "d":
-                delay.setDelayUnit(TimeUnit.DAYS);
+                timeDelay.setDelayUnit(TimeUnit.DAYS);
                 break;
             default:
                 break;
         }
-        return delay;
+        return timeDelay;
     }
 
 }

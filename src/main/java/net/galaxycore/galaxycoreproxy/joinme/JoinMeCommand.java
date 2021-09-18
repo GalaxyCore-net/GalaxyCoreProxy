@@ -90,8 +90,8 @@ public class JoinMeCommand implements SimpleCommand {
                 onlinePlayer.sendMessage(Component.text("\n"));
             }
 
-            TimeDelay delay = TimeDelay.readTimeDelay(proxy, "proxy.joinme.delay");
-            TimeDelay cooldown = TimeDelay.readTimeDelay(proxy, "proxy.joinme.cooldown");
+            TimeDelay delay = TimeDelay.readTimeDelay(proxy.getProxyNamespace().get("proxy.joinme.delay"));
+            TimeDelay cooldown = TimeDelay.readTimeDelay(proxy.getProxyNamespace().get("proxy.joinme.cooldown"));
             proxy.getServer().getScheduler().buildTask(proxy, () -> joinMe.remove(player)).delay(delay.getDelay(), delay.getDelayUnit()).schedule();
 
             if(player.hasPermission("proxy.command.joinme.bypass"))

@@ -172,6 +172,10 @@
             <id>cloudnet-releases</id>
             <url>https://repo.cloudnetservice.eu/repository/releases/</url>
         </repository>
+        <repository>
+            <id>galaxycore</id>
+            <url>https://nrm.galaxycore.net/repository/galaxycore/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -229,6 +233,17 @@
             <artifactId>cloudnet-bridge</artifactId>
             <version>3.4.0-RELEASE</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.galaxycore</groupId>
+            <artifactId>galaxycorecore</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 </project>

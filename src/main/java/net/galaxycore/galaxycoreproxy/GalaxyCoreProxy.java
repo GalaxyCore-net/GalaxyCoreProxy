@@ -18,6 +18,9 @@ import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import org.objenesis.instantiator.android.Android17Instantiator;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -65,10 +68,16 @@ public class GalaxyCoreProxy {
     private BroadcastCommand broadcastCommand;
     @Getter
     private JoinMeCommand joinMeCommand;
+    @Getter
+    private LoginCommand loginCommand;
 
     // SCHEDULER //
     @Getter
     private BroadcastScheduler broadcastScheduler;
+
+    // LUCKPERMS API //
+    @Getter
+    LuckPerms luckPermsAPI;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -112,6 +121,13 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.wrong_usage", "§cBitte benutze §7/spd <Spieler> <Server>!");
         I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.target_not_found", "§cSpieler nicht gefunden!");
         I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server_not_found", "§cServer nicht gefunden!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server", "§aServer");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.team.team", "§aTeam");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.braodcast", "\n§6Broadcast: §4§l");
+
+        I18N.setDefaultByLang("de_DE", "proxy.commamnd.plugin.no_permission", "§aHmm§f, §aich§f, §aglaube§f, §adass§f, §adu§f, §ahier§f, §anichts§f, §afinden§f, §awirst.");
 
         I18N.setDefaultByLang("de_DE", "proxy.scheduler.broadcast", "§6Folge uns doch auf Twitter: https://twitter.com/Galaxycore_net");
 
@@ -121,6 +137,9 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.click_to_join", "§cKlicke zum Beitreten");
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.player_sent_joinme", "§6%player% §7hat ein JoinMe für §e%server% §7geschickt");
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.in_cooldown", "§cDu befindest dich noch im Cooldown");
+
+        // LUCKPERMS API //
+        luckPermsAPI = LuckPermsProvider.get();
 
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener(this);
@@ -133,6 +152,7 @@ public class GalaxyCoreProxy {
         pluginCommand = new PluginCommand(this);
         broadcastCommand = new BroadcastCommand(this);
         joinMeCommand = new JoinMeCommand(this);
+        loginCommand = new LoginCommand(this);
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler(this);

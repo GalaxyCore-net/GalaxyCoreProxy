@@ -29,11 +29,11 @@ public class BauserverCommand implements SimpleCommand {
 
         Player player = (Player) invocation.source();
 
-        playerManager.getPlayerExecutor(player.getUniqueId()).connect(getServerName(invocation.arguments(), player));
+        playerManager.getPlayerExecutor(player.getUniqueId()).connect(getBauserverServerName(invocation.arguments(), player));
 
     }
 
-    public String getServerName(String[] args, CommandSource source) {
+    public String getBauserverServerName(String[] args, CommandSource source) {
 
         String index = "1";
         if(args.length >= 1) {

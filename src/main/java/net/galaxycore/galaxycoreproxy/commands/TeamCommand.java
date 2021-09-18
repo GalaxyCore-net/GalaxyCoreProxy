@@ -2,6 +2,7 @@ package net.galaxycore.galaxycoreproxy.commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
+import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.kyori.adventure.text.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +24,7 @@ public class TeamCommand implements SimpleCommand {
             teamMemberCount.getAndIncrement();
             bobTheBuilder.append(player.getUsername()).append("\n");
         });
-        invocation.source().sendMessage(Component.text("§aTeam§f: (§a" + teamMemberCount + "§f):\n" + bobTheBuilder));
+        invocation.source().sendMessage(Component.text(I18N.getByLang("de_DE", "proxy.command.team.team") + "§f: (§a" + teamMemberCount + "§f):\n" + bobTheBuilder));
     }
 
     @Override

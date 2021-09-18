@@ -30,7 +30,7 @@ public class SendPerDHLCommand implements SimpleCommand {
 
         switch (args.length) {
             case 0:
-                StringBuilder bobTheBuilder = new StringBuilder("§aServer§f: (§a").append(proxy.getServer().getAllServers().size()).append(")§f:\n");
+                StringBuilder bobTheBuilder = new StringBuilder(I18N.getByLang("de_DE", "proxy.command.sendperdhl.server") + "§f: (§a").append(proxy.getServer().getAllServers().size()).append(")§f:\n");
                 proxy.getServer().getAllServers().forEach(server -> bobTheBuilder.append(server.getServerInfo().getName()).append("\n"));
                 invocation.source().sendMessage(Component.text(bobTheBuilder.toString()));
                 break;

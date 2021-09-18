@@ -19,7 +19,7 @@ public class BauserverCommandTest {
         CommandSource mockPlayer = mock(CommandSource.class);
 
         String expected = "Bauserver-1";
-        String actual = new BauserverCommand(mockProxy).getServerName(args, mockPlayer);
+        String actual = new BauserverCommand(mockProxy).getBauserverServerName(args, mockPlayer);
         assertEquals(expected, actual);
 
     }
