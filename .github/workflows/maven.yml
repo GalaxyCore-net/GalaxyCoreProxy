@@ -21,7 +21,7 @@ jobs:
                 java-version: '11'
                 distribution: 'adopt'
             - name: Build with Maven
-              run: mvn -B clean install --file pom.xml
+              run: mvn -X -B clean install -s workflow_settings.xml --file pom.xml -Dserver.password=${{ secrets.NRM_LOGIN_DEV }}
             - name: Upload a Build Artifact
               uses: actions/upload-artifact@v2.2.4
               with:
@@ -38,4 +38,4 @@ jobs:
                   java-version: '11'
                   distribution: 'adopt'
             - name: Test with Maven
-              run: mvn -B test --file pom.xml
+              run: mvn -X -B test -s workflow_settings.xml --file pom.xml -Dserver.password=${{ secrets.NRM_LOGIN_DEV }}

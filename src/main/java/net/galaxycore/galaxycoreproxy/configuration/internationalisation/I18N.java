@@ -94,13 +94,13 @@ public class I18N implements I18NPort {
         StringBuilder bobTheSqlBuilder = new StringBuilder();
 
         languageData.forEach((minecraftLocale, localizedKV) -> localizedKV.forEach((key, value) ->
-                bobTheSqlBuilder.append("INSERT INTO `I18N_languageData` (`language_id`, `key`, `value`) SELECT '")
+                bobTheSqlBuilder.append("INSERT INTO `I18N_language_data` (`language_id`, `key`, `value`) SELECT '")
                         .append(minecraftLocale.id)
                         .append("', '")
                         .append(key)
                         .append("', '")
                         .append(value)
-                        .append("' WHERE NOT EXISTS(SELECT * FROM `I18N_languageData` WHERE `key`='")
+                        .append("' WHERE NOT EXISTS(SELECT * FROM `I18N_language_data` WHERE `key`='")
                         .append(key)
                         .append("' AND `language_id`=")
                         .append(minecraftLocale.id)
