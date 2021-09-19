@@ -27,7 +27,7 @@ public class LoginCommand implements SimpleCommand {
 
         Player player = (Player) invocation.source();
 
-        if(PermissionUtils.hasPermission(player, "proxy.team.login", ProxyProvider.getProxy())) {
+        if(player.hasPermission("proxy.team.login")) {
             MessageUtils.sendI18NMessage(player, "proxy.command.login.already_logged_in");
         }else {
             loginPlayer(player);

@@ -91,8 +91,7 @@ public class I18N implements I18NPort {
         return get(getLocale(player), key);
     }
 
-    @Override
-    public String getLocale(Player player) {
+    private String getLocale(Player player) {
         return I18NPlayerLoader.getLocale(player);
     }
 

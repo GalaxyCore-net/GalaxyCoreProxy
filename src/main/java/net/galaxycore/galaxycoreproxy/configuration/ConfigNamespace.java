@@ -6,8 +6,8 @@ import java.sql.SQLException;
 
 public class ConfigNamespace {
 
-    private String name;
-    private DatabaseConfiguration configuration;
+    private final String name;
+    private final DatabaseConfiguration configuration;
 
     public ConfigNamespace(String name, DatabaseConfiguration configuration) {
         this.name = name;

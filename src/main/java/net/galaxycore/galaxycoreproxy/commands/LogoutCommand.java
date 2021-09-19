@@ -3,7 +3,6 @@ package net.galaxycore.galaxycoreproxy.commands;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.SneakyThrows;
-import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.galaxycore.galaxycoreproxy.utils.PermissionUtils;
@@ -27,7 +26,7 @@ public class LogoutCommand implements SimpleCommand {
 
         Player player = (Player) invocation.source();
 
-        if(PermissionUtils.hasPermission(player, "proxy.team.login", ProxyProvider.getProxy())) {
+        if(player.hasPermission("proxy.team.login")) {
             logoutPlayer(player);
         }else {
             MessageUtils.sendI18NMessage(player, "proxy.command.logout.not_logged_in");

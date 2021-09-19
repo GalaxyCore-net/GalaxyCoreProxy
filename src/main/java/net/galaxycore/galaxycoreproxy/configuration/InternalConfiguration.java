@@ -1,7 +1,6 @@
 package net.galaxycore.galaxycoreproxy.configuration;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;

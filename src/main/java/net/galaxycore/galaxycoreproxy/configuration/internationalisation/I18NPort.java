@@ -10,7 +10,6 @@ public interface I18NPort {
     String get(String lang, String key);
     String get(Player player, String key);
     void retrieve();
-    String getLocale(Player player);
     HashMap<String, I18N.MinecraftLocale> getLanguages();
 
 }
