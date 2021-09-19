@@ -1,7 +1,6 @@
 package net.galaxycore.galaxycoreproxy.commands;
 
 import com.velocitypowered.api.command.CommandSource;
-import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,8 +12,6 @@ public class BauserverCommandTest {
     void getServerName() {
 
         String[] args = new String[] {"1"};
-
-        GalaxyCoreProxy mockProxy = mock(GalaxyCoreProxy.class);
 
         CommandSource mockPlayer = mock(CommandSource.class);
 

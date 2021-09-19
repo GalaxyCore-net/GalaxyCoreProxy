@@ -12,33 +12,6 @@ import java.util.UUID;
 @SuppressWarnings("unused") // API Usage
 public class PermissionUtils {
 
-    public static boolean hasPermission(User user, String permission, GalaxyCoreProxy proxy) {
-        return hasPermission(user, permission, true, proxy);
-    }
-
-    public static boolean hasPermission(User user, String permission, boolean value, GalaxyCoreProxy proxy) {
-        return hasPermission(user.getUniqueId(), permission, value, proxy);
-    }
-
-    public static boolean hasPermission(UUID uuid, String permission, GalaxyCoreProxy proxy) {
-        return hasPermission(uuid, permission, true, proxy);
-    }
-
-    public static boolean hasPermission(UUID uuid, String permission, boolean value, GalaxyCoreProxy proxy) {
-        return Objects.requireNonNull(proxy.getLuckPermsAPI().getUserManager()
-                .getUser(uuid)).getNodes().stream()
-                .filter(node -> node.getValue() == value)
-                .anyMatch(node -> node.getKey().equals(permission));
-    }
-
-    public static boolean hasPermission(Player player, String permission, GalaxyCoreProxy proxy) {
-        return hasPermission(player, permission, true, proxy);
-    }
-
-    public static boolean hasPermission(Player player, String permission, boolean value, GalaxyCoreProxy proxy) {
-        return hasPermission(player.getUniqueId(), permission, value, proxy);
-    }
-
     public static void addPermission(User user, String permission, GalaxyCoreProxy proxy) {
         addPermission(user, permission, true, proxy);
     }

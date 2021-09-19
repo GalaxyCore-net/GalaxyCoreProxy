@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
-import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

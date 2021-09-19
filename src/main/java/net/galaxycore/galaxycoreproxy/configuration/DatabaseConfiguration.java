@@ -2,7 +2,6 @@ package net.galaxycore.galaxycoreproxy.configuration;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.galaxycore.galaxycorecore.utils.SqlUtils;
 import net.galaxycore.galaxycoreproxy.utils.SQLUtils;
 
 import java.sql.Connection;

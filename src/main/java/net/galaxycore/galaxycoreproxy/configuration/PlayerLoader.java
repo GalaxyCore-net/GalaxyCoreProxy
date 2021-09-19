@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+@SuppressWarnings("unused") // API Usage
 @AllArgsConstructor
 @Getter
 public class PlayerLoader {

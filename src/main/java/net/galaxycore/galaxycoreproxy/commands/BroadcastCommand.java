@@ -13,7 +13,7 @@ public class BroadcastCommand implements RawCommand {
 
     @Override
     public void execute(Invocation invocation) {
-        ProxyProvider.getProxy().getServer().sendMessage(Component.text(I18N.getByLang("de_DE", "proxy.command.braodcast") + invocation.arguments() + "\n"));
+        ProxyProvider.getProxy().getServer().sendMessage(Component.text(I18N.getByLang("de_DE", "proxy.command.broadcast") + invocation.arguments() + "\n"));
     }
 
     @Override

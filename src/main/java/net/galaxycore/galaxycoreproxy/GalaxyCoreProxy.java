@@ -6,6 +6,7 @@ import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
@@ -29,7 +30,10 @@ import java.io.File;
         version = "1.0-SNAPSHOT",
         description = "Proxy Plugin for GalaxyCore.net",
         url = "https://galaxycore.net",
-        authors = {"Flo-Mit-H"}
+        authors = {"Flo-Mit-H"},
+        dependencies = {
+                @Dependency(id = "luckperms")
+        }
 )
 public class GalaxyCoreProxy {
 
@@ -42,7 +46,7 @@ public class GalaxyCoreProxy {
     // CONFIGURATION //
     @Getter
     private DatabaseConfiguration databaseConfiguration;
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    @SuppressWarnings({"unused"})
     @Getter
     // API
     private ConfigNamespace proxyNamespace;
@@ -70,6 +74,10 @@ public class GalaxyCoreProxy {
     private LoginCommand loginCommand;
     @Getter
     private LogoutCommand logoutCommand;
+    @Getter
+    private TeamChatCommand teamChatCommand;
+    @Getter
+    private AdminChatCommand adminChatCommand;
 
     // LISTENER //
     @Getter
@@ -133,7 +141,7 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("de_DE", "proxy.command.team.team", "§aTeam");
 
-        I18N.setDefaultByLang("de_DE", "proxy.command.braodcast", "\n§6Broadcast: §4§l");
+        I18N.setDefaultByLang("de_DE", "proxy.command.broadcast", "\n§6Broadcast: §4§l");
 
         I18N.setDefaultByLang("de_DE", "proxy.scheduler.broadcast", "§6Folge uns doch auf Twitter: https://twitter.com/Galaxycore_net");
 
@@ -152,6 +160,9 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.not_logged_in", "§cDu bist nicht eingeloggt");
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt");
 
+        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r");
+        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
+
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
 
@@ -168,6 +179,8 @@ public class GalaxyCoreProxy {
         joinMeCommand = new JoinMeCommand();
         loginCommand = new LoginCommand();
         logoutCommand = new LogoutCommand();
+        teamChatCommand = new TeamChatCommand();
+        adminChatCommand = new AdminChatCommand();
 
         // LISTENERS //
         pluginCommandListener = new PluginCommandListener();
