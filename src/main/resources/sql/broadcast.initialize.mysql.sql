@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS proxy_broadcasts (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    message VARCHAR(1024) NOT NULL ,
+    delay VARCHAR(16) NOT NULL
+);
