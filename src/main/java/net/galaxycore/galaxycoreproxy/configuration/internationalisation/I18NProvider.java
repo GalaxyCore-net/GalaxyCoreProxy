@@ -1,7 +1,7 @@
 package net.galaxycore.galaxycoreproxy.configuration.internationalisation;
 
 import lombok.Setter;
-import net.galaxycore.galaxycoreproxy.utils.IProvider;
+import net.galaxycore.galaxycorecore.utils.IProvider;
 
 public class I18NProvider implements IProvider<I18NPort> {
 

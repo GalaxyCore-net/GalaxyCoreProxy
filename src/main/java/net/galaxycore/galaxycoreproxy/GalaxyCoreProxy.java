@@ -10,17 +10,15 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.commands.*;
-import net.galaxycore.galaxycoreproxy.configuration.ConfigNamespace;
-import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
-import net.galaxycore.galaxycoreproxy.configuration.InternalConfiguration;
-import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
+import net.galaxycore.galaxycoreproxy.configuration.*;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
+import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
+import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
-import org.objenesis.instantiator.android.Android17Instantiator;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -68,8 +66,14 @@ public class GalaxyCoreProxy {
     private BroadcastCommand broadcastCommand;
     @Getter
     private JoinMeCommand joinMeCommand;
-//     @Getter
-//     private LoginCommand loginCommand;
+    @Getter
+    private LoginCommand loginCommand;
+    @Getter
+    private LogoutCommand logoutCommand;
+
+    // LISTENER //
+    @Getter
+    private PluginCommandListener pluginCommandListener;
 
     // SCHEDULER //
     @Getter
@@ -87,6 +91,8 @@ public class GalaxyCoreProxy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+
+        ProxyProvider.setProxy(this);
 
         // CONFIGURATION //
         InternalConfiguration internalConfiguration = new InternalConfiguration(new File("plugins/GalaxyCoreProxy/"));
@@ -107,14 +113,16 @@ public class GalaxyCoreProxy {
 
         I18N.init(this);
 
+        I18NPlayerLoader.setPlayerloaderInstance(new I18NPlayerLoader(this));
+
         server.getScheduler().buildTask(this, I18N::load).schedule();
 
-        I18N.setDefaultByLang("de_DE", "proxy.command.help", "§6Information\\n" +
-                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\\n" +
-                "§8» §e/report §8| §7Reporte einen Spieler\\n" +
-                "§8» §cTeamSpeak§8: §7GalaxyCore.net\\n" +
-                "§8» §cDiscord§8: §7dc.GalaxyCore.net\\n" +
-                "§8» §cWebsite§8: §7GalaxyCore.net\\n");
+        I18N.setDefaultByLang("de_DE", "proxy.command.help", "§6Information\n" +
+                "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\n" +
+                "§8» §e/report §8| §7Reporte einen Spieler\n" +
+                "§8» §cTeamSpeak§8: §7GalaxyCore.net\n" +
+                "§8» §cDiscord§8: §7dc.GalaxyCore.net\n" +
+                "§8» §cWebsite§8: §7GalaxyCore.net\n");
 
         I18N.setDefaultByLang("de_DE", "proxy.command.bauserver.int_required", "§cBitte gib eine ganze Zahl an!");
 
@@ -127,8 +135,6 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("de_DE", "proxy.command.braodcast", "\n§6Broadcast: §4§l");
 
-        I18N.setDefaultByLang("de_DE", "proxy.commamnd.plugin.no_permission", "§aHmm§f, §aich§f, §aglaube§f, §adass§f, §adu§f, §ahier§f, §anichts§f, §afinden§f, §awirst.");
-
         I18N.setDefaultByLang("de_DE", "proxy.scheduler.broadcast", "§6Folge uns doch auf Twitter: https://twitter.com/Galaxycore_net");
 
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.");
@@ -138,24 +144,36 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.player_sent_joinme", "§6%player% §7hat ein JoinMe für §e%server% §7geschickt");
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.in_cooldown", "§cDu befindest dich noch im Cooldown");
 
+        I18N.setDefaultByLang("de_DE", "proxy.command.login.already_logged_in", "§cDu bist bereits eingeloggt");
+        I18N.setDefaultByLang("de_DE", "proxy.command.login.logged_in", "§aDu bist nun eingeloggt");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.plugins.no_permission", "§aHmm§f, §aich§f, §aglaube§f, §adass§f, §adu§f, §ahier§f, §anichts§f, §afinden§f, §awirst.");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.logout.not_logged_in", "§cDu bist nicht eingeloggt");
+        I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt");
+
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
 
         // BLOCK TAB COMPLETION //
-        tabCompletionListener = new TabCompletionListener(this);
+        tabCompletionListener = new TabCompletionListener();
 
         // COMMANDS //
-        helpCommand = new HelpCommand(this);
-        bauserverCommand = new BauserverCommand(this);
-        sendPerDHLCommand = new SendPerDHLCommand(this);
-        teamCommand = new TeamCommand(this);
-        pluginCommand = new PluginCommand(this);
-        broadcastCommand = new BroadcastCommand(this);
-        joinMeCommand = new JoinMeCommand(this);
-        //loginCommand = new LoginCommand(this);
+        helpCommand = new HelpCommand();
+        bauserverCommand = new BauserverCommand();
+        sendPerDHLCommand = new SendPerDHLCommand();
+        teamCommand = new TeamCommand();
+        pluginCommand = new PluginCommand();
+        broadcastCommand = new BroadcastCommand();
+        joinMeCommand = new JoinMeCommand();
+        loginCommand = new LoginCommand();
+        logoutCommand = new LogoutCommand();
+
+        // LISTENERS //
+        pluginCommandListener = new PluginCommandListener();
 
         // SCHEDULER //
-        broadcastScheduler = new BroadcastScheduler(this);
+        broadcastScheduler = new BroadcastScheduler();
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
