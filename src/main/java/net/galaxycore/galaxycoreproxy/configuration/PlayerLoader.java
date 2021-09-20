@@ -79,7 +79,7 @@ public class PlayerLoader {
                 player.getUsername(),
                 parse(loadResult, "firstlogin"),
                 parse(loadResult, "lastlogin"),
-                parse(loadResult, "last_daily_rewards"),
+                parse(loadResult, "last_daily_reward"),
                 loadResult.getInt("banpoints"),
                 loadResult.getInt("mutepoints"),
                 loadResult.getInt("warnpoints"),
