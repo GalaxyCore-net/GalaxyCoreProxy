@@ -2,6 +2,7 @@ package net.galaxycore.galaxycoreproxy.tabcompletion;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.command.PlayerAvailableCommandsEvent;
+import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 
 public class TabCompletionListener {
@@ -14,6 +15,8 @@ public class TabCompletionListener {
     @Subscribe
     public void onTabComplete(PlayerAvailableCommandsEvent event) {
         event.getRootNode().getChildren().removeIf((command) -> command.getName().contains(":"));
+        if(PlayerLoader.load(event.getPlayer()) != null)
+            event.getRootNode().getChildren().removeIf(command -> command.getName().equals("rules"));
     }
 
 }
