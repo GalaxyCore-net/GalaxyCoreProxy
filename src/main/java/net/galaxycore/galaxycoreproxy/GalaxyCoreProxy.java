@@ -115,6 +115,8 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.joinme.delay", "3m");
         proxyNamespace.setDefault("proxy.joinme.cooldown", "1h");
 
+        proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
+
         PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
 
         // INTERNATIONALISATION //
