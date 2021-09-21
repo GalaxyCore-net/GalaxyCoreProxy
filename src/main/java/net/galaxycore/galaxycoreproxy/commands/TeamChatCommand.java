@@ -4,6 +4,7 @@ import com.velocitypowered.api.command.RawCommand;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.LuckPermsAPIWrapper;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
+import net.galaxycore.galaxycoreproxy.utils.StringUtils;
 
 public class TeamChatCommand implements RawCommand {
 
@@ -20,9 +21,8 @@ public class TeamChatCommand implements RawCommand {
                 .forEach(player -> {
                     LuckPermsAPIWrapper wrapper = new LuckPermsAPIWrapper(player);
                     MessageUtils.sendMessage(player,
-                            MessageUtils.getI18NMessage(player, "proxy.command.teamchat.prefix")
-                                    + wrapper.getPermissionDisplayName() + wrapper.getPermissionColor()
-                                    + wrapper.getPlayerName() + invocation.arguments());
+                            StringUtils.replaceRelevant(MessageUtils.getI18NMessage(player,
+                                    "proxy.command.teamchat.prefix"), wrapper) + invocation.arguments());
                 });
 
     }

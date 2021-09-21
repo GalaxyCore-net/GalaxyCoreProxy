@@ -125,8 +125,6 @@ public class GalaxyCoreProxy {
 
         I18NPlayerLoader.setPlayerloaderInstance(new I18NPlayerLoader(this));
 
-        server.getScheduler().buildTask(this, I18N::load).schedule();
-
         // German Messages
         I18N.setDefaultByLang("de_DE", "proxy.command.help", "§6Information\n" +
                 "§8» §e/hub §8| §7Verbinde dich zum Lobby-Server\n" +
@@ -161,8 +159,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.not_logged_in", "§cDu bist nicht eingeloggt");
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt");
 
-        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r");
-        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
+        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player% §7»%chat_important%");
+        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix",  "§7TeamChat §8| §r%rank_prefix%%player% §7»%chat_important%");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -198,8 +196,10 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.logout.not_logged_in", "§cYou´re not logged in");
         I18N.setDefaultByLang("en_GB", "proxy.command.logout.logged_out", "§aYou´re logged out now");
 
-        I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r");
-        I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
+        I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player% §7»%chat_important%");
+        I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r%rank_prefix%%player% §7»%chat_important%");
+
+        I18N.load();
 
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
