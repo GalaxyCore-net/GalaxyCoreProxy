@@ -34,7 +34,7 @@ public class PluginCommandListener {
         }
 
         // Check if Player has accepted rules or not
-        if(PlayerLoader.load((Player) event.getCommandSource()) != null) {
+        if(PlayerLoader.load((Player) event.getCommandSource()) == null) {
             if(!event.getCommand().startsWith("rules"))
                 event.setResult(CommandExecuteEvent.CommandResult.denied());
         }else {
