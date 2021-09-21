@@ -8,8 +8,6 @@ import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 
-import java.awt.event.ComponentEvent;
-
 public class PluginCommandListener {
 
     public PluginCommandListener() {
