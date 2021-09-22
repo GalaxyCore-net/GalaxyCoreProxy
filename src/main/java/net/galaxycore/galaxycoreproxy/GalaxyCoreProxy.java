@@ -10,6 +10,7 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+//import net.galaxycore.galaxycoreproxy.bansystem.command.BanSystem;
 import net.galaxycore.galaxycoreproxy.commands.*;
 import net.galaxycore.galaxycoreproxy.configuration.*;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
@@ -90,6 +91,10 @@ public class GalaxyCoreProxy {
     // LUCKPERMS API //
     @Getter
     LuckPerms luckPermsAPI;
+//
+//    // BAN SYSTEM //
+//    @Getter
+//    private BanSystem banSystem;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -117,7 +122,7 @@ public class GalaxyCoreProxy {
 
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
 
-        PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
+        PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
 
         // INTERNATIONALISATION //
 
@@ -225,6 +230,9 @@ public class GalaxyCoreProxy {
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler();
+//
+//        // BAN SYSTEM //
+//        banSystem = new BanSystem();
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
