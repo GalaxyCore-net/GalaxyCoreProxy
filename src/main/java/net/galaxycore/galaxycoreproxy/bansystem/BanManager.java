@@ -2,10 +2,13 @@ package net.galaxycore.galaxycoreproxy.bansystem;
 
 import com.velocitypowered.api.proxy.Player;
 import lombok.SneakyThrows;
+import net.galaxycore.galaxycorecore.utils.DiscordWebhook;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MathUtils;
+import net.galaxycore.galaxycoreproxy.utils.StringUtils;
 
+import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -31,7 +34,7 @@ public class BanManager {
                 ps.setBoolean(6, permanent);
                 ps.setInt(7, staff);
                 ps.executeUpdate();
-                createBanLogEntry(player, reason, banPoints, from, until, permanent, staff);
+                createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
                 return true;
             }else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -45,7 +48,7 @@ public class BanManager {
                 ps.setInt(6, staff);
                 ps.setInt(6, PlayerLoader.load(player).getId());
                 ps.executeUpdate();
-                createBanLogEntry(player, reason, banPoints, from, until, permanent, staff);
+                createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
                 return true;
             }
 
@@ -182,12 +185,81 @@ public class BanManager {
         return new java.sql.Date(date.getTime());
     }
 
-    private void createBanLogEntry(Player player, int reason, int banPoints, Date from, Date until, boolean permanent, int staff) {
-        //TODO: Create Ban Log Entry in Database Table, Discord
+    private void createBanLogEntry(String action, Player player, int reason, int banPoints, Date from, Date until, boolean permanent, int staff) {
+        try {
+
+            //SQL
+            @SuppressWarnings("SqlResolve")
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "INSERT INTO core_banlog (action, userid, reasonid, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+            ps.setString(1, action);
+            ps.setInt(2, PlayerLoader.load(player).getId());
+            ps.setInt(3, reason);
+            ps.setDate(4, convertUtilDate(from));
+            ps.setDate(5, convertUtilDate(until));
+            ps.setBoolean(6, permanent);
+            ps.setInt(7, staff);
+            ps.executeUpdate();
+
+            // Discord
+            SimpleDateFormat dtf = new SimpleDateFormat("HH:mm:ss");
+            DiscordWebhook discordWebhook = new DiscordWebhook(
+                    ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banlog_webhook")
+            );
+
+            DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+            embed.setAuthor("GalaxyCore » BanLog", "", "");
+            embed.setTitle(StringUtils.firstLetterUppercase(action));
+            embed.setFooter(dtf.format(new Date()), "");
+            embed.setThumbnail("https://minotar.net/bust/" + player.getUsername() + "/190.png");
+            embed.setDescription(quote(player.getUsername()));
+
+            if(reason != -1)
+                embed.addField("Grund:", String.valueOf(reason), false);
+
+            if(banPoints != -1)
+                embed.addField("Banpunkte:", String.valueOf(banPoints), false);
+
+            //noinspection ConstantConditions
+            if(from != null)
+                embed.addField("Von:", dtf.format(from), false);
+
+            //noinspection ConstantConditions
+            if(until != null)
+                embed.addField("Bis:", dtf.format(until), false);
+
+            if(permanent)
+                embed.addField("Permanent:", "Ja", false);
+            else
+                embed.addField("Permanent:", "Nein", false);
+
+            embed.addField("Staff:", quote(staff), false);
+
+            switch (action) {
+                case "ban":
+                    embed.setColor(Color.GREEN);
+                    break;
+                case "unban":
+                    embed.setColor(Color.RED);
+                    break;
+                default:
+                    embed.setColor(Color.BLACK);
+                    break;
+            }
+
+            discordWebhook.addEmbed(embed);
+            discordWebhook.execute();
+
+        }catch (Exception ignore) {}
     }
 
     private void createUnbanLogEntry(Player player, Player staff) {
-        //TODO: Create Ban Log Entry in Database Table, Discord
+        createBanLogEntry("unban", player, -1, 0, null, null, false, PlayerLoader.load(staff).getId());
+    }
+
+    private String quote(Object s) {
+        return "`" + s.toString() + "`";
     }
 
 }

@@ -117,6 +117,8 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.joinme.delay", "3m");
         proxyNamespace.setDefault("proxy.joinme.cooldown", "1h");
 
+        proxyNamespace.setDefault("proxy.bansystem.banlog_webhook", "https://discord.com/api/webhooks/882263428591419442/eTztbTcJ5TvZMJJhLC5Q__dTqwLHe91ryfL5TGdmOhdNRj_j47N4GMeMwIguM15syQ1M");
+
         PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
 
         // INTERNATIONALISATION //
