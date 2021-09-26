@@ -10,6 +10,8 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import net.galaxycore.galaxycoreproxy.bansystem.BanSystem;
+import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.commands.*;
 import net.galaxycore.galaxycoreproxy.configuration.*;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
@@ -223,6 +225,9 @@ public class GalaxyCoreProxy {
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler();
+
+        // BAN SYSTEM //
+        BanSystemProvider.setBanSystem(new BanSystem());
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
