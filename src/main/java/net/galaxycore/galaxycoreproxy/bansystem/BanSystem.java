@@ -2,6 +2,7 @@ package net.galaxycore.galaxycoreproxy.bansystem;
 
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.bansystem.command.BanCommand;
+import net.galaxycore.galaxycoreproxy.bansystem.listener.PlayerJoinListener;
 
 public class BanSystem {
 
@@ -11,10 +12,15 @@ public class BanSystem {
     @Getter
     private final BanCommand banCommand;
 
+    @Getter
+    private final PlayerJoinListener playerJoinListener;
+
     public BanSystem() {
         banManager = new BanManager();
 
         banCommand = new BanCommand();
+
+        playerJoinListener = new PlayerJoinListener();
     }
 
 }

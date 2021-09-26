@@ -262,4 +262,49 @@ public class BanManager {
         return "`" + s.toString() + "`";
     }
 
+    public String replaceRelevant(String s, int userID) {
+        try {
+
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_bans WHERE userid=?"
+            );
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+
+            PreparedStatement psUserName = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_playercache WHERE id=?"
+            );
+            psUserName.setInt(1, userID);
+            String userName = psUserName.executeQuery().getString("lastname");
+
+            PreparedStatement psStaffName = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_playercache WHERE id=?"
+            );
+            psStaffName.setInt(1, rs.getInt("staff"));
+            String staffName = psStaffName.executeQuery().getString("lastname");
+
+            PreparedStatement psReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_punishment_reasons WHERE id=?"
+            );
+            psReason.setInt(1, rs.getInt("reason"));
+            String reason = psReason.executeQuery().getString("name");
+
+            s = s
+                    .replaceAll("%id%", rs.getString("id"))
+                    .replaceAll("%userid%", rs.getString("userid"))
+                    .replaceAll("%reasonid%", rs.getString("reasonid"))
+                    .replaceAll("%banpoints%", rs.getString("banpoints"))
+                    .replaceAll("%from%", parseDate(rs, "from").toString())
+                    .replaceAll("%until%", parseDate(rs, "until").toString())
+                    .replaceAll("%permanent%", rs.getBoolean("permanent") ? "Ja" : "Nein")
+                    .replaceAll("%staffid%", rs.getString("staff"))
+                    .replaceAll("%username%", userName)
+                    .replaceAll("%staffname%", staffName)
+                    .replaceAll("%reason%", reason);
+
+        }catch (Exception ignore) {}
+
+        return s;
+    }
+
 }
