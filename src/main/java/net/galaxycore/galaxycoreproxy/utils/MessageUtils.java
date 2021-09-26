@@ -1,5 +1,6 @@
 package net.galaxycore.galaxycoreproxy.utils;
 
+import com.velocitypowered.api.proxy.Player;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.kyori.adventure.audience.Audience;
@@ -13,11 +14,16 @@ public class MessageUtils {
         source.sendMessage(Component.text(getI18NMessage(source, key)));
     }
 
-    public static String getI18NMessage(@SuppressWarnings("unused") /* When I´m not too lazy to create lobby, this will be used */Audience source, String key) {
-//        if(source instanceof Player)
-//            return I18N.getByPlayer((Player) source, key);
-//        else // Not finished yet
+    public static String getI18NMessage(Audience source, String key) {
+        boolean unchanged = true;
+        String message = "§cMessage not found";
+        if(source instanceof Player) {
+            message = I18N.getByPlayer((Player) source, key);
+            unchanged = false;
+        }
+        if(message.equals("§cMessage not found") && unchanged)
             return I18N.getByLang("en_GB", key);
+        return message;
     }
 
     public static void sendMessage(Audience source, String... messages) {
