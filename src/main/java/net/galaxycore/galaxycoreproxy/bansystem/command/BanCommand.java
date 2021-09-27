@@ -20,9 +20,15 @@ public class BanCommand implements SimpleCommand {
         if(args.length == 0) {
             MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.ban.too_few_args");
         }else if(args.length == 1) {
-            BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0]); //TODO: Do something with the return value
+            //TODO: Do something with the return value
+            if(BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0])) {
+
+            }
         }else {
-            BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], args[1]); //TODO: Do something with the return value
+            //TODO: Do something with the return value
+            if(BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], args[1])) {
+
+            }
         }
 
     }

@@ -15,13 +15,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
-@SuppressWarnings({"unused", "UnusedReturnValue"})
+@SuppressWarnings({"unused", "UnusedReturnValue", "DuplicatedCode"})
 public class BanManager {
 
     public boolean banPlayer(Player player, int reason, int banPoints, Date from, Date until, boolean permanent, int staff) {
         try {
 
-            if(!isPlayerBanned(player)) {
+            if (!isPlayerBanned(player)) {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                         "INSERT INTO core_bans (userid, reasonid, banpoints, `from`, `until`, permanent, staff) " +
                                 "VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -34,9 +34,10 @@ public class BanManager {
                 ps.setBoolean(6, permanent);
                 ps.setInt(7, staff);
                 ps.executeUpdate();
+                ps.close();
                 createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
                 return true;
-            }else {
+            } else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                         "UPDATE core_bans SET reasonid=?, banpoints=?, `from`=?, `until`=?, permanent=?, staff=? WHERE userid=?"
                 );
@@ -48,32 +49,84 @@ public class BanManager {
                 ps.setInt(6, staff);
                 ps.setInt(6, PlayerLoader.load(player).getId());
                 ps.executeUpdate();
+                ps.close();
                 createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
                 return true;
             }
 
-        }catch (Exception ignore) {
+        } catch (Exception ignore) {
             return false;
         }
 
     }
 
+    public boolean banPlayer(Player player, int reason, int staff) {
+        try {
+
+            PreparedStatement psBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_bans WHERE userid=?"
+            );
+            psBan.setInt(1, PlayerLoader.load(player).getId());
+            ResultSet rsBan = psBan.executeQuery();
+
+            PreparedStatement psIncomingBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_punishment_reasons WHERE id=?"
+            );
+            psIncomingBan.setInt(1, reason);
+            ResultSet rsIncomingBan = psIncomingBan.executeQuery();
+
+            PreparedStatement psExistingBansForSameReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_banlog WHERE reasonid=?"
+            );
+            psExistingBansForSameReason.setInt(1, reason);
+            ResultSet rsExistingBansForSameReason = psExistingBansForSameReason.executeQuery();
+            rsExistingBansForSameReason.last();
+
+            int basePointsToAdd = rsIncomingBan.getInt("points");
+            int bansForSameReason = rsExistingBansForSameReason.getRow();
+
+            int banPointsSum = rsBan.getInt("banpoints") + (basePointsToAdd + (
+                    basePointsToAdd * (rsIncomingBan.getInt("points_increase_percent") * bansForSameReason) / 100
+            ));
+
+            int banTimeSeconds = rsIncomingBan.getInt("duration");
+            int banTimeIncrease = banTimeSeconds + (
+                    banTimeSeconds * (rsIncomingBan.getInt("points_increase_percent") / 100)
+            );
+            Date until = parseDate(rsBan, "`until`");
+            until.setTime(until.getTime() * 1000 + banTimeIncrease);
+
+            boolean permanent = rsIncomingBan.getBoolean("permanent");
+
+            psBan.close();
+            psIncomingBan.close();
+            psExistingBansForSameReason.close();
+            rsBan.close();
+            rsIncomingBan.close();
+            rsExistingBansForSameReason.close();
+            return banPlayer(player, reason, banPointsSum, new Date(), until, permanent, staff);
+
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
+
     public boolean banPlayer(Player player, int reason) {
-        return banPlayer(player, reason, 1, new Date(), null, true, 1);
+        return banPlayer(player, reason, 0);
     }
 
     public boolean banPlayer(Player player) {
         return banPlayer(player, Integer.parseInt(ProxyProvider.getProxy()
-                        .getProxyNamespace().get("proxy.ban.default_reason")));
+                .getProxyNamespace().get("proxy.ban.default_reason")));
     }
 
     public boolean banPlayer(String name, String reason) {
-        if(!MathUtils.isInt(reason))
+        if (!MathUtils.isInt(reason))
             return false;
 
         Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
 
-        if(optionalPlayer.isEmpty()) {
+        if (optionalPlayer.isEmpty()) {
             return false;
         }
 
@@ -93,7 +146,7 @@ public class BanManager {
         Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
         Optional<Player> optionalStaff = ProxyProvider.getProxy().getServer().getPlayer(staffName);
 
-        if(optionalPlayer.isEmpty() || optionalStaff.isEmpty())
+        if (optionalPlayer.isEmpty() || optionalStaff.isEmpty())
             return false;
 
         Player player = optionalPlayer.get();
@@ -107,7 +160,7 @@ public class BanManager {
 
         Optional<Player> optionalplayer = ProxyProvider.getProxy().getServer().getPlayer(name);
 
-        if(optionalplayer.isEmpty())
+        if (optionalplayer.isEmpty())
             return false;
 
         return unbanPlayer(optionalplayer.get(), staff);
@@ -118,7 +171,7 @@ public class BanManager {
 
         Optional<Player> optionalStaff = ProxyProvider.getProxy().getServer().getPlayer(staffName);
 
-        if(optionalStaff.isEmpty())
+        if (optionalStaff.isEmpty())
             return false;
 
         return unbanPlayer(player, optionalStaff.get());
@@ -129,7 +182,7 @@ public class BanManager {
 
         try {
 
-            if(!isPlayerBanned(player))
+            if (!isPlayerBanned(player))
                 return true;
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -137,10 +190,11 @@ public class BanManager {
             );
             ps.setInt(1, PlayerLoader.load(player).getId());
             ps.executeUpdate();
+            ps.close();
             createUnbanLogEntry(player, staff);
             return true;
 
-        }catch (Exception ignore) {
+        } catch (Exception ignore) {
             return false;
         }
 
@@ -156,9 +210,12 @@ public class BanManager {
             ps.setInt(1, PlayerLoader.load(player).getId());
 
             ResultSet rs = ps.executeQuery();
-            return rs.next();
+            boolean hasNext = rs.next();
+            ps.close();
+            rs.close();
+            return hasNext;
 
-        }catch (Exception ignore) {
+        } catch (Exception ignore) {
             return false;
         }
 
@@ -167,7 +224,7 @@ public class BanManager {
     public boolean isPlayerBanned(String name) {
         Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
 
-        if(optionalPlayer.isEmpty())
+        if (optionalPlayer.isEmpty())
             return false;
 
         return isPlayerBanned(optionalPlayer.get());
@@ -175,7 +232,7 @@ public class BanManager {
 
     @SneakyThrows
     private static Date parseDate(ResultSet resultSet, String field) {
-        if(ProxyProvider.getProxy().getDatabaseConfiguration().getInternalConfiguration().getConnection().equals("sqlite"))
+        if (ProxyProvider.getProxy().getDatabaseConfiguration().getInternalConfiguration().getConnection().equals("sqlite"))
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(resultSet.getString(field));
         else
             return resultSet.getDate(field);
@@ -201,6 +258,7 @@ public class BanManager {
             ps.setBoolean(6, permanent);
             ps.setInt(7, staff);
             ps.executeUpdate();
+            ps.close();
 
             // Discord
             SimpleDateFormat dtf = new SimpleDateFormat("HH:mm:ss");
@@ -215,21 +273,21 @@ public class BanManager {
             embed.setThumbnail("https://minotar.net/bust/" + player.getUsername() + "/190.png");
             embed.setDescription(quote(player.getUsername()));
 
-            if(reason != -1)
+            if (reason != -1)
                 embed.addField("Grund:", String.valueOf(reason), false);
 
-            if(banPoints != -1)
+            if (banPoints != -1)
                 embed.addField("Banpunkte:", String.valueOf(banPoints), false);
 
             //noinspection ConstantConditions
-            if(from != null)
+            if (from != null)
                 embed.addField("Von:", dtf.format(from), false);
 
             //noinspection ConstantConditions
-            if(until != null)
+            if (until != null)
                 embed.addField("Bis:", dtf.format(until), false);
 
-            if(permanent)
+            if (permanent)
                 embed.addField("Permanent:", "Ja", false);
             else
                 embed.addField("Permanent:", "Nein", false);
@@ -251,7 +309,8 @@ public class BanManager {
             discordWebhook.addEmbed(embed);
             discordWebhook.execute();
 
-        }catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
     }
 
     private void createUnbanLogEntry(Player player, Player staff) {
@@ -275,19 +334,28 @@ public class BanManager {
                     "SELECT * FROM core_playercache WHERE id=?"
             );
             psUserName.setInt(1, userID);
-            String userName = psUserName.executeQuery().getString("lastname");
+            ResultSet rsUserName = psUserName.executeQuery();
+            String userName = rsUserName.getString("lastname");
+            psUserName.close();
+            rsUserName.close();
 
             PreparedStatement psStaffName = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_playercache WHERE id=?"
             );
             psStaffName.setInt(1, rs.getInt("staff"));
-            String staffName = psStaffName.executeQuery().getString("lastname");
+            ResultSet rsStaffName = psStaffName.executeQuery();
+            String staffName = rsStaffName.getString("lastname");
+            psStaffName.close();
+            rsStaffName.close();
 
             PreparedStatement psReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_punishment_reasons WHERE id=?"
             );
             psReason.setInt(1, rs.getInt("reason"));
-            String reason = psReason.executeQuery().getString("name");
+            ResultSet rsReason = psReason.executeQuery();
+            String reason = rsReason.getString("name");
+            psReason.close();
+            rsReason.close();
 
             s = s
                     .replaceAll("%id%", rs.getString("id"))
@@ -302,7 +370,11 @@ public class BanManager {
                     .replaceAll("%staffname%", staffName)
                     .replaceAll("%reason%", reason);
 
-        }catch (Exception ignore) {}
+            rs.close();
+            ps.close();
+
+        } catch (Exception ignore) {
+        }
 
         return s;
     }

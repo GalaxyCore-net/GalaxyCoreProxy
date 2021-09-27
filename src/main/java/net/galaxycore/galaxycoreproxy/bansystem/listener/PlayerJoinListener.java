@@ -6,6 +6,7 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
+import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 
@@ -22,7 +23,7 @@ public class PlayerJoinListener {
             event.setResult(ResultedEvent.ComponentResult.denied(
                     Component.text(
                             BanSystemProvider.getBanSystem().getBanManager().replaceRelevant(
-                                    ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_text"),
+                                    MessageUtils.getI18NMessage(event.getPlayer(), "proxy.bansystem.banscreen_text"),
                                     PlayerLoader.load(event.getPlayer()).getId())
                     ).clickEvent(ClickEvent.clickEvent(
                             ClickEvent.Action.OPEN_URL,
