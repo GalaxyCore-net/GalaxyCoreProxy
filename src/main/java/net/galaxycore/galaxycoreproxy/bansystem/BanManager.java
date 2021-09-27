@@ -373,8 +373,7 @@ public class BanManager {
             rs.close();
             ps.close();
 
-        } catch (Exception ignore) {
-        }
+        } catch (Exception ignore) {}
 
         return s;
     }
