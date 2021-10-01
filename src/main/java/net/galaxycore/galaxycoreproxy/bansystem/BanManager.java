@@ -371,7 +371,6 @@ public class BanManager {
             );
             psReason.setInt(1, rs.getInt("reason"));
             ResultSet rsReason = psReason.executeQuery();
-//            String reason = rsReason.getString("name");
             psReason.close();
             rsReason.close();
             PunishmentReason reason = PunishmentReason.loadReason(rs.getInt("reason"));
