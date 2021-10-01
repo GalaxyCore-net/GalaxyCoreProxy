@@ -3,10 +3,14 @@ package net.galaxycore.galaxycoreproxy.bansystem;
 import com.velocitypowered.api.proxy.Player;
 import lombok.SneakyThrows;
 import net.galaxycore.galaxycorecore.utils.DiscordWebhook;
+import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MathUtils;
+import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.galaxycore.galaxycoreproxy.utils.StringUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 
 import java.awt.*;
 import java.sql.PreparedStatement;
@@ -29,8 +33,8 @@ public class BanManager {
                 ps.setInt(1, PlayerLoader.load(player).getId());
                 ps.setInt(2, reason);
                 ps.setInt(3, banPoints);
-                ps.setDate(4, convertUtilDate(from));
-                ps.setDate(5, convertUtilDate(until));
+                ps.setTimestamp(4, convertUtilDate(from));
+                ps.setTimestamp(5, convertUtilDate(until));
                 ps.setBoolean(6, permanent);
                 ps.setInt(7, staff);
                 ps.executeUpdate();
@@ -43,8 +47,8 @@ public class BanManager {
                 );
                 ps.setInt(1, reason);
                 ps.setInt(2, banPoints);
-                ps.setDate(3, convertUtilDate(from));
-                ps.setDate(4, convertUtilDate(until));
+                ps.setTimestamp(3, convertUtilDate(from));
+                ps.setTimestamp(4, convertUtilDate(until));
                 ps.setBoolean(5, permanent);
                 ps.setInt(6, staff);
                 ps.setInt(6, PlayerLoader.load(player).getId());
@@ -54,7 +58,8 @@ public class BanManager {
                 return true;
             }
 
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -80,21 +85,29 @@ public class BanManager {
             );
             psExistingBansForSameReason.setInt(1, reason);
             ResultSet rsExistingBansForSameReason = psExistingBansForSameReason.executeQuery();
-            rsExistingBansForSameReason.last();
 
+            if(!rsIncomingBan.next()) {
+                System.out.println("Incoming ban not found");
+                return false;
+            }
             int basePointsToAdd = rsIncomingBan.getInt("points");
-            int bansForSameReason = rsExistingBansForSameReason.getRow();
+            int bansForSameReason = 0;
+            if(rsExistingBansForSameReason.next())
+                while(rsExistingBansForSameReason.next())
+                    bansForSameReason++;
 
-            int banPointsSum = rsBan.getInt("banpoints") + (basePointsToAdd + (
+            int banPointsSum = basePointsToAdd;
+            if(rsBan.next())
+                banPointsSum = rsBan.getInt("banpoints") + (basePointsToAdd + (
                     basePointsToAdd * (rsIncomingBan.getInt("points_increase_percent") * bansForSameReason) / 100
-            ));
+                ));
 
             int banTimeSeconds = rsIncomingBan.getInt("duration");
             int banTimeIncrease = banTimeSeconds + (
                     banTimeSeconds * (rsIncomingBan.getInt("points_increase_percent") / 100)
             );
-            Date until = parseDate(rsBan, "`until`");
-            until.setTime(until.getTime() * 1000 + banTimeIncrease);
+            Date until = new Date((new Date().getTime()) + (rsIncomingBan.getLong("duration") * 1000L));
+            until.setTime(until.getTime() + banTimeIncrease);
 
             boolean permanent = rsIncomingBan.getBoolean("permanent");
 
@@ -104,9 +117,11 @@ public class BanManager {
             rsBan.close();
             rsIncomingBan.close();
             rsExistingBansForSameReason.close();
+            player.disconnect(buildBanScreen(player));
             return banPlayer(player, reason, banPointsSum, new Date(), until, permanent, staff);
 
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -121,12 +136,15 @@ public class BanManager {
     }
 
     public boolean banPlayer(String name, String reason) {
-        if (!MathUtils.isInt(reason))
+        if (!MathUtils.isInt(reason)){
+            System.out.println("Reason isn´t an int");
             return false;
+        }
 
         Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
 
         if (optionalPlayer.isEmpty()) {
+            System.out.println("Player not found");
             return false;
         }
 
@@ -238,8 +256,8 @@ public class BanManager {
             return resultSet.getDate(field);
     }
 
-    private static java.sql.Date convertUtilDate(Date date) {
-        return new java.sql.Date(date.getTime());
+    private static java.sql.Timestamp convertUtilDate(Date date) {
+        return new java.sql.Timestamp(date.getTime());
     }
 
     private void createBanLogEntry(String action, Player player, int reason, int banPoints, Date from, Date until, boolean permanent, int staff) {
@@ -253,8 +271,8 @@ public class BanManager {
             ps.setString(1, action);
             ps.setInt(2, PlayerLoader.load(player).getId());
             ps.setInt(3, reason);
-            ps.setDate(4, convertUtilDate(from));
-            ps.setDate(5, convertUtilDate(until));
+            ps.setTimestamp(4, convertUtilDate(from));
+            ps.setTimestamp(5, convertUtilDate(until));
             ps.setBoolean(6, permanent);
             ps.setInt(7, staff);
             ps.executeUpdate();
@@ -353,9 +371,10 @@ public class BanManager {
             );
             psReason.setInt(1, rs.getInt("reason"));
             ResultSet rsReason = psReason.executeQuery();
-            String reason = rsReason.getString("name");
+//            String reason = rsReason.getString("name");
             psReason.close();
             rsReason.close();
+            PunishmentReason reason = PunishmentReason.loadReason(rs.getInt("reason"));
 
             s = s
                     .replaceAll("%id%", rs.getString("id"))
@@ -368,7 +387,7 @@ public class BanManager {
                     .replaceAll("%staffid%", rs.getString("staff"))
                     .replaceAll("%username%", userName)
                     .replaceAll("%staffname%", staffName)
-                    .replaceAll("%reason%", reason);
+                    .replaceAll("%reason%", reason.getName());
 
             rs.close();
             ps.close();
@@ -376,6 +395,17 @@ public class BanManager {
         } catch (Exception ignore) {}
 
         return s;
+    }
+
+    public Component buildBanScreen(Player player) {
+        return Component.text(
+                BanSystemProvider.getBanSystem().getBanManager().replaceRelevant(
+                        MessageUtils.getI18NMessage(player, "proxy.bansystem.banscreen_text"),
+                        PlayerLoader.load(player).getId())
+        ).clickEvent(ClickEvent.clickEvent(
+                ClickEvent.Action.OPEN_URL,
+                ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url")
+        ));
     }
 
 }

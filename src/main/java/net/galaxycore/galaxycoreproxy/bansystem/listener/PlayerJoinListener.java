@@ -3,12 +3,15 @@ package net.galaxycore.galaxycoreproxy.bansystem.listener;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
+import lombok.SneakyThrows;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
-import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class PlayerJoinListener {
 
@@ -16,20 +19,33 @@ public class PlayerJoinListener {
         ProxyProvider.getProxy().registerListener(this);
     }
 
+    @SneakyThrows
     @Subscribe
     public void onPlayerJoin(LoginEvent event) {
 
-        if(BanSystemProvider.getBanSystem().getBanManager().isPlayerBanned(event.getPlayer()))
+        if(BanSystemProvider.getBanSystem().getBanManager().isPlayerBanned(event.getPlayer())) {
+
+            PreparedStatement psBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_bans WHERE userid=?"
+            );
+            psBan.setInt(1, PlayerLoader.load(event.getPlayer()).getId());
+            ResultSet rsBan = psBan.executeQuery();
+            if(!rsBan.next())
+                return;
+
+            Timestamp now = new Timestamp(new Date().getTime());
+            if(rsBan.getTimestamp("until").before(now) && !rsBan.getBoolean("permanent")) {
+                PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                        "DELETE FROM core_bans WHERE userid=?"
+                );
+                update.setInt(1, PlayerLoader.load(event.getPlayer()).getId());
+                update.executeUpdate();
+            }
+
             event.setResult(ResultedEvent.ComponentResult.denied(
-                    Component.text(
-                            BanSystemProvider.getBanSystem().getBanManager().replaceRelevant(
-                                    MessageUtils.getI18NMessage(event.getPlayer(), "proxy.bansystem.banscreen_text"),
-                                    PlayerLoader.load(event.getPlayer()).getId())
-                    ).clickEvent(ClickEvent.clickEvent(
-                            ClickEvent.Action.OPEN_URL,
-                            ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url")
-                    ))
+                    BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer())
             ));
+        }
 
     }
 

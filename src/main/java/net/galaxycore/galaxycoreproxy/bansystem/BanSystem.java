@@ -3,6 +3,7 @@ package net.galaxycore.galaxycoreproxy.bansystem;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.bansystem.command.BanCommand;
 import net.galaxycore.galaxycoreproxy.bansystem.listener.PlayerJoinListener;
+import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
 
 public class BanSystem {
 
@@ -21,6 +22,9 @@ public class BanSystem {
         banCommand = new BanCommand();
 
         playerJoinListener = new PlayerJoinListener();
+
+        PunishmentReason.loadReasons();
+
     }
 
 }

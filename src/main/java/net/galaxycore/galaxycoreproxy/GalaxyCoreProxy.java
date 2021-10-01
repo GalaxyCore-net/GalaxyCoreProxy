@@ -112,14 +112,13 @@ public class GalaxyCoreProxy {
 
         proxyNamespace.setDefault("global.prefix", "§5GalaxyCore.net §7| §r");
 
-        proxyNamespace.setDefault("proxy.broadcast.delay", "1m");
-
         proxyNamespace.setDefault("proxy.joinme.delay", "3m");
         proxyNamespace.setDefault("proxy.joinme.cooldown", "1h");
 
         proxyNamespace.setDefault("proxy.bansystem.banlog_webhook", "https://discord.com/api/webhooks/882263428591419442/eTztbTcJ5TvZMJJhLC5Q__dTqwLHe91ryfL5TGdmOhdNRj_j47N4GMeMwIguM15syQ1M");
         proxyNamespace.setDefault("proxy.bansystem.banscreen_url", "https://galaxycore.net/unban");
         proxyNamespace.setDefault("proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
+        proxyNamespace.setDefault("proxy.ban.default_reason", "1");
 
         PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
 
@@ -169,6 +168,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
 
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -208,6 +208,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
 
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
 
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
