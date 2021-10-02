@@ -41,13 +41,15 @@ public class PlayerJoinListener {
                 update.setInt(1, PlayerLoader.load(event.getPlayer()).getId());
                 update.executeUpdate();
                 update.close();
+                rsBan.close();
+                psBan.close();
+                return;
             }
             rsBan.close();
             psBan.close();
 
-            event.setResult(ResultedEvent.ComponentResult.denied(
-                    BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer())
-            ));
+            event.setResult(ResultedEvent.ComponentResult.denied(BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer())));
+
         }
 
     }

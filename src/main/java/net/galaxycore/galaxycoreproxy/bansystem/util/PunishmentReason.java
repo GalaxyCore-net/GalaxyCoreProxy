@@ -19,7 +19,7 @@ public class PunishmentReason {
     public int id;
     public String name;
     public String requiredPermissionWarn, requiredPermissionMute, requiredPermissionBan;
-    public int points, points_increase_percent;
+    public int points, pointsIncreasePercent;
     public int duration;
     public boolean permanent;
 
@@ -75,6 +75,44 @@ public class PunishmentReason {
         }
         allResult.close();
         all.close();
+    }
+
+    @SneakyThrows
+    public static void registerDefaultReason(String name, String requiredPermissionWarn, String requiredPermissionMute, String requiredPermissionBan, int points, int pointsIncreasePercent, int duration, boolean permanent) {
+        if(isReasonExists(name))
+            return;
+
+        PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                "INSERT INTO core_punishment_reasons (`name`, required_permission_warn, required_permission_mute, required_permission_ban, points, points_increase_percent, duration, permanent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        update.setString(1, name);
+        update.setString(2, requiredPermissionWarn);
+        update.setString(3, requiredPermissionMute);
+        update.setString(4, requiredPermissionBan);
+        update.setInt(5, points);
+        update.setInt(6, pointsIncreasePercent);
+        update.setInt(7, duration);
+        update.setBoolean(8, permanent);
+        update.executeUpdate();
+        update.close();
+
+    }
+
+    public static void registerDefaultReason(String name, String permission, int points, int pointsIncreasePercent, int duration, boolean permanent) {
+        registerDefaultReason(name, permission, permission, permission, points, pointsIncreasePercent, duration, permanent);
+    }
+
+    @SneakyThrows
+    public static boolean isReasonExists(String name) {
+        PreparedStatement reason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                "SELECT * FROM core_punishment_reasons WHERE name=?"
+        );
+        reason.setString(1, name);
+        ResultSet rsReason = reason.executeQuery();
+        boolean hasNext = rsReason.next();
+        rsReason.close();
+        reason.close();
+        return hasNext;
     }
 
 }
