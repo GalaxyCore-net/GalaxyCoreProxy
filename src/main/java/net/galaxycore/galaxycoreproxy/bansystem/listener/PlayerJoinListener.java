@@ -23,7 +23,7 @@ public class PlayerJoinListener {
     @Subscribe
     public void onPlayerJoin(LoginEvent event) {
 
-        if(BanSystemProvider.getBanSystem().getBanManager().isPlayerBanned(event.getPlayer())) {
+        if(BanSystemProvider.getBanSystem().getBanManager().isPlayerBanned(event.getPlayer().getUsername())) {
 
             PreparedStatement psBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_bans WHERE userid=?"

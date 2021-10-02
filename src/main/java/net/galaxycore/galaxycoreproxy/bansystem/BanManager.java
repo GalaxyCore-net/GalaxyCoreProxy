@@ -26,7 +26,7 @@ public class BanManager {
     public boolean banPlayer(Player player, int reason, int banPoints, Date from, Date until, boolean permanent, Player staff) {
         try {
 
-            if (!isPlayerBanned(player)) {
+            if (!isPlayerBanned(player.getUsername())) {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                         "INSERT INTO core_bans (userid, reasonid, banpoints, `from`, `until`, permanent, staff) " +
                                 "VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -49,7 +49,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
+                createBanLogEntry("ban", player.getUsername(), reason, banPoints, from, until, permanent, staff.getUsername());
                 return true;
             } else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -73,7 +73,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
+                createBanLogEntry("ban", player.getUsername(), reason, banPoints, from, until, permanent, staff.getUsername());
                 return true;
             }
 
@@ -169,74 +169,53 @@ public class BanManager {
                 .getProxyNamespace().get("proxy.ban.default_reason"), staff);
     }
 
-    public boolean unbanPlayer(String name, String staffName) {
-        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
-        Optional<Player> optionalStaff = ProxyProvider.getProxy().getServer().getPlayer(staffName);
-
-        if (optionalPlayer.isEmpty() || optionalStaff.isEmpty())
-            return false;
-
-        Player player = optionalPlayer.get();
-        Player staff = optionalStaff.get();
-
-        return unbanPlayer(player, staff);
-
-    }
-
-    public boolean unbanPlayer(String name, Player staff) {
-
-        Optional<Player> optionalplayer = ProxyProvider.getProxy().getServer().getPlayer(name);
-
-        if (optionalplayer.isEmpty())
-            return false;
-
-        return unbanPlayer(optionalplayer.get(), staff);
-
-    }
-
-    public boolean unbanPlayer(Player player, String staffName) {
-
-        Optional<Player> optionalStaff = ProxyProvider.getProxy().getServer().getPlayer(staffName);
-
-        if (optionalStaff.isEmpty())
-            return false;
-
-        return unbanPlayer(player, optionalStaff.get());
-
-    }
-
-    public boolean unbanPlayer(Player player, Player staff) {
+    public boolean unbanPlayer(String player, String staff) {
 
         try {
 
             if (!isPlayerBanned(player)) {
-                ProxyProvider.getProxy().getLogger().debug("Player " + player.getUsername() + " is not banned");
-                return true;
+                ProxyProvider.getProxy().getLogger().info("Player " + player + " is not banned");
+                return false;
             }
 
+            ProxyProvider.getProxy().getLogger().info(String.valueOf(getPlayerID(player)));
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "DELETE FROM core_bans WHERE userid=?"
             );
-            ps.setInt(1, PlayerLoader.load(player).getId());
+            int playerid = getPlayerID(player);
+            ps.setInt(1, playerid);
             ps.executeUpdate();
             ps.close();
             createUnbanLogEntry(player, staff);
             return true;
 
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
 
     }
 
-    public boolean isPlayerBanned(Player player) {
+    @SneakyThrows
+    public int getPlayerID(String playerName) {
+        PreparedStatement stmt = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                "SELECT * FROM core_playercache WHERE lastname=?"
+        );
+        stmt.setString(1, playerName);
+        ResultSet rs = stmt.executeQuery();
+        if(rs.next())
+            return rs.getInt("id");
+        return 0;
+    }
+
+    public boolean isPlayerBanned(String player) {
 
         try {
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_bans WHERE userid = ?"
             );
-            ps.setInt(1, PlayerLoader.load(player).getId());
+            ps.setInt(1, getPlayerID(player));
 
             ResultSet rs = ps.executeQuery();
             boolean hasNext = rs.next();
@@ -250,15 +229,6 @@ public class BanManager {
 
     }
 
-    public boolean isPlayerBanned(String name) {
-        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
-
-        if (optionalPlayer.isEmpty())
-            return false;
-
-        return isPlayerBanned(optionalPlayer.get());
-    }
-
     @SneakyThrows
     private static Date parseDate(ResultSet resultSet, String field) {
         if (ProxyProvider.getProxy().getDatabaseConfiguration().getInternalConfiguration().getConnection().equals("sqlite"))
@@ -268,11 +238,15 @@ public class BanManager {
     }
 
     private static java.sql.Timestamp convertUtilDate(Date date) {
-        return new java.sql.Timestamp(date.getTime());
+        return new java.sql.Timestamp(date == null ? new Date().getTime() : date.getTime());
     }
 
-    private void createBanLogEntry(String action, Player player, int reason, int banPoints, Date from, Date until, boolean permanent, Player staff) {
+    private void createBanLogEntry(String action, String player, int reason, int banPoints, Date from, Date until, boolean permanent, String staff) {
         try {
+
+            int playerid = getPlayerID(player);
+
+            int staffid = getPlayerID(staff);
 
             //SQL
             @SuppressWarnings("SqlResolve")
@@ -280,12 +254,12 @@ public class BanManager {
                     "INSERT INTO core_banlog (action, userid, reasonid, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             );
             ps.setString(1, action);
-            ps.setInt(2, PlayerLoader.load(player).getId());
+            ps.setInt(2, playerid);
             ps.setInt(3, reason);
             ps.setTimestamp(4, convertUtilDate(from));
             ps.setTimestamp(5, convertUtilDate(until));
             ps.setBoolean(6, permanent);
-            ps.setInt(7, PlayerLoader.load(staff).getId());
+            ps.setInt(7, staffid);
             ps.setTimestamp(8, new Timestamp(new Date().getTime()));
             ps.executeUpdate();
             ps.close();
@@ -297,13 +271,13 @@ public class BanManager {
             DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
             embed.setAuthor("GalaxyCore » BanLog", "", "");
             embed.setTitle(StringUtils.firstLetterUppercase(action));
-            embed.setThumbnail("https://minotar.net/bust/" + player.getUsername() + "/190.png");
-            embed.setDescription(quote(player.getUsername()));
+            embed.setThumbnail("https://minotar.net/bust/" + player + "/190.png");
+            embed.setDescription(quote(player));
 
             if (reason != -1)
                 embed.addField("Grund:", PunishmentReason.loadReason(reason).getName(), false);
 
-            if (banPoints != -1 && !permanent)
+            if (banPoints != -1 && !permanent && !action.equals("unban"))
                 embed.addField("Banpunkte:", String.valueOf(banPoints), false);
 
             //noinspection ConstantConditions
@@ -314,7 +288,7 @@ public class BanManager {
             if (until != null)
                 embed.addField("Bis:", permanent ? "Permanent" : dtf.format(until), false);
 
-            embed.addField("Staff:", quote(staff.getUsername()), false);
+            embed.addField("Staff:", quote(staff), false);
 
             switch (action) {
                 case "ban":
@@ -336,7 +310,7 @@ public class BanManager {
         }
     }
 
-    private void createUnbanLogEntry(Player player, Player staff) {
+    private void createUnbanLogEntry(String player, String staff) {
         createBanLogEntry("unban", player, -1, 0, null, null, false, staff);
     }
 
