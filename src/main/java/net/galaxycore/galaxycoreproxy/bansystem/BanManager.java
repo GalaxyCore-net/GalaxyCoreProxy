@@ -15,6 +15,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @SuppressWarnings({"unused", "UnusedReturnValue", "DuplicatedCode"})
 public class BanManager {
 
-    public boolean banPlayer(Player player, int reason, int banPoints, Date from, Date until, boolean permanent, int staff) {
+    public boolean banPlayer(Player player, int reason, int banPoints, Date from, Date until, boolean permanent, Player staff) {
         try {
 
             if (!isPlayerBanned(player)) {
@@ -36,7 +37,7 @@ public class BanManager {
                 ps.setTimestamp(4, convertUtilDate(from));
                 ps.setTimestamp(5, convertUtilDate(until));
                 ps.setBoolean(6, permanent);
-                ps.setInt(7, staff);
+                ps.setInt(7, PlayerLoader.load(staff).getId());
                 ps.executeUpdate();
                 ps.close();
                 createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
@@ -50,7 +51,7 @@ public class BanManager {
                 ps.setTimestamp(3, convertUtilDate(from));
                 ps.setTimestamp(4, convertUtilDate(until));
                 ps.setBoolean(5, permanent);
-                ps.setInt(6, staff);
+                ps.setInt(6, PlayerLoader.load(staff).getId());
                 ps.setInt(6, PlayerLoader.load(player).getId());
                 ps.executeUpdate();
                 ps.close();
@@ -65,7 +66,7 @@ public class BanManager {
 
     }
 
-    public boolean banPlayer(Player player, int reason, int staff) {
+    public boolean banPlayer(Player player, int reason, Player staff) {
         try {
 
             PreparedStatement psBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -126,16 +127,12 @@ public class BanManager {
         }
     }
 
-    public boolean banPlayer(Player player, int reason) {
-        return banPlayer(player, reason, 0);
-    }
-
-    public boolean banPlayer(Player player) {
+    public boolean banPlayer(Player player, Player staff) {
         return banPlayer(player, Integer.parseInt(ProxyProvider.getProxy()
-                .getProxyNamespace().get("proxy.ban.default_reason")));
+                .getProxyNamespace().get("proxy.ban.default_reason")), staff);
     }
 
-    public boolean banPlayer(String name, String reason) {
+    public boolean banPlayer(String name, String reason, Player staff) {
         if (!MathUtils.isInt(reason)){
             System.out.println("Reason isn´t an int");
             return false;
@@ -151,13 +148,13 @@ public class BanManager {
         Player player = optionalPlayer.get();
         int banReason = Integer.parseInt(reason);
 
-        return banPlayer(player, banReason);
+        return banPlayer(player, banReason, staff);
 
     }
 
-    public boolean banPlayer(String name) {
+    public boolean banPlayer(String name, Player staff) {
         return banPlayer(name, ProxyProvider.getProxy()
-                .getProxyNamespace().get("proxy.ban.default_reason"));
+                .getProxyNamespace().get("proxy.ban.default_reason"), staff);
     }
 
     public boolean unbanPlayer(String name, String staffName) {
@@ -200,8 +197,10 @@ public class BanManager {
 
         try {
 
-            if (!isPlayerBanned(player))
+            if (!isPlayerBanned(player)) {
+                ProxyProvider.getProxy().getLogger().debug("Player " + player.getUsername() + " is not banned");
                 return true;
+            }
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "DELETE FROM core_bans WHERE userid=?"
@@ -260,7 +259,7 @@ public class BanManager {
         return new java.sql.Timestamp(date.getTime());
     }
 
-    private void createBanLogEntry(String action, Player player, int reason, int banPoints, Date from, Date until, boolean permanent, int staff) {
+    private void createBanLogEntry(String action, Player player, int reason, int banPoints, Date from, Date until, boolean permanent, Player staff) {
         try {
 
             //SQL
@@ -274,7 +273,8 @@ public class BanManager {
             ps.setTimestamp(4, convertUtilDate(from));
             ps.setTimestamp(5, convertUtilDate(until));
             ps.setBoolean(6, permanent);
-            ps.setInt(7, staff);
+            ps.setInt(7, PlayerLoader.load(staff).getId());
+            ps.setTimestamp(8, new Timestamp(new Date().getTime()));
             ps.executeUpdate();
             ps.close();
 
@@ -292,9 +292,9 @@ public class BanManager {
             embed.setDescription(quote(player.getUsername()));
 
             if (reason != -1)
-                embed.addField("Grund:", String.valueOf(reason), false);
+                embed.addField("Grund:", PunishmentReason.loadReason(reason).getName(), false);
 
-            if (banPoints != -1)
+            if (banPoints != -1 && !permanent)
                 embed.addField("Banpunkte:", String.valueOf(banPoints), false);
 
             //noinspection ConstantConditions
@@ -303,14 +303,9 @@ public class BanManager {
 
             //noinspection ConstantConditions
             if (until != null)
-                embed.addField("Bis:", dtf.format(until), false);
+                embed.addField("Bis:", permanent ? "Permanent" : dtf.format(until), false);
 
-            if (permanent)
-                embed.addField("Permanent:", "Ja", false);
-            else
-                embed.addField("Permanent:", "Nein", false);
-
-            embed.addField("Staff:", quote(staff), false);
+            embed.addField("Staff:", quote(staff.getUsername()), false);
 
             switch (action) {
                 case "ban":
@@ -327,12 +322,13 @@ public class BanManager {
             discordWebhook.addEmbed(embed);
             discordWebhook.execute();
 
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void createUnbanLogEntry(Player player, Player staff) {
-        createBanLogEntry("unban", player, -1, 0, null, null, false, PlayerLoader.load(staff).getId());
+        createBanLogEntry("unban", player, -1, 0, null, null, false, staff);
     }
 
     private String quote(Object s) {
