@@ -40,6 +40,15 @@ public class BanManager {
                 ps.setInt(7, PlayerLoader.load(staff).getId());
                 ps.executeUpdate();
                 ps.close();
+
+                PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                        "UPDATE core_playercache SET banpoints=banpoints+? WHERE id=?"
+                );
+                update.setInt(1, banPoints);
+                update.setInt(2, PlayerLoader.load(player).getId());
+                update.executeUpdate();
+                update.close();
+
                 createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
                 return true;
             } else {
@@ -55,6 +64,15 @@ public class BanManager {
                 ps.setInt(6, PlayerLoader.load(player).getId());
                 ps.executeUpdate();
                 ps.close();
+
+                PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                        "UPDATE core_playercache SET banpoints=banpoints+? WHERE id=?"
+                );
+                update.setInt(1, banPoints);
+                update.setInt(2, PlayerLoader.load(player).getId());
+                update.executeUpdate();
+                update.close();
+
                 createBanLogEntry("ban", player, reason, banPoints, from, until, permanent, staff);
                 return true;
             }
@@ -69,11 +87,9 @@ public class BanManager {
     public boolean banPlayer(Player player, int reason, Player staff) {
         try {
 
-            PreparedStatement psBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "SELECT * FROM core_bans WHERE userid=?"
-            );
-            psBan.setInt(1, PlayerLoader.load(player).getId());
-            ResultSet rsBan = psBan.executeQuery();
+            if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin")) {
+                return false;
+            }
 
             PreparedStatement psIncomingBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_punishment_reasons WHERE id=?"
@@ -97,11 +113,9 @@ public class BanManager {
                 while(rsExistingBansForSameReason.next())
                     bansForSameReason++;
 
-            int banPointsSum = basePointsToAdd;
-            if(rsBan.next())
-                banPointsSum = rsBan.getInt("banpoints") + (basePointsToAdd + (
-                    basePointsToAdd * (rsIncomingBan.getInt("points_increase_percent") * bansForSameReason) / 100
-                ));
+            int banPointsSum = PlayerLoader.load(player).getBanPoints() + (basePointsToAdd + (
+                basePointsToAdd * (rsIncomingBan.getInt("points_increase_percent") * bansForSameReason) / 100
+            ));
 
             int banTimeSeconds = rsIncomingBan.getInt("duration");
             int banTimeIncrease = banTimeSeconds + (
@@ -112,10 +126,8 @@ public class BanManager {
 
             boolean permanent = rsIncomingBan.getBoolean("permanent");
 
-            psBan.close();
             psIncomingBan.close();
             psExistingBansForSameReason.close();
-            rsBan.close();
             rsIncomingBan.close();
             rsExistingBansForSameReason.close();
             player.disconnect(buildBanScreen(player));
@@ -279,15 +291,12 @@ public class BanManager {
             ps.close();
 
             // Discord
-            SimpleDateFormat dtf = new SimpleDateFormat("HH:mm:ss");
-            DiscordWebhook discordWebhook = new DiscordWebhook(
-                    ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banlog_webhook")
-            );
+            SimpleDateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            DiscordWebhook discordWebhook = new DiscordWebhook(ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banlog_webhook"));
 
             DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
             embed.setAuthor("GalaxyCore » BanLog", "", "");
             embed.setTitle(StringUtils.firstLetterUppercase(action));
-            embed.setFooter(dtf.format(new Date()), "");
             embed.setThumbnail("https://minotar.net/bust/" + player.getUsername() + "/190.png");
             embed.setDescription(quote(player.getUsername()));
 
