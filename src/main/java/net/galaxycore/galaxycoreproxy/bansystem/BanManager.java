@@ -87,7 +87,7 @@ public class BanManager {
     public boolean banPlayer(Player player, int reason, Player staff) {
         try {
 
-            if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin")) {
+            if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
                 return false;
             }
 
@@ -280,11 +280,9 @@ public class BanManager {
             if (banPoints != -1 && !permanent && !action.equals("unban"))
                 embed.addField("Banpunkte:", String.valueOf(banPoints), false);
 
-            //noinspection ConstantConditions
             if (from != null)
                 embed.addField("Von:", dtf.format(from), false);
 
-            //noinspection ConstantConditions
             if (until != null)
                 embed.addField("Bis:", permanent ? "Permanent" : dtf.format(until), false);
 
