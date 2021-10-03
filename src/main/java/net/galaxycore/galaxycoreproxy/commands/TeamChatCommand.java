@@ -1,9 +1,11 @@
 package net.galaxycore.galaxycoreproxy.commands;
 
 import com.velocitypowered.api.command.RawCommand;
+import com.velocitypowered.api.proxy.Player;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.LuckPermsAPIWrapper;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
+import net.galaxycore.galaxycoreproxy.utils.StringUtils;
 
 public class TeamChatCommand implements RawCommand {
 
@@ -13,16 +15,16 @@ public class TeamChatCommand implements RawCommand {
 
     @Override
     public void execute(Invocation invocation) {
+        Player src = (Player) invocation.source();
 
         ProxyProvider.getProxy().getServer().getAllPlayers().stream()
                 .filter(player -> player.hasPermission("proxy.command.teamchat"))
                 .filter(player -> player.hasPermission("proxy.team.login"))
                 .forEach(player -> {
-                    LuckPermsAPIWrapper wrapper = new LuckPermsAPIWrapper(player);
+                    LuckPermsAPIWrapper wrapper = new LuckPermsAPIWrapper(src);
                     MessageUtils.sendMessage(player,
-                            MessageUtils.getI18NMessage(player, "proxy.command.teamchat.prefix")
-                                    + wrapper.getPermissionDisplayName() + wrapper.getPermissionColor()
-                                    + wrapper.getPlayerName() + invocation.arguments());
+                            StringUtils.replaceRelevant(MessageUtils.getI18NMessage(player,
+                                    "proxy.command.teamchat.prefix"), wrapper) + invocation.arguments());
                 });
 
     }

@@ -92,6 +92,10 @@ public class GalaxyCoreProxy {
     // LUCKPERMS API //
     @Getter
     LuckPerms luckPermsAPI;
+//
+//    // BAN SYSTEM //
+//    @Getter
+//    private BanSystem banSystem;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -121,15 +125,14 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.ban.default_reason", "1");
         proxyNamespace.setDefault("proxy.commnad.kick.default_reason", "Fehlverhalten");
 
-        PrefixProvider.setPrefix(proxyNamespace.get("proxy.prefix"));
+        PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
+        proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
 
         // INTERNATIONALISATION //
 
         I18N.init(this);
 
         I18NPlayerLoader.setPlayerloaderInstance(new I18NPlayerLoader(this));
-
-        server.getScheduler().buildTask(this, I18N::load).schedule();
 
         // German Messages
         I18N.setDefaultByLang("de_DE", "proxy.command.help", "§6Information\n" +
@@ -165,8 +168,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.not_logged_in", "§cDu bist nicht eingeloggt");
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt");
 
-        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r");
-        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
+        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
+        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix",  "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
 
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
@@ -211,8 +214,10 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.logout.not_logged_in", "§cYou´re not logged in");
         I18N.setDefaultByLang("en_GB", "proxy.command.logout.logged_out", "§aYou´re logged out now");
 
-        I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r");
-        I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r");
+        I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
+        I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
+
+        I18N.load();
 
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
