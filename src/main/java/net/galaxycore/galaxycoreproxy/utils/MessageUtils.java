@@ -3,6 +3,7 @@ package net.galaxycore.galaxycoreproxy.utils;
 import com.velocitypowered.api.proxy.Player;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
+import net.galaxycore.galaxycoreproxy.utils.exception.MessageNotFoundException;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
@@ -21,8 +22,11 @@ public class MessageUtils {
             message = I18N.getByPlayer((Player) source, key);
             unchanged = false;
         }
-        if(message.equals("§cMessage not found") && unchanged)
+        if(unchanged)
             return I18N.getByLang("en_GB", key);
+        if(message == null) {
+            throw new MessageNotFoundException(key);
+        }
         return message;
     }
 

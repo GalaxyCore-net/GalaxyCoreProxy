@@ -46,7 +46,7 @@ public class I18NPlayerLoader {
         loadLanguage.setInt(1, playerLoader.getId());
         ResultSet loadResult = loadLanguage.executeQuery();
 
-        if(loadResult.next()) {
+        if(!loadResult.next()) {
             loadResult.close();
             loadLanguage.close();
             return;
