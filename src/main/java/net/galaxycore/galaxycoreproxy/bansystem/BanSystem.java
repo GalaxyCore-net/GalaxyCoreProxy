@@ -2,6 +2,7 @@ package net.galaxycore.galaxycoreproxy.bansystem;
 
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.bansystem.command.BanCommand;
+import net.galaxycore.galaxycoreproxy.bansystem.command.KickCommand;
 import net.galaxycore.galaxycoreproxy.bansystem.command.UnbanCommand;
 import net.galaxycore.galaxycoreproxy.bansystem.listener.PlayerJoinListener;
 import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
@@ -18,6 +19,9 @@ public class BanSystem {
     private final UnbanCommand unbanCommand;
 
     @Getter
+    private final KickCommand kickCommand;
+
+    @Getter
     private final PlayerJoinListener playerJoinListener;
 
     public BanSystem() {
@@ -26,6 +30,8 @@ public class BanSystem {
         banCommand = new BanCommand();
 
         unbanCommand = new UnbanCommand();
+
+        kickCommand = new KickCommand();
 
         playerJoinListener = new PlayerJoinListener();
 

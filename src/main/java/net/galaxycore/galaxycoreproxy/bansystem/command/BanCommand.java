@@ -21,11 +21,9 @@ public class BanCommand implements SimpleCommand {
         if(args.length == 0) {
             MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.ban.too_few_args");
         }else if(args.length == 1) {
-            //TODO: Do something with the return value
-            System.out.println(BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], invocation.source() instanceof Player ? (Player) invocation.source() : null));
+            BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], invocation.source() instanceof Player ? (Player) invocation.source() : null);
         }else {
-            //TODO: Do something with the return value
-            System.out.println(BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], args[1], invocation.source() instanceof Player ? (Player) invocation.source() : null));
+            BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], args[1], invocation.source() instanceof Player ? (Player) invocation.source() : null);
         }
 
     }

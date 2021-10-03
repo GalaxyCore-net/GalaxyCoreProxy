@@ -6,6 +6,7 @@ import net.galaxycore.galaxycorecore.utils.DiscordWebhook;
 import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
+import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
 import net.galaxycore.galaxycoreproxy.utils.MathUtils;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.galaxycore.galaxycoreproxy.utils.StringUtils;
@@ -49,7 +50,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player.getUsername(), reason, banPoints, from, until, permanent, staff.getUsername());
+                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff.getUsername());
                 return true;
             } else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -73,7 +74,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player.getUsername(), reason, banPoints, from, until, permanent, staff.getUsername());
+                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff.getUsername());
                 return true;
             }
 
@@ -88,12 +89,12 @@ public class BanManager {
         try {
 
             if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
-                MessageUtils.sendI18NMessage(player, "proxy.command.ban.cant_ban_player");
+                MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_player");
                 return false;
             }
 
             if(player.getUniqueId() == staff.getUniqueId()) {
-                MessageUtils.getI18NMessage(player, "proxy.command.ban.cant_ban_yourself");
+                MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_yourself");
                 return false;
             }
 
@@ -152,10 +153,6 @@ public class BanManager {
     }
 
     public boolean banPlayer(String name, String reason, Player staff) {
-        if (!MathUtils.isInt(reason)){
-            System.out.println("Reason isn´t an int");
-            return false;
-        }
 
         Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(name);
 
@@ -165,6 +162,12 @@ public class BanManager {
         }
 
         Player player = optionalPlayer.get();
+
+        if (!MathUtils.isInt(reason)){
+            MessageUtils.sendI18NMessage(player, "proxy.command.ban.not_a_number");
+            return false;
+        }
+
         int banReason = Integer.parseInt(reason);
 
         return banPlayer(player, banReason, staff);
@@ -200,6 +203,48 @@ public class BanManager {
             e.printStackTrace();
             return false;
         }
+
+    }
+
+    public boolean kickPlayer(Player player, String reason, Player staff) {
+
+        player.disconnect(buildKickScreen(player, staff, reason));
+        createKickLogEntry(player.getUsername(), reason, staff.getUsername());
+        return true;
+
+    }
+
+    public boolean kickPlayer(String playerName, String reason, Player staff) {
+
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        Player player = optionalPlayer.orElse(null);
+
+        if(player == null) {
+            MessageUtils.sendI18NMessage(staff, "proxy.command.kick.player_404");
+            return false;
+        }
+
+        return kickPlayer(player, reason, staff);
+
+    }
+
+    public boolean kickPlayer(Player player, Player staff) {
+        return kickPlayer(player, ProxyProvider.getProxy().getProxyNamespace().get("proxy.commnad.kick.default_reason"), staff);
+    }
+
+    public boolean kickPlayer(String playerName, Player staff) {
+
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        Player player = optionalPlayer.orElse(null);
+
+        if(player == null) {
+            MessageUtils.sendI18NMessage(staff, "proxy.command.kick.player_404");
+            return false;
+        }
+
+        return kickPlayer(player, staff);
 
     }
 
@@ -248,7 +293,7 @@ public class BanManager {
         return new java.sql.Timestamp(date == null ? new Date().getTime() : date.getTime());
     }
 
-    private void createBanLogEntry(String action, String player, int reason, int banPoints, Date from, Date until, boolean permanent, String staff) {
+    private void createBanLogEntry(String action, String player, String reason, int banPoints, Date from, Date until, boolean permanent, String staff) {
         try {
 
             int playerid = getPlayerID(player);
@@ -258,11 +303,11 @@ public class BanManager {
             //SQL
             @SuppressWarnings("SqlResolve")
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "INSERT INTO core_banlog (action, userid, reasonid, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO core_banlog (action, userid, reason, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             );
             ps.setString(1, action);
             ps.setInt(2, playerid);
-            ps.setInt(3, reason);
+            ps.setString(3, reason);
             ps.setTimestamp(4, convertUtilDate(from));
             ps.setTimestamp(5, convertUtilDate(until));
             ps.setBoolean(6, permanent);
@@ -281,8 +326,8 @@ public class BanManager {
             embed.setThumbnail("https://minotar.net/bust/" + player + "/190.png");
             embed.setDescription(quote(player));
 
-            if (reason != -1)
-                embed.addField("Grund:", PunishmentReason.loadReason(reason).getName(), false);
+            if (reason != null)
+                embed.addField("Grund: ", MathUtils.isInt(reason) ? PunishmentReason.loadReason(Integer.parseInt(reason)).getName() : reason, false);
 
             if (banPoints != -1 && !permanent && !action.equals("unban"))
                 embed.addField("Banpunkte:", String.valueOf(banPoints), false);
@@ -316,14 +361,18 @@ public class BanManager {
     }
 
     private void createUnbanLogEntry(String player, String staff) {
-        createBanLogEntry("unban", player, -1, 0, null, null, false, staff);
+        createBanLogEntry("unban", player, null, 0, null, null, false, staff);
+    }
+
+    private void createKickLogEntry(String player, String reason, String staff) {
+        createBanLogEntry("kick", player, reason, 0, null, null, false, staff);
     }
 
     private String quote(Object s) {
         return "`" + s.toString() + "`";
     }
 
-    public String replaceRelevant(String s, int userID) {
+    public String replaceRelevant(String s, int userID, String customReasonString) {
         try {
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -357,7 +406,7 @@ public class BanManager {
             ResultSet rsReason = psReason.executeQuery();
             psReason.close();
             rsReason.close();
-            PunishmentReason reason = PunishmentReason.loadReason(rs.getInt("reason"));
+            PunishmentReason reason = customReasonString == null ? PunishmentReason.loadReason(rs.getInt("reason")) : null;
 
             s = s
                     .replaceAll("%id%", rs.getString("id"))
@@ -370,13 +419,39 @@ public class BanManager {
                     .replaceAll("%staffid%", rs.getString("staff"))
                     .replaceAll("%username%", userName)
                     .replaceAll("%staffname%", staffName)
-                    .replaceAll("%reason%", reason.getName());
+                    .replaceAll("%reason%", customReasonString != null ? customReasonString : reason.getName());
 
             rs.close();
             ps.close();
 
-        } catch (Exception ignore) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        return s;
+    }
+
+    @SneakyThrows
+    public String replaceKickRelevant(String s, Player player, Player staff, String reason) {
+        PlayerLoader playerLoader = PlayerLoader.load(player);
+        PlayerLoader staffLoader = PlayerLoader.load(staff);
+
+        PreparedStatement playerLanuguage = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                "SELECT * FROM I18N_languages WHERE lang=?"
+        );
+        playerLanuguage.setString(1, I18NPlayerLoader.getLocale(player));
+        ResultSet rs = playerLanuguage.executeQuery();
+        StringBuilder playerLanguageTimeFormat = new StringBuilder();
+        if(rs.next())
+            playerLanguageTimeFormat.append(replaceDateFormat(rs.getString("date_fmt"))).append(" ").append(rs.getString("time_fmt"));
+
+        s = s
+                .replaceAll("%userid%", String.valueOf(playerLoader.getId()))
+                .replaceAll("%date%", new SimpleDateFormat(playerLanguageTimeFormat.toString()).format(new Date()))
+                .replaceAll("%staffid%", String.valueOf(staffLoader.getId()))
+                .replaceAll("%username%", playerLoader.getLastName())
+                .replaceAll("%staffname%", staffLoader.getLastName())
+                .replaceAll("%reason%", reason);
         return s;
     }
 
@@ -384,11 +459,26 @@ public class BanManager {
         return Component.text(
                 BanSystemProvider.getBanSystem().getBanManager().replaceRelevant(
                         MessageUtils.getI18NMessage(player, "proxy.bansystem.banscreen_text"),
-                        PlayerLoader.load(player).getId())
-        ).clickEvent(ClickEvent.clickEvent(
+                        PlayerLoader.load(player).getId(),
+                        null
+                )).clickEvent(ClickEvent.clickEvent(
                 ClickEvent.Action.OPEN_URL,
                 ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url")
         ));
+    }
+
+    public Component buildKickScreen(Player player, Player staff, String reason) {
+        return Component.text(
+                replaceKickRelevant(
+                        MessageUtils.getI18NMessage(player, "proxy.bansystem.kickscreen_text"),
+                        player,
+                        staff,
+                        reason
+                ));
+    }
+
+    public String replaceDateFormat(String s) {
+        return s.toLowerCase().replaceAll("m", "M");
     }
 
 }
