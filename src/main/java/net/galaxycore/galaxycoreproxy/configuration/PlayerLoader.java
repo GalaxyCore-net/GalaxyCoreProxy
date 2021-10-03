@@ -59,6 +59,55 @@ public class PlayerLoader {
     }
 
     @SneakyThrows
+    private static @Nullable PlayerLoader buildLoader(int id) {
+        GalaxyCoreProxy proxy = ProxyProvider.getProxy();
+        PreparedStatement load = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_playercache WHERE id=?");
+        load.setInt(1, id);
+        ResultSet loadResult = load.executeQuery();
+
+        if(!loadResult.next()) {
+            loadResult.close();
+            load.close();
+            return null;
+        }
+
+        PlayerLoader playerLoader = new PlayerLoader(
+                id,
+                UUID.fromString(loadResult.getString("uuid")),
+                loadResult.getString("lastname"),
+                parse(loadResult, "firstlogin"),
+                parse(loadResult, "lastlogin"),
+                parse(loadResult, "last_daily_reward"),
+                loadResult.getInt("banpoints"),
+                loadResult.getInt("mutepoints"),
+                loadResult.getInt("warnpoints"),
+                loadResult.getInt("reports"),
+                loadResult.getBoolean("teamlogin"),
+                loadResult.getBoolean("debug"),
+                loadResult.getBoolean("socialspy"),
+                loadResult.getBoolean("commandspy"),
+                loadResult.getBoolean("vanished"),
+                loadResult.getBoolean("nicked"),
+                loadResult.getInt("lastnick"),
+                loadResult.getLong("coins")
+        );
+
+        loadResult.close();
+        load.close();
+
+        PreparedStatement update = proxy.getDatabaseConfiguration().getConnection().prepareStatement("UPDATE core_playercache SET lastname=?, lastlogin=CURRENT_TIMESTAMP WHERE id=?");
+        update.setString(1, playerLoader.getLastName());
+        update.setInt(2, playerLoader.getId());
+
+        update.executeUpdate();
+        update.close();
+
+        loaderHashMap.put(playerLoader.getUuid(), playerLoader);
+
+        return playerLoader;
+    }
+
+    @SneakyThrows
     private static @Nullable PlayerLoader buildLoader(Player player) {
         GalaxyCoreProxy proxy = ProxyProvider.getProxy();
         Connection connection = proxy.getDatabaseConfiguration().getConnection();

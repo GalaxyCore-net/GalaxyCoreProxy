@@ -10,7 +10,8 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
-//import net.galaxycore.galaxycoreproxy.bansystem.command.BanSystem;
+import net.galaxycore.galaxycoreproxy.bansystem.BanSystem;
+import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.commands.*;
 import net.galaxycore.galaxycoreproxy.configuration.*;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
@@ -115,14 +116,17 @@ public class GalaxyCoreProxy {
 
         proxyNamespace.setDefault("global.prefix", "§5GalaxyCore.net §7| §r");
 
-        proxyNamespace.setDefault("proxy.broadcast.delay", "1m");
-
         proxyNamespace.setDefault("proxy.joinme.delay", "3m");
         proxyNamespace.setDefault("proxy.joinme.cooldown", "1h");
 
-        proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
+        proxyNamespace.setDefault("proxy.bansystem.banlog_webhook", "https://discord.com/api/webhooks/882263428591419442/eTztbTcJ5TvZMJJhLC5Q__dTqwLHe91ryfL5TGdmOhdNRj_j47N4GMeMwIguM15syQ1M");
+        proxyNamespace.setDefault("proxy.bansystem.banscreen_url", "https://galaxycore.net/unban");
+        proxyNamespace.setDefault("proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
+        proxyNamespace.setDefault("proxy.ban.default_reason", "1");
+        proxyNamespace.setDefault("proxy.commnad.kick.default_reason", "Fehlverhalten");
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
+        proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
 
         // INTERNATIONALISATION //
 
@@ -167,6 +171,15 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
         I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix",  "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
 
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_player", "§cDu kannst diesen Spieler nicht bannen!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_yourself", "§cDu kannst dich nicht selber bannen!");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
+        I18N.setDefaultByLang("de_DE", "proxy.command.kick.player_404", "§cDer Spieler wurde nicht gefunden");
+        I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
+
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
                 "§8» §e/hub §8| §7connect to the Lobby-Server\n" +
@@ -206,6 +219,15 @@ public class GalaxyCoreProxy {
 
         I18N.load();
 
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_player", "§cYou can´t ban this Player!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_yourself", "§cYou can´t ban yourself!");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.kickscreen_text", "§cYou were kicked by a Staff Member\n§aReason: §f%reason%");
+        I18N.setDefaultByLang("en_GB", "proxy.command.kick.player_404", "§cThis Player was not found");
+        I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!");
+
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
 
@@ -230,9 +252,9 @@ public class GalaxyCoreProxy {
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler();
-//
-//        // BAN SYSTEM //
-//        banSystem = new BanSystem();
+
+        // BAN SYSTEM //
+        BanSystemProvider.setBanSystem(new BanSystem());
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
