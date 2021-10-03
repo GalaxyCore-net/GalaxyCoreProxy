@@ -78,7 +78,7 @@ public class PunishmentReason {
     }
 
     @SneakyThrows
-    public static void registerDefaultReason(String name, String requiredPermissionWarn, String requiredPermissionMute, String requiredPermissionBan, int points, int pointsIncreasePercent, int duration, boolean permanent) {
+    public static void registerDefaultReason(String name, String requiredPermissionMute, String requiredPermissionBan, int points, int pointsIncreasePercent, int duration, boolean permanent) {
         if(isReasonExists(name))
             return;
 
@@ -86,7 +86,7 @@ public class PunishmentReason {
                 "INSERT INTO core_punishment_reasons (`name`, required_permission_warn, required_permission_mute, required_permission_ban, points, points_increase_percent, duration, permanent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
         update.setString(1, name);
-        update.setString(2, requiredPermissionWarn);
+        update.setString(2, "ban.admin");
         update.setString(3, requiredPermissionMute);
         update.setString(4, requiredPermissionBan);
         update.setInt(5, points);
@@ -99,7 +99,7 @@ public class PunishmentReason {
     }
 
     public static void registerDefaultReason(String name, String permission, int points, int pointsIncreasePercent, int duration, boolean permanent) {
-        registerDefaultReason(name, permission, permission, permission, points, pointsIncreasePercent, duration, permanent);
+        registerDefaultReason(name, permission, permission, points, pointsIncreasePercent, duration, permanent);
     }
 
     @SneakyThrows

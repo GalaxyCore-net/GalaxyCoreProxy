@@ -88,6 +88,12 @@ public class BanManager {
         try {
 
             if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
+                MessageUtils.sendI18NMessage(player, "proxy.command.ban.cant_ban_player");
+                return false;
+            }
+
+            if(player.getUniqueId() == staff.getUniqueId()) {
+                MessageUtils.getI18NMessage(player, "proxy.command.ban.cant_ban_yourself");
                 return false;
             }
 
@@ -98,9 +104,10 @@ public class BanManager {
             ResultSet rsIncomingBan = psIncomingBan.executeQuery();
 
             PreparedStatement psExistingBansForSameReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "SELECT * FROM core_banlog WHERE reasonid=?"
+                    "SELECT * FROM core_banlog WHERE reasonid=? AND action=?"
             );
             psExistingBansForSameReason.setInt(1, reason);
+            psExistingBansForSameReason.setString(2, "ban");
             ResultSet rsExistingBansForSameReason = psExistingBansForSameReason.executeQuery();
 
             if(!rsIncomingBan.next()) {
