@@ -38,7 +38,7 @@ public class BanManager {
                 ps.setTimestamp(4, convertUtilDate(from));
                 ps.setTimestamp(5, convertUtilDate(until));
                 ps.setBoolean(6, permanent);
-                ps.setInt(7, PlayerLoader.load(staff).getId());
+                ps.setInt(7, staff != null ? PlayerLoader.load(staff).getId() : 0);
                 ps.executeUpdate();
                 ps.close();
 
@@ -50,7 +50,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff.getUsername());
+                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
                 return true;
             } else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -61,7 +61,7 @@ public class BanManager {
                 ps.setTimestamp(3, convertUtilDate(from));
                 ps.setTimestamp(4, convertUtilDate(until));
                 ps.setBoolean(5, permanent);
-                ps.setInt(6, PlayerLoader.load(staff).getId());
+                ps.setInt(6, staff != null ? PlayerLoader.load(staff).getId() : 0);
                 ps.setInt(6, PlayerLoader.load(player).getId());
                 ps.executeUpdate();
                 ps.close();
@@ -74,7 +74,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff.getUsername());
+                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
                 return true;
             }
 
@@ -88,15 +88,17 @@ public class BanManager {
     public boolean banPlayer(Player player, int reason, Player staff) {
         try {
 
-            if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
-                MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_player");
-                return false;
+            if(staff != null) {
+                if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
+                    MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_player");
+                    return false;
+                }
+                if(player.getUniqueId() == staff.getUniqueId()) {
+                    MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_yourself");
+                    return false;
+                }
             }
 
-            if(player.getUniqueId() == staff.getUniqueId()) {
-                MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_yourself");
-                return false;
-            }
 
             PreparedStatement psIncomingBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_punishment_reasons WHERE id=?"
