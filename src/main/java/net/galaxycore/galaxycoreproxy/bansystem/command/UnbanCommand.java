@@ -12,6 +12,7 @@ public class UnbanCommand implements SimpleCommand {
         ProxyProvider.getProxy().registerCommand(this, "unban");
     }
 
+    //TODO: Tab Completion
     @Override
     public void execute(Invocation invocation) {
 

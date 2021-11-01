@@ -3,6 +3,7 @@ package net.galaxycore.galaxycoreproxy.bansystem.command;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
+import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 
@@ -12,6 +13,7 @@ public class BanCommand implements SimpleCommand {
         ProxyProvider.getProxy().registerCommand(this, "ban");
     }
 
+    //TODO: Tab Completion
     ///ban <player> <reasonID>
     @Override
     public void execute(Invocation invocation) {
@@ -19,7 +21,7 @@ public class BanCommand implements SimpleCommand {
         String[] args = invocation.arguments();
 
         if(args.length == 0) {
-            MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.ban.too_few_args");
+            PunishmentReason.sendReasonsToAudience(invocation.source(), "ban");
         }else if(args.length == 1) {
             BanSystemProvider.getBanSystem().getBanManager().banPlayer(args[0], invocation.source() instanceof Player ? (Player) invocation.source() : null);
         }else {

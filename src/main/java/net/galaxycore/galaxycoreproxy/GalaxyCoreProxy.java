@@ -18,6 +18,7 @@ import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
+import net.galaxycore.galaxycoreproxy.proxyPlayerControl.PlayerDisconnectListener;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
 import net.luckperms.api.LuckPerms;
@@ -84,6 +85,8 @@ public class GalaxyCoreProxy {
     // LISTENER //
     @Getter
     private PluginCommandListener pluginCommandListener;
+    @Getter
+    private PlayerDisconnectListener playerDisconnectListener;
 
     // SCHEDULER //
     @Getter
@@ -179,6 +182,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.kick.player_404", "§cDer Spieler wurde nicht gefunden");
         I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
+        I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -227,6 +232,9 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.kick.player_404", "§cThis Player was not found");
         I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
+
+        I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
 
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
@@ -249,6 +257,8 @@ public class GalaxyCoreProxy {
 
         // LISTENERS //
         pluginCommandListener = new PluginCommandListener();
+
+        playerDisconnectListener = new PlayerDisconnectListener();
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler();

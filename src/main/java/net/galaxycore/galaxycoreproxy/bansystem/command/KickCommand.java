@@ -12,6 +12,7 @@ public class KickCommand implements SimpleCommand {
         ProxyProvider.getProxy().registerCommand(this, "kick");
     }
 
+    //TODO: Tab Completion
     @Override
     public void execute(Invocation invocation) {
 
