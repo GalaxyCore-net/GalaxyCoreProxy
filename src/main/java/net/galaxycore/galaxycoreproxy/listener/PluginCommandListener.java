@@ -25,7 +25,7 @@ public class PluginCommandListener {
                         + MessageUtils.getI18NMessage(event.getCommandSource(), "proxy.command.plugins.no_permission")));
         }
 
-        //TODO IMPORTANT: BELOW THIS IF STATEMENT YOU CAN ONLY PROCESS EVENTS WHERE THE EXECUTOR HAS TO BE A PLAYER
+        //IMPORTANT: BELOW THIS IF STATEMENT YOU CAN ONLY PROCESS EVENTS WHERE THE EXECUTOR HAS TO BE A PLAYER
         if(!(event.getCommandSource() instanceof Player)) {
             event.getCommandSource().sendMessage(Component.text("§cThis command is only available for Players"));
             return;

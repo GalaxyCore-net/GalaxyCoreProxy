@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
+import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
+import net.kyori.adventure.audience.Audience;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -113,6 +115,21 @@ public class PunishmentReason {
         rsReason.close();
         reason.close();
         return hasNext;
+    }
+
+    public static void sendReasonsToAudience(Audience source, String scope) {
+        loadReasons();
+        String reasonDisplay = MessageUtils.getI18NMessage(source, "proxy.command." + scope + ".reason_list");
+        reasonHashMap.forEach((id, reason) -> MessageUtils.sendMessage(source, reasonDisplay
+                .replaceAll("%id%", String.valueOf(reason.getId()))
+                .replaceAll("%name%", reason.getName())
+                .replaceAll("%req_permission_warn%", reason.getRequiredPermissionWarn())
+                .replaceAll("%req_permission_mute%", reason.getRequiredPermissionMute())
+                .replaceAll("%req_permission_ban%", reason.getRequiredPermissionBan())
+                .replaceAll("%points%", String.valueOf(reason.getPoints()))
+                .replaceAll("%points_increase_percent%", String.valueOf(reason.getPointsIncreasePercent()))
+                .replaceAll("%duration%", String.valueOf(reason.getDuration()))
+                .replaceAll("%permanent%", String.valueOf(reason.isPermanent()))));
     }
 
 }
