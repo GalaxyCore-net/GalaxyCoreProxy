@@ -16,6 +16,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +39,7 @@ public class BanManager {
                 ps.setTimestamp(4, convertUtilDate(from));
                 ps.setTimestamp(5, convertUtilDate(until));
                 ps.setBoolean(6, permanent);
-                ps.setInt(7, PlayerLoader.load(staff).getId());
+                ps.setInt(7, staff != null ? PlayerLoader.load(staff).getId() : 0);
                 ps.executeUpdate();
                 ps.close();
 
@@ -50,7 +51,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff.getUsername());
+                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
                 return true;
             } else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -61,8 +62,8 @@ public class BanManager {
                 ps.setTimestamp(3, convertUtilDate(from));
                 ps.setTimestamp(4, convertUtilDate(until));
                 ps.setBoolean(5, permanent);
-                ps.setInt(6, PlayerLoader.load(staff).getId());
-                ps.setInt(6, PlayerLoader.load(player).getId());
+                ps.setInt(6, staff != null ? PlayerLoader.load(staff).getId() : 0);
+                ps.setInt(7, PlayerLoader.load(player).getId());
                 ps.executeUpdate();
                 ps.close();
 
@@ -74,7 +75,7 @@ public class BanManager {
                 update.executeUpdate();
                 update.close();
 
-                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff.getUsername());
+                createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
                 return true;
             }
 
@@ -88,15 +89,17 @@ public class BanManager {
     public boolean banPlayer(Player player, int reason, Player staff) {
         try {
 
-            if(player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
-                MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_player");
-                return false;
+            if (staff != null) {
+                if (player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
+                    MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_player");
+                    return false;
+                }
+                if (player.getUniqueId() == staff.getUniqueId()) {
+                    MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_yourself");
+                    return false;
+                }
             }
 
-            if(player.getUniqueId() == staff.getUniqueId()) {
-                MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_yourself");
-                return false;
-            }
 
             PreparedStatement psIncomingBan = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_punishment_reasons WHERE id=?"
@@ -105,24 +108,23 @@ public class BanManager {
             ResultSet rsIncomingBan = psIncomingBan.executeQuery();
 
             PreparedStatement psExistingBansForSameReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "SELECT * FROM core_banlog WHERE reasonid=? AND action=?"
+                    "SELECT * FROM core_banlog WHERE reason=? AND `action`=?"
             );
             psExistingBansForSameReason.setInt(1, reason);
             psExistingBansForSameReason.setString(2, "ban");
             ResultSet rsExistingBansForSameReason = psExistingBansForSameReason.executeQuery();
 
-            if(!rsIncomingBan.next()) {
+            if (!rsIncomingBan.next()) {
                 System.out.println("Incoming ban not found");
                 return false;
             }
             int basePointsToAdd = rsIncomingBan.getInt("points");
             int bansForSameReason = 0;
-            if(rsExistingBansForSameReason.next())
-                while(rsExistingBansForSameReason.next())
-                    bansForSameReason++;
+            while (rsExistingBansForSameReason.next())
+                bansForSameReason++;
 
             int banPointsSum = PlayerLoader.load(player).getBanPoints() + (basePointsToAdd + (
-                basePointsToAdd * (rsIncomingBan.getInt("points_increase_percent") * bansForSameReason) / 100
+                    basePointsToAdd * (rsIncomingBan.getInt("points_increase_percent") * bansForSameReason) / 100
             ));
 
             int banTimeSeconds = rsIncomingBan.getInt("duration");
@@ -163,7 +165,7 @@ public class BanManager {
 
         Player player = optionalPlayer.get();
 
-        if (!MathUtils.isInt(reason)){
+        if (!MathUtils.isInt(reason)) {
             MessageUtils.sendI18NMessage(player, "proxy.command.ban.not_a_number");
             return false;
         }
@@ -220,7 +222,7 @@ public class BanManager {
 
         Player player = optionalPlayer.orElse(null);
 
-        if(player == null) {
+        if (player == null) {
             MessageUtils.sendI18NMessage(staff, "proxy.command.kick.player_404");
             return false;
         }
@@ -239,13 +241,171 @@ public class BanManager {
 
         Player player = optionalPlayer.orElse(null);
 
-        if(player == null) {
+        if (player == null) {
             MessageUtils.sendI18NMessage(staff, "proxy.command.kick.player_404");
             return false;
         }
 
         return kickPlayer(player, staff);
 
+    }
+
+    public boolean mutePlayer(Player player, int reason, int mutePoints, Date from, Date until, boolean permanent, Player staff) {
+
+        try {
+            if (!isPlayerMuted(player.getUsername())) {
+
+
+                PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement("INSERT INTO core_mutes (userid, reasonid, mutepoints, `from`, `until`, permanent, staff, message) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                );
+                ps.setInt(1, PlayerLoader.load(player).getId());
+                ps.setInt(2, reason);
+                ps.setInt(3, mutePoints);
+                ps.setTimestamp(4, convertUtilDate(from));
+                ps.setTimestamp(5, convertUtilDate(until));
+                ps.setBoolean(6, permanent);
+                ps.setInt(7, staff != null ? PlayerLoader.load(staff).getId() : 0);
+                ps.executeUpdate();
+                ps.close();
+
+                PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                        "UPDATE core_playercache SET mutepoints=mutepoints+? WHERE id=?"
+                );
+                update.setInt(1, mutePoints);
+                update.setInt(2, PlayerLoader.load(player).getId());
+                update.executeUpdate();
+                update.close();
+
+                createMuteLogEntry(player.getUsername(), String.valueOf(reason), mutePoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
+                return true;
+            }else {
+                PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                        "UPDATE core_mutes SET reasonid=?, mutepoints=?, `from`=?, `until`=?, permanent=?, staff=? WHERE userid=?"
+                );
+                ps.setInt(1, reason);
+                ps.setInt(2, mutePoints);
+                ps.setTimestamp(3, convertUtilDate(from));
+                ps.setTimestamp(4, convertUtilDate(until));
+                ps.setBoolean(5, permanent);
+                ps.setInt(6, staff != null ? PlayerLoader.load(staff).getId() : 0);
+                ps.setInt(7, PlayerLoader.load(player).getId());
+                ps.executeUpdate();
+                ps.close();
+
+                PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                        "UPDATE core_playercache SET mutepoints=mutepoints+? WHERE id=?"
+                );
+                update.setInt(1, mutePoints);
+                update.setInt(2, PlayerLoader.load(player).getId());
+                update.executeUpdate();
+                update.close();
+
+                createMuteLogEntry(player.getUsername(), String.valueOf(reason), mutePoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public boolean mutePlayer(Player player, int reason, Player staff) {
+
+        try {
+
+            if (staff != null) {
+                if (player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
+                    MessageUtils.sendI18NMessage(staff, "proxy.command.mute.cant_mute_player");
+                    return false;
+                }
+                if (player.getUniqueId() == staff.getUniqueId()) {
+                    MessageUtils.sendI18NMessage(staff, "proxy.command.mute.cant_mute_yourself");
+                    return false;
+                }
+            }
+
+            PreparedStatement psIncomingMute = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_punishment_reasons WHERE id=?"
+            );
+            psIncomingMute.setInt(1, reason);
+            ResultSet rsIncomingMute = psIncomingMute.executeQuery();
+
+            PreparedStatement psExistingMutesForSameReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_banlog WHERE reason=? AND `action`=?"
+            );
+            psExistingMutesForSameReason.setInt(1, reason);
+            psExistingMutesForSameReason.setString(2, "mute");
+            ResultSet rsExistingMutesForSameReason = psExistingMutesForSameReason.executeQuery();
+
+            if (!rsIncomingMute.next()) {
+                ProxyProvider.getProxy().getLogger().debug("Incoming Mute not found");
+                return false;
+            }
+            int basePointsToAdd = rsIncomingMute.getInt("points");
+            int mutesForSameReason = 0;
+            while (rsExistingMutesForSameReason.next())
+                mutesForSameReason++;
+
+            int banPointsSum = PlayerLoader.load(player).getMutePoints() + (basePointsToAdd + (basePointsToAdd *
+                    (rsIncomingMute.getInt("points_increase_percent") * mutesForSameReason) / 100));
+
+            int banTimeSeconds = rsIncomingMute.getInt("duration");
+            int banTimeIncrease = banTimeSeconds + (banTimeSeconds * (rsIncomingMute.getInt("points_increase_percent") / 100));
+            Date until = new Date((new Date().getTime()) + (rsIncomingMute.getLong("duration") * 1000L));
+            until.setTime(until.getTime() + banTimeIncrease);
+
+            boolean permanent = rsIncomingMute.getBoolean("permanent");
+
+            psIncomingMute.close();
+            psExistingMutesForSameReason.close();
+            rsIncomingMute.close();
+            rsExistingMutesForSameReason.close();
+            player.disconnect(buildMuteScreen(player));
+            return mutePlayer(player, reason, banPointsSum, new Date(), until, permanent, staff);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public boolean mutePlayer(Player player, String reason, Player staff) {
+
+        if (!MathUtils.isInt("reason")) {
+            MessageUtils.sendI18NMessage(player, "proxy.command.ban.not_a_number");
+            return false;
+        }
+
+        int muteReason = Integer.parseInt(reason);
+
+        return mutePlayer(player, muteReason, staff);
+
+    }
+
+    public boolean mutePlayer(Player player, Player staff) {
+        return mutePlayer(player, ProxyProvider.getProxy().getProxyNamespace().get("proxy.mute.default_reason"), staff);
+    }
+
+    public boolean mutePlayer(String playerName, String reason, Player staff) {
+
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        if (optionalPlayer.isEmpty()) {
+            ProxyProvider.getProxy().getLogger().info("Player not found");
+            return false;
+        }
+
+        Player player = optionalPlayer.get();
+
+        return mutePlayer(player, reason, staff);
+
+    }
+
+    public boolean mutePlayer(String playerName, Player staff) {
+        return mutePlayer(playerName, ProxyProvider.getProxy().getProxyNamespace().get("proxy.mute.default_reason"), staff);
     }
 
     @SneakyThrows
@@ -255,7 +415,7 @@ public class BanManager {
         );
         stmt.setString(1, playerName);
         ResultSet rs = stmt.executeQuery();
-        if(rs.next())
+        if (rs.next())
             return rs.getInt("id");
         return 0;
     }
@@ -281,6 +441,25 @@ public class BanManager {
 
     }
 
+    public boolean isPlayerMuted(String player) {
+
+        try {
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_mutes WHERE userid=?"
+            );
+            ps.setInt(1, getPlayerID(player));
+            ResultSet rs = ps.executeQuery();
+            boolean hasNext = rs.next();
+            ps.close();
+            rs.close();
+            return hasNext;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
     @SneakyThrows
     private static Date parseDate(ResultSet resultSet, String field) {
         if (ProxyProvider.getProxy().getDatabaseConfiguration().getInternalConfiguration().getConnection().equals("sqlite"))
@@ -293,6 +472,7 @@ public class BanManager {
         return new java.sql.Timestamp(date == null ? new Date().getTime() : date.getTime());
     }
 
+    //TODO: Send Chat message of entry to all permitted Staff Members
     private void createBanLogEntry(String action, String player, String reason, int banPoints, Date from, Date until, boolean permanent, String staff) {
         try {
 
@@ -303,7 +483,7 @@ public class BanManager {
             //SQL
             @SuppressWarnings("SqlResolve")
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "INSERT INTO core_banlog (action, userid, reason, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO core_banlog (`action`, userid, reason, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             );
             ps.setString(1, action);
             ps.setInt(2, playerid);
@@ -355,6 +535,11 @@ public class BanManager {
             discordWebhook.addEmbed(embed);
             discordWebhook.execute();
 
+            //Chat Message to permitted Members
+            ProxyProvider.getProxy().getServer().getAllPlayers().stream().filter(player1 -> player1.hasPermission("proxy.bansystem.banlog")).forEach(player1 -> {
+                
+            });
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -368,11 +553,15 @@ public class BanManager {
         createBanLogEntry("kick", player, reason, 0, null, null, false, staff);
     }
 
+    private void createMuteLogEntry(String player, String reason, int mutePoints, Date from, Date until, boolean permanent, String staff) {
+        createBanLogEntry("mute", player, reason, mutePoints, from, until, permanent, staff);
+    }
+
     private String quote(Object s) {
         return "`" + s.toString() + "`";
     }
 
-    public String replaceRelevant(String s, int userID, String customReasonString) {
+    public String replaceBanRelevant(String s, int userID, String customReasonString) {
         try {
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -442,7 +631,7 @@ public class BanManager {
         playerLanuguage.setString(1, I18NPlayerLoader.getLocale(player));
         ResultSet rs = playerLanuguage.executeQuery();
         StringBuilder playerLanguageTimeFormat = new StringBuilder();
-        if(rs.next())
+        if (rs.next())
             playerLanguageTimeFormat.append(replaceDateFormat(rs.getString("date_fmt"))).append(" ").append(rs.getString("time_fmt"));
 
         s = s
@@ -457,7 +646,7 @@ public class BanManager {
 
     public Component buildBanScreen(Player player) {
         return Component.text(
-                BanSystemProvider.getBanSystem().getBanManager().replaceRelevant(
+                BanSystemProvider.getBanSystem().getBanManager().replaceBanRelevant(
                         MessageUtils.getI18NMessage(player, "proxy.bansystem.banscreen_text"),
                         PlayerLoader.load(player).getId(),
                         null
@@ -475,6 +664,21 @@ public class BanManager {
                         staff,
                         reason
                 ));
+    }
+
+    public Component buildMuteScreen(Player player) {
+
+        return Component.text(
+                BanSystemProvider.getBanSystem().getBanManager().replaceBanRelevant(
+                        MessageUtils.getI18NMessage(player, "proyx.bansystem.mutescreen_text"),
+                        PlayerLoader.load(player).getId(),
+                        null
+                )
+        ).clickEvent(ClickEvent.clickEvent(
+                ClickEvent.Action.OPEN_URL,
+                ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.mutescreen_url")
+        ));
+
     }
 
     public String replaceDateFormat(String s) {
