@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 
 import java.io.File;
 
+@Getter
 @Plugin(
         id = "galaxycoreproxy",
         name = "GalaxyCoreProxy",
@@ -40,60 +41,40 @@ import java.io.File;
 )
 public class GalaxyCoreProxy {
 
-    @Getter
     private final Logger logger;
-
-    @Getter
     private final ProxyServer server;
 
     // CONFIGURATION //
-    @Getter
     private DatabaseConfiguration databaseConfiguration;
-    @SuppressWarnings({"unused"})
-    @Getter
     // API
+    @SuppressWarnings({"unused"})
     private ConfigNamespace proxyNamespace;
 
     // BLOCK TAB COMPLETION //
-    @Getter
     private TabCompletionListener tabCompletionListener;
 
     // COMMANDS //
-    @Getter
     private HelpCommand helpCommand;
-    @Getter
     private BauserverCommand bauserverCommand;
-    @Getter
     private SendPerDHLCommand sendPerDHLCommand;
-    @Getter
     private TeamCommand teamCommand;
-    @Getter
     private PluginCommand pluginCommand;
-    @Getter
     private BroadcastCommand broadcastCommand;
-    @Getter
     private JoinMeCommand joinMeCommand;
-    @Getter
     private LoginCommand loginCommand;
-    @Getter
     private LogoutCommand logoutCommand;
-    @Getter
     private TeamChatCommand teamChatCommand;
-    @Getter
     private AdminChatCommand adminChatCommand;
+    private MSGCommand msgCommand;
 
     // LISTENER //
-    @Getter
     private PluginCommandListener pluginCommandListener;
-    @Getter
     private PlayerDisconnectListener playerDisconnectListener;
 
     // SCHEDULER //
-    @Getter
     private BroadcastScheduler broadcastScheduler;
 
     // LUCKPERMS API //
-    @Getter
     LuckPerms luckPermsAPI;
 //
 //    // BAN SYSTEM //
@@ -183,6 +164,10 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.usage", "§cBitte nutze §e/msg <Spieler> <Nachricht>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.player_not_found", "§cDieser Spieler wurde nicht gefunden");
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.you", "Du");
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
 
         // English Messages
@@ -222,8 +207,6 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
         I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
 
-        I18N.load();
-
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_player", "§cYou can´t ban this Player!");
@@ -233,8 +216,14 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.usage", "§cPlease use §e/msg <Player> <Message>");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.player_not_found", "§cThis Player was not found");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.you", "You");
 
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
+
+        I18N.load();
 
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
@@ -254,6 +243,7 @@ public class GalaxyCoreProxy {
         logoutCommand = new LogoutCommand();
         teamChatCommand = new TeamChatCommand();
         adminChatCommand = new AdminChatCommand();
+        msgCommand = new MSGCommand();
 
         // LISTENERS //
         pluginCommandListener = new PluginCommandListener();
