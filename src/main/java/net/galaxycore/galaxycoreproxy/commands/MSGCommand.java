@@ -2,8 +2,6 @@ package net.galaxycore.galaxycoreproxy.commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
