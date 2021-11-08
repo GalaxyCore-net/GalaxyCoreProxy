@@ -20,7 +20,7 @@ public class MSGCommand implements SimpleCommand {
     public void execute(Invocation invocation) {
         String[] args = invocation.arguments();
 
-        if(args.length < 2) {
+        if (args.length < 2) {
             invocation.source().sendMessage(Component.text(MessageUtils.getI18NMessage(invocation.source(), "proxy.command.msg.usage")));
             return;
         }
