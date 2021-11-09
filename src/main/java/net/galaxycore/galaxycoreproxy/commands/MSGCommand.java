@@ -20,14 +20,19 @@ public class MSGCommand implements SimpleCommand {
     public void execute(Invocation invocation) {
         String[] args = invocation.arguments();
 
+        if(!invocation.source().hasPermission("proxy.command.msg")) {
+            fail(invocation, "proxy.command.msg.noperms");
+            return;
+        }
+
         if (args.length < 2) {
-            invocation.source().sendMessage(Component.text(MessageUtils.getI18NMessage(invocation.source(), "proxy.command.msg.usage")));
+            fail(invocation, "proxy.command.msg.usage");
             return;
         }
 
         Optional<Player> optionalPlayerRecv = ProxyProvider.getProxy().getServer().getPlayer(args[0]);
         if (optionalPlayerRecv.isEmpty()) {
-            invocation.source().sendMessage(Component.text(MessageUtils.getI18NMessage(invocation.source(), "proxy.command.msg.player_not_found")));
+            fail(invocation, "proxy.command.msg.player_not_found");
             return;
         }
 
@@ -50,7 +55,18 @@ public class MSGCommand implements SimpleCommand {
         fromTransmission = fromTransmission.replaceAll("\\{p2}", playerRecv.getUsername());
         fromTransmission = fromTransmission.replaceAll("\\{msg}", text);
 
+        if(playerRecv.hasPermission("proxy.command.msg.lock")) {
+            if (!playerFrom.hasPermission("proxy.command.msg.lock.bypass")){
+                fail(invocation, "proxy.command.msg.locked");
+                return;
+            }
+        }
+
         playerRecv.sendMessage(Component.text(recvTransmission));
         playerFrom.sendMessage(Component.text(fromTransmission));
+    }
+
+    private void fail(Invocation invocation, String key) {
+        invocation.source().sendMessage(Component.text(MessageUtils.getI18NMessage(invocation.source(), key)));
     }
 }

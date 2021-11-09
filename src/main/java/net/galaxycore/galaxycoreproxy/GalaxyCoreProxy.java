@@ -168,6 +168,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.msg.player_not_found", "§cDieser Spieler wurde nicht gefunden");
         I18N.setDefaultByLang("de_DE", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}");
         I18N.setDefaultByLang("de_DE", "proxy.command.msg.you", "Du");
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.noperms", "§cDu hast hierfür keine Rechte");
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.locked", "§cDu darfst diesem Spieler keine Nachrichten senden");
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
 
         // English Messages
@@ -220,6 +222,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.msg.player_not_found", "§cThis Player was not found");
         I18N.setDefaultByLang("en_GB", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}");
         I18N.setDefaultByLang("en_GB", "proxy.command.msg.you", "You");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.noperms", "§cYou do not have enough permissions to use this");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.locked", "§cYou're not allowed to send a message to this person");
 
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
 
