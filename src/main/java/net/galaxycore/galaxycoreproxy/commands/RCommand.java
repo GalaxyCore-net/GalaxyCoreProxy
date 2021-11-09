@@ -8,6 +8,8 @@ import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 
+import java.util.List;
+
 @Getter
 public class RCommand implements SimpleCommand {
     public RCommand() {

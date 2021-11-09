@@ -7,13 +7,12 @@ import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MSGCommand implements SimpleCommand {
     @Getter
-    private static HashMap<String, String> lastConversationPartner = new HashMap<>();
+    private static final HashMap<String, String> lastConversationPartner = new HashMap<>();
 
     public MSGCommand() {
         ProxyProvider.getProxy().registerCommand(this, "msg");
@@ -74,5 +73,24 @@ public class MSGCommand implements SimpleCommand {
 
     private void fail(Invocation invocation, String key) {
         invocation.source().sendMessage(Component.text(MessageUtils.getI18NMessage(invocation.source(), key)));
+    }
+
+    /**
+     * Provides tab complete suggestions for the specified invocation.
+     *
+     * @param invocation the invocation context
+     * @return the tab complete suggestions
+     */
+    @Override
+    public List<String> suggest(Invocation invocation) {
+        final ArrayList<String> suggestions = new ArrayList<>();
+
+        if(invocation.arguments().length == 0)
+            ProxyProvider.getProxy().getServer().getAllPlayers().forEach(player -> suggestions.add(player.getUsername()));
+
+        if(invocation.arguments().length == 1)
+            ProxyProvider.getProxy().getServer().getAllPlayers().stream().filter(player -> player.getUsername().contains(invocation.arguments()[0])).forEach(player -> suggestions.add(player.getUsername()));
+
+        return suggestions;
     }
 }
