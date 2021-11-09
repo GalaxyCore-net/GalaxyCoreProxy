@@ -8,10 +8,13 @@ import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 
-@Getter
 public class MSGCommand implements SimpleCommand {
+    @Getter
+    private static HashMap<String, String> lastConversationPartner = new HashMap<>();
+
     public MSGCommand() {
         ProxyProvider.getProxy().registerCommand(this, "msg");
     }
@@ -61,6 +64,9 @@ public class MSGCommand implements SimpleCommand {
                 return;
             }
         }
+
+        lastConversationPartner.put(playerFrom.getUsername(), playerRecv.getUsername());
+        lastConversationPartner.put(playerRecv.getUsername(), playerFrom.getUsername());
 
         playerRecv.sendMessage(Component.text(recvTransmission));
         playerFrom.sendMessage(Component.text(fromTransmission));
