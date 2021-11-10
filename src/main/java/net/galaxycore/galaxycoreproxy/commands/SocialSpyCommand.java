@@ -12,7 +12,7 @@ import net.kyori.adventure.text.Component;
 @Getter
 public class SocialSpyCommand implements SimpleCommand {
     public SocialSpyCommand() {
-        ProxyProvider.getProxy().registerCommand(this, "socialspy", "cmdspy", "cspy", "cs");
+        ProxyProvider.getProxy().registerCommand(this, "socialspy", "sspy", "ss");
     }
 
     @Override

@@ -12,7 +12,7 @@ import net.kyori.adventure.text.Component;
 @Getter
 public class CommandSpyCommand implements SimpleCommand {
     public CommandSpyCommand() {
-        ProxyProvider.getProxy().registerCommand(this, "commandspy", "ss", "sspy");
+        ProxyProvider.getProxy().registerCommand(this, "commandspy", "cs", "cmdspy", "cspy");
     }
 
     @Override
@@ -22,7 +22,7 @@ public class CommandSpyCommand implements SimpleCommand {
             return;
         }
 
-        if (PlayerLoader.load((Player) invocation.source()).isSocialSpy()) {
+        if (PlayerLoader.load((Player) invocation.source()).isCommandSpy()) {
             new PlayerSqlFieldBindingBooleanImplementation((Player) invocation.source(), "commandspy").updateValue(false);
             notify(invocation, "proxy.command.commandspy.off");
             return;

@@ -72,11 +72,14 @@ public class MSGCommand implements SimpleCommand {
         playerFrom.sendMessage(Component.text(fromTransmission));
 
         for (Player player : ProxyProvider.getProxy().getServer().getAllPlayers()) {
+            System.out.println(player.getUsername());
             if (player == playerFrom) continue;
             if (player == playerRecv) continue;
             if (PlayerLoader.load(player) == null) continue;
-            if (!PlayerLoader.load(player).isCommandSpy()) continue;
+            if (!PlayerLoader.load(player).isSocialSpy()) continue;
             if (!PlayerLoader.load(player).isTeamLogin()) continue;
+            if(playerFrom.hasPermission("proxy.command.socialspy.block") && !player.hasPermission("proxy.command.socialspy.block.bypass")) continue;
+            if(playerRecv.hasPermission("proxy.command.socialspy.block") && !player.hasPermission("proxy.command.socialspy.block.bypass")) continue;
             if (!player.hasPermission("proxy.command.socialspy")) continue;
 
             player.sendMessage(Component.text(
