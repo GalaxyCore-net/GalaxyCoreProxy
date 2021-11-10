@@ -68,6 +68,8 @@ public class GalaxyCoreProxy {
     private MSGCommand msgCommand;
     private RCommand rCommand;
     private MSGToggleCommand msgToggleCommand;
+    private CommandSpyCommand commandSpyCommand;
+    private SocialSpyCommand socialSpyCommand;
 
     // LISTENER //
     private PluginCommandListener pluginCommandListener;
@@ -147,11 +149,9 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt");
         I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
         I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix",  "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_player", "§cDu kannst diesen Spieler nicht bannen!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_yourself", "§cDu kannst dich nicht selber bannen!");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
         I18N.setDefaultByLang("de_DE", "proxy.command.kick.player_404", "§cDer Spieler wurde nicht gefunden");
         I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
@@ -166,7 +166,16 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.no_permissions", "§cDu hast hierfür keine Rechte");
         I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.on", "§7Deine privaten Nachrichten sind jetzt §cgeschlossen§7.");
         I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.off", "§7Deine privaten Nachrichten sind jetzt §eoffen§7.");
+        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.no_permissions", "§cDu hast hierfür keine Rechte");
+        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.on", "§7SocialSpy §aaktiviert");
+        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.off", "§7SocialSpy §cdeaktiviert");
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.no_permissions", "§cDu hast hierfür keine Rechte");
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.on", "§7CommandSpy §aaktiviert");
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.off", "§7CommandSpy §cdeaktiviert");
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.spy", "§e{player} verwendete soeben /{cmd}");
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -214,6 +223,13 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.no_permissions", "§cYou do not have enough permissions to use this Command");
         I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.on", "§cNobody §ecan message you now");
         I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§eEveryone §ecan message you now");
+        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.no_permissions", "§cYou do not have enough permissions to use this Command");
+        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.on", "§7You now §acan§7 see the private Messages of others");
+        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.off", "§7You now §ccan't§7 see the private Messages of others");
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.no_permissions", "§cYou do not have enough permissions to use this Command");
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.on", "§7You now §acan§7 see the commands of others");
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.off", "§7You now §ccan't§7 see the commands of others");
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.spy", "§e{player} executed /{cmd}");
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
 
         I18N.load();
@@ -239,6 +255,8 @@ public class GalaxyCoreProxy {
         msgCommand = new MSGCommand();
         rCommand = new RCommand();
         msgToggleCommand = new MSGToggleCommand();
+        socialSpyCommand = new SocialSpyCommand();
+        commandSpyCommand = new CommandSpyCommand();
 
         // LISTENERS //
         pluginCommandListener = new PluginCommandListener();
@@ -252,7 +270,6 @@ public class GalaxyCoreProxy {
         BanSystemProvider.setBanSystem(new BanSystem());
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
-
     }
 
     public void registerListener(Object listener) {
