@@ -40,6 +40,20 @@ public class PluginCommandListener {
                 event.setResult(CommandExecuteEvent.CommandResult.denied());
         }
 
+        for (Player player : ProxyProvider.getProxy().getServer().getAllPlayers()) {
+            if (player == event.getCommandSource()) continue;
+            if (PlayerLoader.load(player) == null) continue;
+            if (!PlayerLoader.load(player).isCommandSpy()) continue;
+            if (!PlayerLoader.load(player).isTeamLogin()) continue;
+            if (!player.hasPermission("proxy.command.commandspy")) continue;
+
+            player.sendMessage(Component.text(
+                    MessageUtils.getI18NMessage(player, "proxy.command.commandspy.spy")
+                            .replace("{player}", ((Player) event.getCommandSource()).getUsername())
+                            .replace("{cmd}", event.getCommand())
+            ));
+        }
+
     }
 
 }
