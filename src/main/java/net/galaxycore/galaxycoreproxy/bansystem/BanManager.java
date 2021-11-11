@@ -535,10 +535,16 @@ public class BanManager {
             discordWebhook.addEmbed(embed);
             discordWebhook.execute();
 
-            //Chat Message to permitted Members
-            ProxyProvider.getProxy().getServer().getAllPlayers().stream().filter(player1 -> player1.hasPermission("proxy.bansystem.banlog")).forEach(player1 -> {
-                
-            });
+            ProxyProvider.getProxy().getServer().getAllPlayers().stream().filter(player1 -> player1.hasPermission("proxy.bansystem.banlog")).forEach(player1 ->
+                    player1.sendMessage(Component.text(MessageUtils.getI18NMessage(player1, "proxy.ban.banlog_entry")
+                    .replaceAll("\\{action}", StringUtils.firstLetterUppercase(action))
+                    .replaceAll("\\{player}", player)
+                    .replaceAll("\\{reason}", reason != null ? reason : "Kein Grund angegeben")
+                    .replaceAll("\\{banPoints}", Integer.toString(banPoints))
+                    .replaceAll("\\{from}", dtf.format(from))
+                    .replaceAll("\\{until}", dtf.format(until))
+                    .replaceAll("\\{permanent}", permanent ? "Ja" : "Nein")
+                    .replaceAll("\\{staff}", staff))));
 
         } catch (Exception e) {
             e.printStackTrace();

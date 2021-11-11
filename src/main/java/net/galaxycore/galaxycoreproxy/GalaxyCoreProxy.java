@@ -185,6 +185,15 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
 
+        I18N.setDefaultByLang("de_DE", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
+                "Spieler: {player}\n" +
+                "Grund: {reason}\n" +
+                "Bannpunkte: {banPoints}\n" +
+                "Von: {from}\n" +
+                "Bis: {until}\n" +
+                "Permanent: {permanent}\n" +
+                "Staff: {staff}");
+
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
                 "§8» §e/hub §8| §7connect to the Lobby-Server\n" +
@@ -235,6 +244,15 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
 
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
+
+        I18N.setDefaultByLang("en_GB", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
+                "player: {player}\n" +
+                "Reason: {reason}\n" +
+                "Banpoints: {banPoints}\n" +
+                "From: {from}\n" +
+                "Until: {until}\n" +
+                "Permanent: {permanent}\n" +
+                "Staff: {staff}");
 
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
