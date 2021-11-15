@@ -3,8 +3,6 @@ package net.galaxycore.galaxycoreproxy.onlinetime;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.proxy.Player;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
@@ -56,26 +54,15 @@ public class OnlineTimeInterpolator {
             return;
         }
 
-        System.out.println("gCurrentInterpolationOnlineTime = " + currentInterpolationOnlineTime);
-        System.out.println("lastSaveMillis = " + lastSaveMillis);
-
         getCurrentInterpolationOnlineTime().put(player, select_answer.getLong("onlinetime"));
         getLastSaveMillis().put(player, System.currentTimeMillis());
-
-        System.out.println("gCurrentInterpolationOnlineTime = " + currentInterpolationOnlineTime);
-        System.out.println("lastSaveMillis = " + lastSaveMillis);
         select_answer.close();
         select_query.close();
     }
 
     public long interpolate(Player player) {
         if(PlayerLoader.load(player) == null) return 0;
-        System.out.println("OnlineTimeInterpolator.interpolate");
-        System.out.println("player = " + player);
-        System.out.println("gCurrentInterpolationOnlineTime = " + currentInterpolationOnlineTime);
-        System.out.println("lastSaveMillis = " + lastSaveMillis);
         long currentInterpolationOnlineTime =  getCurrentInterpolationOnlineTime().get(player) + System.currentTimeMillis() - getLastSaveMillis().get(player);
-        System.out.println("currentInterpolationOnlineTime = " + currentInterpolationOnlineTime);
         getLastSaveMillis().put(player, System.currentTimeMillis());
         getCurrentInterpolationOnlineTime().put(player, currentInterpolationOnlineTime);
         return currentInterpolationOnlineTime;
