@@ -6,10 +6,10 @@ import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
+import net.galaxycore.galaxycoreproxy.utils.SuggestionUtils;
 import net.kyori.adventure.text.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MSGCommand implements SimpleCommand {
     @Getter
@@ -103,14 +103,6 @@ public class MSGCommand implements SimpleCommand {
      */
     @Override
     public List<String> suggest(Invocation invocation) {
-        final ArrayList<String> suggestions = new ArrayList<>();
-
-        if(invocation.arguments().length == 0)
-            ProxyProvider.getProxy().getServer().getAllPlayers().forEach(player -> suggestions.add(player.getUsername()));
-
-        if(invocation.arguments().length == 1)
-            ProxyProvider.getProxy().getServer().getAllPlayers().stream().filter(player -> player.getUsername().contains(invocation.arguments()[0])).forEach(player -> suggestions.add(player.getUsername()));
-
-        return suggestions;
+        return SuggestionUtils.suggestPlayerFirst(invocation);
     }
 }

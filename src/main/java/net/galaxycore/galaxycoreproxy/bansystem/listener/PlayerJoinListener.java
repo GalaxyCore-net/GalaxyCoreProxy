@@ -49,7 +49,6 @@ public class PlayerJoinListener {
             psBan.close();
 
             event.setResult(ResultedEvent.ComponentResult.denied(BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer())));
-
         }
 
     }
