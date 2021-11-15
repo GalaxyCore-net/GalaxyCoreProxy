@@ -3,6 +3,7 @@ package net.galaxycore.galaxycoreproxy.commands;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.Getter;
+import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import net.galaxycore.galaxycoreproxy.utils.SuggestionUtils;
@@ -69,6 +70,25 @@ public class MSGCommand implements SimpleCommand {
 
         playerRecv.sendMessage(Component.text(recvTransmission));
         playerFrom.sendMessage(Component.text(fromTransmission));
+
+        for (Player player : ProxyProvider.getProxy().getServer().getAllPlayers()) {
+            System.out.println(player.getUsername());
+            if (player == playerFrom) continue;
+            if (player == playerRecv) continue;
+            if (PlayerLoader.load(player) == null) continue;
+            if (!PlayerLoader.load(player).isSocialSpy()) continue;
+            if (!PlayerLoader.load(player).isTeamLogin()) continue;
+            if(playerFrom.hasPermission("proxy.command.socialspy.block") && !player.hasPermission("proxy.command.socialspy.block.bypass")) continue;
+            if(playerRecv.hasPermission("proxy.command.socialspy.block") && !player.hasPermission("proxy.command.socialspy.block.bypass")) continue;
+            if (!player.hasPermission("proxy.command.socialspy")) continue;
+
+            player.sendMessage(Component.text(
+                    MessageUtils.getI18NMessage(player, "proxy.command.msg.transmission")
+                            .replace("{p1}", playerFrom.getUsername())
+                            .replace("{p2}", playerRecv.getUsername())
+                            .replace("{msg}", text)
+            ));
+        }
     }
 
     private void fail(Invocation invocation, String key) {
