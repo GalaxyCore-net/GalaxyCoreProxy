@@ -18,6 +18,8 @@ import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
+import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTime;
+import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTimeCommand;
 import net.galaxycore.galaxycoreproxy.proxyPlayerControl.PlayerDisconnectListener;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
@@ -46,7 +48,8 @@ public class GalaxyCoreProxy {
 
     // CONFIGURATION //
     private DatabaseConfiguration databaseConfiguration;
-    // API
+
+    // API //
     @SuppressWarnings({"unused"})
     private ConfigNamespace proxyNamespace;
 
@@ -68,6 +71,7 @@ public class GalaxyCoreProxy {
     private MSGCommand msgCommand;
     private RCommand rCommand;
     private MSGToggleCommand msgToggleCommand;
+    private OnlineTimeCommand onlineTimeCommand;
 
     // LISTENER //
     private PluginCommandListener pluginCommandListener;
@@ -78,6 +82,10 @@ public class GalaxyCoreProxy {
 
     // LUCKPERMS API //
     LuckPerms luckPermsAPI;
+
+    // ONLINETIME //
+    private OnlineTime onlineTime;
+
 //
 //    // BAN SYSTEM //
 //    @Getter
@@ -166,6 +174,9 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.no_permissions", "§cDu hast hierfür keine Rechte");
         I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.on", "§7Deine privaten Nachrichten sind jetzt §cgeschlossen§7.");
         I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.off", "§7Deine privaten Nachrichten sind jetzt §eoffen§7.");
+        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime", "§7Deine OnlineZeit ist§e %h% h %m% m");
+        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime.other", "§e%player%'s OnlineZeit ist %h% h %m% m");
+        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime.player404", "§cDieser Spieler wurde nicht gefunden");
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
 
         // English Messages
@@ -213,7 +224,10 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.r.notfound", "§cYou didn't send any private messages lately");
         I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.no_permissions", "§cYou do not have enough permissions to use this Command");
         I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.on", "§cNobody §ecan message you now");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§eEveryone §ecan message you now");
+        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§aEveryone §ecan message you now");
+        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime", "§eYour OnlineTime is %h% hours and %m% minutes");
+        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime.other", "§e%player%'s OnlineTime is %h% hours and %m% minutes");
+        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime.player404", "§cThis Player was not found");
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
 
         I18N.load();
@@ -239,6 +253,7 @@ public class GalaxyCoreProxy {
         msgCommand = new MSGCommand();
         rCommand = new RCommand();
         msgToggleCommand = new MSGToggleCommand();
+        onlineTimeCommand = new OnlineTimeCommand();
 
         // LISTENERS //
         pluginCommandListener = new PluginCommandListener();
@@ -250,6 +265,9 @@ public class GalaxyCoreProxy {
 
         // BAN SYSTEM //
         BanSystemProvider.setBanSystem(new BanSystem());
+
+        // ONLINE TIME //
+        onlineTime = new OnlineTime(this.getServer());
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
 
