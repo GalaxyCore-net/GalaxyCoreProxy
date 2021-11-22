@@ -38,4 +38,8 @@ public class TimeDelay {
         return timeDelay;
     }
 
+    public long getMillis(){
+        return delayUnit.toMillis(delay);
+    }
+
 }
