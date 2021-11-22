@@ -120,6 +120,7 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         proxyNamespace.setDefault("proxy.ban.default_reason", "1");
         proxyNamespace.setDefault("proxy.commnad.kick.default_reason", "Fehlverhalten");
+        proxyNamespace.setDefault("proxy.mute.default_reason", "1");
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
@@ -160,7 +161,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_player", "§cDu kannst diesen Spieler nicht bannen!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_yourself", "§cDu kannst dich nicht selber bannen!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.kick.player_404", "§cDer Spieler wurde nicht gefunden");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
+        I18N.setDefaultByLang("de_DE", "proxy.player_404", "§cDer Spieler wurde nicht gefunden");
         I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
@@ -187,6 +189,20 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
+
+        I18N.setDefaultByLang("de_DE", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
+                "Spieler: {player}\n" +
+                "Grund: {reason}\n" +
+                "Bannpunkte: {banPoints}\n" +
+                "Von: {from}\n" +
+                "Bis: {until}\n" +
+                "Permanent: {permanent}\n" +
+                "Staff: {staff}");
+
+        I18N.setDefaultByLang("de_DE", "proxy.ban.muted.chat", "§cDu wurdest von einem Teammitglied gemutet, also kannst du im moment nicht schreiben!\n" +
+                "§cWenn du denkst, dass ein Fehler vorliegt, kontaktiere bitte den Support!");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.mute.cant_mute_yourself", "§cDu kannst dich nicht selbst muten!");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -220,7 +236,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_player", "§cYou can´t ban this Player!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_yourself", "§cYou can´t ban yourself!");
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.kickscreen_text", "§cYou were kicked by a Staff Member\n§aReason: §f%reason%");
-        I18N.setDefaultByLang("en_GB", "proxy.command.kick.player_404", "§cThis Player was not found");
+        I18N.setDefaultByLang("en_GB", "proxy.player_404", "§cThis Player was not found");
         I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
@@ -247,6 +263,19 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.spy", "§e{player} executed /{cmd}");
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
 
+        I18N.setDefaultByLang("en_GB", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
+                "player: {player}\n" +
+                "Reason: {reason}\n" +
+                "Banpoints: {banPoints}\n" +
+                "From: {from}\n" +
+                "Until: {until}\n" +
+                "Permanent: {permanent}\n" +
+                "Staff: {staff}");
+
+        I18N.setDefaultByLang("en_GB", "proxy.ban.muted.chat", "§cYou were muted by a staff member, so you can´t chat at the moment!\n" +
+                "§cIf you think this is wrong, please contact the Support!");
+
+        I18N.setDefaultByLang("en_GB", "proxy.command.mute.cant_mute_yourself", "§cYou can´t mute yourself!");
         I18N.load();
 
         // LUCKPERMS API //
