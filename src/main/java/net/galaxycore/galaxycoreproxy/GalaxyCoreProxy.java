@@ -16,6 +16,8 @@ import net.galaxycore.galaxycoreproxy.commands.*;
 import net.galaxycore.galaxycoreproxy.configuration.*;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
+import net.galaxycore.galaxycoreproxy.friends.FriendCommand;
+import net.galaxycore.galaxycoreproxy.friends.FriendManager;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTime;
@@ -53,6 +55,9 @@ public class GalaxyCoreProxy {
     @SuppressWarnings({"unused"})
     private ConfigNamespace proxyNamespace;
 
+    // Friend //
+    private FriendManager friendManager;
+
     // BLOCK TAB COMPLETION //
     private TabCompletionListener tabCompletionListener;
 
@@ -74,6 +79,7 @@ public class GalaxyCoreProxy {
     private OnlineTimeCommand onlineTimeCommand;
     private CommandSpyCommand commandSpyCommand;
     private SocialSpyCommand socialSpyCommand;
+    private FriendCommand friendCommand;
 
     // LISTENER //
     private PluginCommandListener pluginCommandListener;
@@ -187,6 +193,15 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.title", "§2Freundesystem §7| §2Hilfe");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.list", "§2 /friend list §8» §aListet alle deine Freunde auf");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSende einem Freund eine Nachricht");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.accept", "§2 /friend add [Spieler] §8» §aStellt eine Freundschaftsanfrage");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAkzeptiere eine Freundschaftsanfrage");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aLehne eine Freundschaftsanfrage ab");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aEntferne einen Freund von deiner Freundesliste");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.list", "§2Deine Freunde: {friends}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.list.none", "§cKeine");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -246,11 +261,23 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.off", "§7You now §ccan't§7 see the commands of others");
         I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.spy", "§e{player} executed /{cmd}");
         I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.title", "§2Friend System §7| §2Help");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.list", "§2 /friend list §8» §aLists your friends");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSend a message to a friend");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.accept", "§2 /friend add [Spieler] §8» §aCreates a Friend Request");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAccept a Friend Request");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aDeny a Friend Request");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aRemove a Friend from your list");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.list", "§2Your Friends: {friends}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.list.none", "§cNone");
 
         I18N.load();
 
         // LUCKPERMS API //
         luckPermsAPI = LuckPermsProvider.get();
+
+        // FRIEND MANAGER //
+        friendManager = new FriendManager();
 
         // BLOCK TAB COMPLETION //
         tabCompletionListener = new TabCompletionListener();
@@ -273,6 +300,7 @@ public class GalaxyCoreProxy {
         onlineTimeCommand = new OnlineTimeCommand();
         socialSpyCommand = new SocialSpyCommand();
         commandSpyCommand = new CommandSpyCommand();
+        friendCommand = new FriendCommand();
 
         // LISTENERS //
         pluginCommandListener = new PluginCommandListener();

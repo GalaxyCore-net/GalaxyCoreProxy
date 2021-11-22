@@ -59,7 +59,7 @@ public class PlayerLoader {
     }
 
     @SneakyThrows
-    private static @Nullable PlayerLoader buildLoader(int id) {
+    public static @Nullable PlayerLoader buildLoader(int id) {
         GalaxyCoreProxy proxy = ProxyProvider.getProxy();
         PreparedStatement load = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_playercache WHERE id=?");
         load.setInt(1, id);
