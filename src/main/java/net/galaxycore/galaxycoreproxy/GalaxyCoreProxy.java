@@ -151,6 +151,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.click_to_join", "§cKlicke zum Beitreten");
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.player_sent_joinme", "§6%player% §7hat ein JoinMe für §e%server% §7geschickt");
         I18N.setDefaultByLang("de_DE", "proxy.command.joinme.in_cooldown", "§cDu befindest dich noch im Cooldown");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_exists", "§cDieses JoinMe existiert bereits");
         I18N.setDefaultByLang("de_DE", "proxy.command.login.already_logged_in", "§cDu bist bereits eingeloggt");
         I18N.setDefaultByLang("de_DE", "proxy.command.login.logged_in", "§aDu bist nun eingeloggt");
         I18N.setDefaultByLang("de_DE", "proxy.command.plugins.no_permission", "§aHmm§f, §aich§f, §aglaube§f, §adass§f, §adu§f, §ahier§f, §anichts§f, §afinden§f, §awirst.");
@@ -224,6 +225,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.click_to_join", "§cClick to Join");
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.player_sent_joinme", "§6%player% §7sent a Joinme for §e%server%");
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.in_cooldown", "§cYou are still in Cooldown");
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_exists", "§cThis JoinMe already exists");
         I18N.setDefaultByLang("en_GB", "proxy.command.login.already_logged_in", "§cYou´re logged in already");
         I18N.setDefaultByLang("en_GB", "proxy.command.login.logged_in", "§aYou´re logged in now");
         I18N.setDefaultByLang("en_GB", "proxy.command.plugins.no_permission", "§aHmm§f, §aI§f, §athink§f, §athat§f, §ayou§f, §aown´t§f, §afind§f, §aanything§f, §ahere.");
