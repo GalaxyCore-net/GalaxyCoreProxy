@@ -693,6 +693,12 @@ public class BanManager {
                 ));
     }
 
+    public Component buildVPNScreen(Player player) {
+        return Component.text(
+                MessageUtils.getI18NMessage(player, "proxy.bansystem.anti_vpn")
+        );
+    }
+
     public String replaceDateFormat(String s) {
         return s.toLowerCase().replace("m", "M");
     }

@@ -200,6 +200,7 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("de_DE", "proxy.command.mute.cant_mute_yourself", "§cDu kannst dich nicht selbst muten!");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.mute.message", "Nachricht");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.anti_vpn", "§cBitte schalte deine VPN/deinen Proxy aus, um auf diesem Server zu spielen");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -275,6 +276,7 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("en_GB", "proxy.command.mute.cant_mute_yourself", "§cYou can´t mute yourself!");
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.mute.message", "Message");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.anti_vpn", "§cPlease turn of your VPN/Proxy to play on this server");
 
         I18N.load();
 
