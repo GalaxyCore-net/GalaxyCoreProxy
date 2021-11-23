@@ -196,12 +196,31 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.title", "§2Freundesystem §7| §2Hilfe");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.list", "§2 /friend list §8» §aListet alle deine Freunde auf");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSende einem Freund eine Nachricht");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.accept", "§2 /friend add [Spieler] §8» §aStellt eine Freundschaftsanfrage");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.add", "§2 /friend add [Spieler] §8» §aStellt eine Freundschaftsanfrage");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAkzeptiere eine Freundschaftsanfrage");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aLehne eine Freundschaftsanfrage ab");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aEntferne einen Freund von deiner Freundesliste");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.list", "§2Deine Freunde: {friends}");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.list.none", "§cKeine");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.list.none", "§cKeine");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.help", "§cBitte nutze §7/friend msg [Spieler] [Nachricht]");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.target", "§2{player} §a-> §2Du§2: §7{msg}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.source", "§2Du §a-> §2{target}§2: §7{msg}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.notfound", "§cDieser Spieler wurde nicht gefunden");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.notonline", "§cDieser Spieler ist nicht online");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.friendnotfound", "§cDieser Freund wurde nicht gefunden");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.notexists", "§cDiese Freundschaftsanfrage existiert nicht");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.deny.notexists", "§cDiese Freundschaftsanfrage existiert nicht");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.deny.ok", "§cDiese Freundschaftsanfrage wurde gelöscht");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.ok", "§aDiese Freundschaftsanfrage wurde akzeptiert");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.ok.other", "§a{player} hat deine Freundschaftsanfrage akzeptiert");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.help", "§cBitte nutze §7/friend add [Spieler]");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.ok", "§aDu hast eine Freundschaftsanfrage erstellt!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.request", "§aDu hast eine Freundschaftsanfrage von {player} erhalten:");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.yes", "§aAkzeptieren");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.no", "§cLöschen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.help", "§cBitte nutze §7/friend remove [Spieler]");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.ok", "§aDu bist nun nicht mehr mit {player} befreundet");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.other", "§aDu bist nun nicht mehr mit {player} befreundet");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -264,12 +283,31 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.title", "§2Friend System §7| §2Help");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.list", "§2 /friend list §8» §aLists your friends");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSend a message to a friend");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.accept", "§2 /friend add [Spieler] §8» §aCreates a Friend Request");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.add", "§2 /friend add [Spieler] §8» §aCreates a Friend Request");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAccept a Friend Request");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aDeny a Friend Request");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aRemove a Friend from your list");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.list", "§2Your Friends: {friends}");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.list.none", "§cNone");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.help", "§cPlease use §7/friend msg [player] [message]");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.target", "§2{player} §a-> §2You§2: §7{msg}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.source", "§2You §a-> §2{target}§2: §7{msg}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.notfound", "§cThis player does not exist");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.notonline", "§cThis player is not online");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.friendnotfound", "§cThis friend was not found");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.notexists", "§cThis Friend Request does not exists");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.deny.notexists", "§cThis Friend Request does not exists");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.deny.ok", "§cThis Friend Request was deleted");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.ok", "§aYour Friend Request was accepted");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.ok.other", "§a{player} accepted your friend request");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.help", "§cPlease use §7/friend add [player]");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.ok", "§aYou sent the Friend Request!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.request", "§aYou got a Friend Request from {player}:");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.yes", "§aAccept");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.no", "§cDeny");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.help", "§cPlease use §7/friend remove [player]");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.ok", "§aYou are no longer friends with {player}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.other", "§aYou are no longer friends with {player}");
 
         I18N.load();
 

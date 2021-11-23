@@ -42,11 +42,8 @@ public class FriendManager {
 
     @SneakyThrows
     public boolean removeFriend(PlayerLoader first, PlayerLoader second) {
-        if (!(getFriends(first).contains(second) || getFriends(second).contains(first)))
-            return false;
-
         try {
-            PreparedStatement removeFriendStatement = dbConfig.getConnection().prepareStatement("DELETE FROM core_friends WHERE (player_id==? and other_player_id=?) or (player_id==? and other_player_id=?)");
+            PreparedStatement removeFriendStatement = dbConfig.getConnection().prepareStatement("DELETE FROM core_friends WHERE (player_id=? and other_player_id=?) or (player_id=? and other_player_id=?)");
             removeFriendStatement.setInt(1, first.getId());
             removeFriendStatement.setInt(2, second.getId());
             removeFriendStatement.setInt(3, second.getId());

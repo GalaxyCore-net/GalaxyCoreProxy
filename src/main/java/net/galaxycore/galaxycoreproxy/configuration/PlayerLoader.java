@@ -10,9 +10,11 @@ import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 @SuppressWarnings("unused") // API Usage
@@ -168,4 +170,23 @@ public class PlayerLoader {
         }
     }
 
+    public static Optional<PlayerLoader> load(String arg) throws SQLException {
+        GalaxyCoreProxy proxy = ProxyProvider.getProxy();
+        Connection connection = proxy.getDatabaseConfiguration().getConnection();
+        Optional<PlayerLoader> optionalPlayerLoader = Optional.empty();
+
+        PreparedStatement getID = connection.prepareStatement("SELECT id FROM core_playercache WHERE lastname=?");
+        getID.setString(1, arg);
+
+        ResultSet resultSet = getID.executeQuery();
+
+        if(resultSet.next()) {
+            optionalPlayerLoader = Optional.ofNullable(buildLoader(resultSet.getInt("id")));
+        }
+
+        resultSet.close();
+        getID.close();
+
+        return optionalPlayerLoader;
+    }
 }
