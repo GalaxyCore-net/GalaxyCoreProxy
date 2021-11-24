@@ -12,7 +12,6 @@ public class UnbanCommand implements SimpleCommand {
         ProxyProvider.getProxy().registerCommand(this, "unban");
     }
 
-    //TODO: Tab Completion
     @Override
     public void execute(Invocation invocation) {
 
@@ -21,7 +20,7 @@ public class UnbanCommand implements SimpleCommand {
         if(args.length == 0)
             MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.unban.too_few_args");
         else
-            System.out.println(BanSystemProvider.getBanSystem().getBanManager().unbanPlayer(args[0], invocation.source() instanceof Player ? ((Player) invocation.source()).getUsername() : "Console"));
+            BanSystemProvider.getBanSystem().getBanManager().unbanPlayer(args[0], invocation.source() instanceof Player ? ((Player) invocation.source()).getUsername() : "Console");
 
     }
 

@@ -88,11 +88,6 @@ public class GalaxyCoreProxy {
     // ONLINETIME //
     private OnlineTime onlineTime;
 
-//
-//    // BAN SYSTEM //
-//    @Getter
-//    private BanSystem banSystem;
-
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
         this.server = server;
@@ -204,6 +199,10 @@ public class GalaxyCoreProxy {
                 "§cWenn du denkst, dass ein Fehler vorliegt, kontaktiere bitte den Support!");
 
         I18N.setDefaultByLang("de_DE", "proxy.command.mute.cant_mute_yourself", "§cDu kannst dich nicht selbst muten!");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.mute.message", "Nachricht");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.anti_vpn", "§cBitte schalte deine VPN/deinen Proxy aus, um auf diesem Server zu spielen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ip.usage", "§cBenutzung: §f/ip <player>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ip.ip_of_player", "§cIp von Spieler {player}: {ip}");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -278,6 +277,11 @@ public class GalaxyCoreProxy {
                 "§cIf you think this is wrong, please contact the Support!");
 
         I18N.setDefaultByLang("en_GB", "proxy.command.mute.cant_mute_yourself", "§cYou can´t mute yourself!");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.mute.message", "Message");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.anti_vpn", "§cPlease turn of your VPN/Proxy to play on this server");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ip.usage", "§cUsage: §f/ip <player>");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ip.ip_of_player", "§cIp of Player {player}: {ip}");
+
         I18N.load();
 
         // LUCKPERMS API //
