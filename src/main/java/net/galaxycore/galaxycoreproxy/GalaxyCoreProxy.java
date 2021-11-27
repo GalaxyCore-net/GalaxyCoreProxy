@@ -201,8 +201,22 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.mute.cant_mute_yourself", "§cDu kannst dich nicht selbst muten!");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.mute.message", "Nachricht");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.anti_vpn", "§cBitte schalte deine VPN/deinen Proxy aus, um auf diesem Server zu spielen");
-        I18N.setDefaultByLang("de_DE", "proxy.command.ip.usage", "§cBenutzung: §f/ip <player>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ip.usage", "§cBenutzung: §f/ip <spieler>");
         I18N.setDefaultByLang("de_DE", "proxy.command.ip.ip_of_player", "§cIp von Spieler {player}: {ip}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.playerinfo.usage", "§cBenutzung: §f/playerinfo <spieler>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.playerinfo.info_for_player", "§8» §7Name§8: §c{name} §8(§aOnline§8)\n" +
+                "§8» §7UUID§8: §c{uuid}\n" +
+                "§8» §7ID§8: §c{id}\n" +
+                "§8» §7Erster Login§8: §c{first_login}\n" +
+                "§8» §7Server§8: §c{server}\n" +
+                "§8» §7Onlinezeit§8: §c{onlinetime}\n" +
+                "§8» §7Gebannt§8: §c{banned}\n" +
+                "§8» §7Gemutet§8: §c{muted}\n" +
+                "§8» §7Punkte§8: §c{ban_points} §8 {mute_points} | §8{warn_points}\n" +
+                "§8» §7Bans§8: §c{bans}\n" +
+                "§8» §7Mutes§8: §c{mutes}\n" +
+                "§8» §7Warnungen§8: §c{warns}\n");
+        I18N.setDefaultByLang("de_DE", "proxy.command.unmute.usage", "§cBenutzung: §f/unmute <player>");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -281,6 +295,20 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.anti_vpn", "§cPlease turn of your VPN/Proxy to play on this server");
         I18N.setDefaultByLang("en_GB", "proxy.command.ip.usage", "§cUsage: §f/ip <player>");
         I18N.setDefaultByLang("en_GB", "proxy.command.ip.ip_of_player", "§cIp of Player {player}: {ip}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.playerinfo.usage", "§cUsage: §f/playerinfo <player>");
+        I18N.setDefaultByLang("en_GB", "proxy.command.playerinfo.info_for_player", "§8» §7name§8: §c{name} §8(§aOnline§8)\n" +
+                "§8» §7UUID§8: §c{uuid}\n" +
+                "§8» §7ID§8: §c{id}\n" +
+                "§8» §7first login§8: §c{first_login}\n" +
+                "§8» §7server§8: §c{server}\n" +
+                "§8» §7onlinetime§8: §c{onlinetime}\n" +
+                "§8» §7banned§8: §c{banned}\n" +
+                "§8» §7muted§8: §c{muted}\n" +
+                "§8» §7points§8: §c{ban_points} §8 {mute_points} | §8{warn_points}\n" +
+                "§8» §7bans§8: §c{bans}\n" +
+                "§8» §7mutes§8: §c{mutes}\n" +
+                "§8» §7warns§8: §c{warns}\n");
+        I18N.setDefaultByLang("en_GB", "proxy.command.unmute.usage", "§cUsage: §f/unmute <player>");
 
         I18N.load();
 

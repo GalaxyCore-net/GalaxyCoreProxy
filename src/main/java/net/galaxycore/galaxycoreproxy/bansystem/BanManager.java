@@ -209,6 +209,30 @@ public class BanManager {
 
     }
 
+    public boolean unmutePlayer(String player, String staff) {
+
+        try {
+
+            if (!isPlayerMuted(player)) {
+                ProxyProvider.getProxy().getLogger().info("Player %s is not banned {}", player);
+                return false;
+            }
+
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement("DELETE FROM core_mutes WHERE userid=?");
+            int playerid = getPlayerID(player);
+            ps.executeUpdate();
+            ps.close();
+            ;
+            createUnmuteLogEntry(player, staff);
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
     public boolean kickPlayer(Player player, String reason, Player staff) {
 
         player.disconnect(buildKickScreen(player, staff, reason));
@@ -574,6 +598,10 @@ public class BanManager {
 
     private void createUnbanLogEntry(String player, String staff) {
         createBanLogEntry("unban", player, null, 0, null, null, false, staff);
+    }
+
+    private void createUnmuteLogEntry(String player, String staff) {
+        createBanLogEntry("unmute", player, null, 0, null, null, false, staff);
     }
 
     private void createKickLogEntry(String player, String reason, String staff) {

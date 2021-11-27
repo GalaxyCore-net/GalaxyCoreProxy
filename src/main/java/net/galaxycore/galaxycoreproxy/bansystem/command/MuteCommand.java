@@ -16,6 +16,7 @@ public class MuteCommand implements SimpleCommand {
         ProxyProvider.getProxy().registerCommand(this, "mute");
     }
 
+
     @Override
     public void execute(Invocation invocation) {
 

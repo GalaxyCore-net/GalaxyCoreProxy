@@ -43,6 +43,9 @@ public class PlayerLoader {
     private final long coins;
     private final boolean banned;
     private final boolean muted;
+    private final int bans;
+    private final int mutes;
+    private final int warns;
 
     public static PlayerLoader loadNew(Player player) {
         PlayerLoader playerLoader = PlayerLoader.buildLoader(player);
@@ -81,6 +84,35 @@ public class PlayerLoader {
         muteLoad.setInt(1, id);
         ResultSet muteLoadResult = muteLoad.executeQuery();
 
+        PreparedStatement onlineTimeLoad = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT onlinetime FROM core_onlinetime WHERE id=?");
+        onlineTimeLoad.setInt(1, id);
+        ResultSet onlineTimeResult = onlineTimeLoad.executeQuery();
+
+        PreparedStatement banlogLoad = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_banlog WHERE userid=? AND action='ban'");
+        banlogLoad.setInt(1, id);
+        ResultSet banlogBanResult = banlogLoad.executeQuery();
+
+        PreparedStatement banlogMuteLoad = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_banlog WHERE userid=? AND action='mute'");
+        banlogMuteLoad.setInt(1, id);
+        ResultSet banlogMuteResult = banlogMuteLoad.executeQuery();
+
+        PreparedStatement banlogWarnLoad = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_banlog WHERE userid=? AND action='warn'");
+        banlogWarnLoad.setInt(1, id);
+        ResultSet banlogWarnResult = banlogWarnLoad.executeQuery();
+
+        int bans = 0;
+        int mutes = 0;
+        int warns = 0;
+        while (banlogBanResult.next()) {
+            bans++;
+        }
+        while (banlogMuteResult.next()) {
+            mutes++;
+        }
+        while (banlogWarnResult.next()) {
+            warns++;
+        }
+
         PlayerLoader playerLoader = new PlayerLoader(
                 id,
                 UUID.fromString(loadResult.getString("uuid")),
@@ -101,7 +133,10 @@ public class PlayerLoader {
                 loadResult.getInt("lastnick"),
                 loadResult.getLong("coins"),
                 banLoadResult.next(),
-                muteLoadResult.next()
+                muteLoadResult.next(),
+                bans,
+                mutes,
+                warns
         );
 
         loadResult.close();
