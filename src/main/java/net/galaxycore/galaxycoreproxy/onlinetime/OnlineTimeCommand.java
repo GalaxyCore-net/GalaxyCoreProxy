@@ -44,7 +44,7 @@ public class OnlineTimeCommand implements SimpleCommand {
             Optional<Player> targetOptional = ProxyProvider.getProxy().getServer().getPlayer(args[0]);
 
             if (targetOptional.isEmpty()) {
-                MessageUtils.sendI18NMessage(invocation.source(), "proxy.onlinetime.player404");
+                MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.onlinetime.player404");
                 return;
             }
 

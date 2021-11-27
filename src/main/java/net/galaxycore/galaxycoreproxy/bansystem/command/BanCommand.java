@@ -5,7 +5,9 @@ import com.velocitypowered.api.proxy.Player;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
-import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BanCommand implements SimpleCommand {
 
@@ -13,7 +15,6 @@ public class BanCommand implements SimpleCommand {
         ProxyProvider.getProxy().registerCommand(this, "ban");
     }
 
-    //TODO: Tab Completion
     ///ban <player> <reasonID>
     @Override
     public void execute(Invocation invocation) {
@@ -33,6 +34,26 @@ public class BanCommand implements SimpleCommand {
     @Override
     public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission("proxy.command.ban");
+    }
+
+    @Override
+    public List<String> suggest(Invocation invocation) {
+        List<String> ret = new ArrayList<>();
+
+        if (invocation.arguments().length == 1) {
+            ProxyProvider.getProxy().getServer().getAllPlayers().forEach(player -> ret.add(player.getUsername()));
+        }
+
+        if (invocation.arguments().length == 2) {
+            for (Integer reasonID : PunishmentReason.getReasonHashMap().keySet()) {
+                PunishmentReason reason = PunishmentReason.getReasonHashMap().get(reasonID);
+                if (invocation.source().hasPermission(reason.getRequiredPermissionBan())) {
+                    ret.add(String.valueOf(reason.getId()));
+                }
+            }
+        }
+
+        return ret;
     }
 
 }
