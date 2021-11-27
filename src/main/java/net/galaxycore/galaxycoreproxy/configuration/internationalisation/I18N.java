@@ -5,6 +5,7 @@ import lombok.Getter;
 import net.galaxycore.galaxycorecore.utils.FileUtils;
 import net.galaxycore.galaxycoreproxy.GalaxyCoreProxy;
 import net.galaxycore.galaxycoreproxy.configuration.DatabaseConfiguration;
+import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
 import net.galaxycore.galaxycoreproxy.utils.SQLUtils;
 
 import java.sql.PreparedStatement;
@@ -23,6 +24,7 @@ public class I18N implements I18NPort {
 
     @Getter
     private final HashMap<String, I18N.MinecraftLocale> languages = new HashMap<>();
+    private final HashMap<String, Boolean> usePrefix = new HashMap<>();
     private ConcurrentHashMap<I18N.MinecraftLocale, HashMap<String, String>> languageData = new ConcurrentHashMap<>();
 
     private I18N(GalaxyCoreProxy proxy) {
@@ -75,6 +77,10 @@ public class I18N implements I18NPort {
         instanceRef.get().setDefault(lang, key, value);
     }
 
+    public static void setDefaultByLang(String lang, String key, String value, boolean usePrefix) {
+        instanceRef.get().setDefault(lang, key, value, usePrefix);
+    }
+
     public static String getByLang(String lang, String key) {
         return instanceRef.get().get(lang, key);
     }
@@ -84,7 +90,7 @@ public class I18N implements I18NPort {
     }
 
     public String get(String lang, String key) {
-        return languageData.get(languages.get(lang)).get(key);
+        return (usePrefix.getOrDefault(key, false)? PrefixProvider.getPrefix() : "") + languageData.get(languages.get(lang)).get(key);
     }
 
     public String get(Player player, String key) {
@@ -95,6 +101,7 @@ public class I18N implements I18NPort {
         return I18NPlayerLoader.getLocale(player);
     }
 
+
     public void setDefault(String lang, String key, String value) {
         MinecraftLocale locale = languages.get(lang);
 
@@ -102,6 +109,12 @@ public class I18N implements I18NPort {
 
         HashMap<String, String> localizedBundle = languageData.get(locale);
         localizedBundle.put(key, value);
+    }
+
+    @Override
+    public void setDefault(String lang, String key, String value, boolean usePrefix) {
+        this.usePrefix.put(key, usePrefix);
+        setDefault(lang, key, value);
     }
 
     public void retrieve() {
