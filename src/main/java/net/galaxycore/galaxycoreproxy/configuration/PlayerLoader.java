@@ -41,6 +41,8 @@ public class PlayerLoader {
     private final boolean nicked;
     private final int lastNick;
     private final long coins;
+    private final boolean banned;
+    private final boolean muted;
 
     public static PlayerLoader loadNew(Player player) {
         PlayerLoader playerLoader = PlayerLoader.buildLoader(player);
@@ -71,6 +73,14 @@ public class PlayerLoader {
             return null;
         }
 
+        PreparedStatement banLoad = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_bans WHERE userid=?");
+        banLoad.setInt(1, id);
+        ResultSet banLoadResult = banLoad.executeQuery();
+
+        PreparedStatement muteLoad = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_mutes WHERE userid=?");
+        muteLoad.setInt(1, id);
+        ResultSet muteLoadResult = muteLoad.executeQuery();
+
         PlayerLoader playerLoader = new PlayerLoader(
                 id,
                 UUID.fromString(loadResult.getString("uuid")),
@@ -89,11 +99,19 @@ public class PlayerLoader {
                 loadResult.getBoolean("vanished"),
                 loadResult.getBoolean("nicked"),
                 loadResult.getInt("lastnick"),
-                loadResult.getLong("coins")
+                loadResult.getLong("coins"),
+                banLoadResult.next(),
+                muteLoadResult.next()
         );
 
         loadResult.close();
         load.close();
+
+        banLoadResult.close();
+        banLoad.close();
+
+        muteLoadResult.close();
+        muteLoad.close();
 
         PreparedStatement update = proxy.getDatabaseConfiguration().getConnection().prepareStatement("UPDATE core_playercache SET lastname=?, lastlogin=CURRENT_TIMESTAMP WHERE id=?");
         update.setString(1, playerLoader.getLastName());
@@ -122,40 +140,7 @@ public class PlayerLoader {
             return null;
         }
 
-        PlayerLoader playerLoader = new PlayerLoader(
-                loadResult.getInt("id"),
-                UUID.fromString(loadResult.getString("uuid")),
-                player.getUsername(),
-                parse(loadResult, "firstlogin"),
-                parse(loadResult, "lastlogin"),
-                parse(loadResult, "last_daily_reward"),
-                loadResult.getInt("banpoints"),
-                loadResult.getInt("mutepoints"),
-                loadResult.getInt("warnpoints"),
-                loadResult.getInt("reports"),
-                loadResult.getBoolean("teamlogin"),
-                loadResult.getBoolean("debug"),
-                loadResult.getBoolean("socialspy"),
-                loadResult.getBoolean("commandspy"),
-                loadResult.getBoolean("vanished"),
-                loadResult.getBoolean("nicked"),
-                loadResult.getInt("lastnick"),
-                loadResult.getLong("coins")
-        );
-
-        loadResult.close();
-        load.close();
-
-        PreparedStatement update = connection.prepareStatement("UPDATE core_playercache SET lastname=?, lastlogin=CURRENT_TIMESTAMP WHERE id=?");
-        update.setString(1, playerLoader.getLastName());
-        update.setInt(2, playerLoader.getId());
-
-        update.executeUpdate();
-        update.close();
-
-        loaderHashMap.put(player.getUniqueId(), playerLoader);
-
-        return playerLoader;
+        return buildLoader(loadResult.getInt("id"));
 
     }
 

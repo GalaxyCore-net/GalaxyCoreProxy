@@ -6,13 +6,15 @@ import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class KickCommand implements SimpleCommand {
 
     public KickCommand() {
         ProxyProvider.getProxy().registerCommand(this, "kick");
     }
 
-    //TODO: Tab Completion
     @Override
     public void execute(Invocation invocation) {
 
@@ -34,6 +36,17 @@ public class KickCommand implements SimpleCommand {
     @Override
     public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission("proxy.command.kick");
+    }
+
+    @Override
+    public List<String> suggest(Invocation invocation) {
+        List<String> ret = new ArrayList<>();
+
+        if (invocation.arguments().length == 1) {
+            ProxyProvider.getProxy().getServer().getAllPlayers().forEach(player -> ret.add(player.getUsername()));
+        }
+
+        return ret;
     }
 
 }
