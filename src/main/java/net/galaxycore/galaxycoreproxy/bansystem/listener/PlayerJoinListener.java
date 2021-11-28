@@ -3,11 +3,16 @@ package net.galaxycore.galaxycoreproxy.bansystem.listener;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
+import com.velocitypowered.api.proxy.Player;
 import lombok.SneakyThrows;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -49,6 +54,29 @@ public class PlayerJoinListener {
             psBan.close();
 
             event.setResult(ResultedEvent.ComponentResult.denied(BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer())));
+        }
+
+        if (hasVPN(event.getPlayer())) {
+            event.setResult(ResultedEvent.ComponentResult.denied(BanSystemProvider.getBanSystem().getBanManager().buildVPNScreen(event.getPlayer())));
+        }
+
+    }
+
+    private boolean hasVPN(Player player) {
+        try {
+            URL obj = new URL("https://proxycheck.io/v2/" + player.getRemoteAddress().getHostString() + "/?key=318n07-0o7054-y9y82a-75o3hr");
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+            StringBuilder bobTheBuilder = new StringBuilder();
+            String inputLine;
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((inputLine = in.readLine()) != null)
+                bobTheBuilder.append(inputLine);
+            in.close();
+            return bobTheBuilder.toString().contains("yes");
+        } catch (Exception e) {
+            return false;
         }
 
     }

@@ -19,6 +19,7 @@ import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPla
 import net.galaxycore.galaxycoreproxy.friends.FriendCommand;
 import net.galaxycore.galaxycoreproxy.friends.FriendManager;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
+import net.galaxycore.galaxycoreproxy.listener.ChatListener;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTime;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTimeCommand;
@@ -94,11 +95,6 @@ public class GalaxyCoreProxy {
     // ONLINETIME //
     private OnlineTime onlineTime;
 
-//
-//    // BAN SYSTEM //
-//    @Getter
-//    private BanSystem banSystem;
-
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
         this.server = server;
@@ -126,6 +122,8 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         proxyNamespace.setDefault("proxy.ban.default_reason", "1");
         proxyNamespace.setDefault("proxy.commnad.kick.default_reason", "Fehlverhalten");
+        proxyNamespace.setDefault("proxy.mute.default_reason", "1");
+        proxyNamespace.setDefault("forbiddenWords", "affenarsch|affenkopf|analpirat|analtaucher|ankotzer|anpinkler|anscheißer|antänzer|arschlecker|arschloch|arschnase|arschtonne|arschwichser|ausschiss|blindschleiche|blödmann|chemieunfall|donnerfotze|dumpfbacke|dummarsch|dummie|dummschwätzer|ekelalfred|ekelpaket|fickeumel|fickfotze|fickfresse|fickmuschi|flachkopp|flaschwichser|fotze|fotzenlecker|fressmuschi|fresspilz|gammelkerl|gammler|gehirnpfeife|gehirnzecke|gummimuschi|hackfresse|hirnfresse|hodenkobold|holzkopf|idiot|kackbratze|kackebacke|kackfresse|kackhaufen|kackstelze|kackvogel|kobold|klugscheißer|knallfrosch|knalltüte|kothaufen|kotzbrocken|lackaffe|luftikuss|luftsack|pimmel|pimmellutscher|pimmelnase|pissnelke|pissnudel|sackgassenjunge|sackratte|scheißhaufen|scheißkerl|schimmelnarr|schissbold|schlappschwanz|schmierfink|schwätzer|schwanzsauger|stinkbolzen|stinkmumie|stinksack|terrorclown|teufelsanbeter|tonnenlecker|topffresse|topflappen|torfkopf|torfnase|torfnudel|wichser|wuchtbrumme|zicke|zuckerschlucker");
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
@@ -143,84 +141,104 @@ public class GalaxyCoreProxy {
                 "§8» §cTeamSpeak§8: §7GalaxyCore.net\n" +
                 "§8» §cDiscord§8: §7dc.GalaxyCore.net\n" +
                 "§8» §cWebsite§8: §7GalaxyCore.net\n");
-        I18N.setDefaultByLang("de_DE", "proxy.command.bauserver.int_required", "§cBitte gib eine ganze Zahl an!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.wrong_usage", "§cBitte benutze §7/spd <Spieler> <Server>!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.target_not_found", "§cSpieler nicht gefunden!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server_not_found", "§cServer nicht gefunden!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server", "§aServer");
-        I18N.setDefaultByLang("de_DE", "proxy.command.team.team", "§aTeam");
-        I18N.setDefaultByLang("de_DE", "proxy.command.broadcast", "\n§6Broadcast: §4§l");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.not_in_lobby", "§cDu kannst diesen Command nicht in der Lobby ausführen!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_not_found", "§cDieses JoinMe existiert nicht");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.click_to_join", "§cKlicke zum Beitreten");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.player_sent_joinme", "§6%player% §7hat ein JoinMe für §e%server% §7geschickt");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.in_cooldown", "§cDu befindest dich noch im Cooldown");
-        I18N.setDefaultByLang("de_DE", "proxy.command.login.already_logged_in", "§cDu bist bereits eingeloggt");
-        I18N.setDefaultByLang("de_DE", "proxy.command.login.logged_in", "§aDu bist nun eingeloggt");
-        I18N.setDefaultByLang("de_DE", "proxy.command.plugins.no_permission", "§aHmm§f, §aich§f, §aglaube§f, §adass§f, §adu§f, §ahier§f, §anichts§f, §afinden§f, §awirst.");
-        I18N.setDefaultByLang("de_DE", "proxy.command.logout.not_logged_in", "§cDu bist nicht eingeloggt");
-        I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt");
-        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
-        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix",  "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
-        I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_player", "§cDu kannst diesen Spieler nicht bannen!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_yourself", "§cDu kannst dich nicht selber bannen!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.kick.player_404", "§cDer Spieler wurde nicht gefunden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msg.usage", "§cBitte nutze §e/msg <Spieler> <Nachricht>");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msg.player_not_found", "§cDieser Spieler wurde nicht gefunden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.bauserver.int_required", "§cBitte gib eine ganze Zahl an!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.wrong_usage", "§cBitte benutze §7/spd <Spieler> <Server>!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.target_not_found", "§cSpieler nicht gefunden!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server_not_found", "§cServer nicht gefunden!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.sendperdhl.server", "§aServer", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.team.team", "§aTeam", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.broadcast", "\n§6Broadcast: §4§l", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.not_in_lobby", "§cDu kannst diesen Command nicht in der Lobby ausführen!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_not_found", "§cDieses JoinMe existiert nicht", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.click_to_join", "§cKlicke zum Beitreten", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.player_sent_joinme", "§6%player% §7hat ein JoinMe für §e%server% §7geschickt", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.in_cooldown", "§cDu befindest dich noch im Cooldown", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.login.already_logged_in", "§cDu bist bereits eingeloggt", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_exists", "§cDieses JoinMe existiert bereits");
+        I18N.setDefaultByLang("de_DE", "proxy.command.login.logged_in", "§aDu bist nun eingeloggt", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.plugins.no_permission", "§fProxyPlugins (9): §aHmm§f, §aich§f, §aglaube§f, §adass§f, §adu§f, §ahier§f, §anichts§f, §afinden§f, §awirst.", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.logout.not_logged_in", "§cDu bist nicht eingeloggt", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.logout.logged_out", "§aDu bist nun ausgeloggt", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.teamchat.prefix",  "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_player", "§cDu kannst diesen Spieler nicht bannen!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_yourself", "§cDu kannst dich nicht selber bannen!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.kick.player_404", "§cDer Spieler wurde nicht gefunden", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.usage", "§cBitte nutze §e/msg <Spieler> <Nachricht>", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.player_not_found", "§cDieser Spieler wurde nicht gefunden", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}", true);
         I18N.setDefaultByLang("de_DE", "proxy.command.msg.you", "Du");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msg.noperms", "§cDu hast hierfür keine Rechte");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msg.locked", "§cDu darfst diesem Spieler keine Nachrichten senden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.r.notfound", "§cDu hast in letzter Zeit niemandem eine private Nachricht geschrieben. Du kannst niemandem antworten (>_<)");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.no_permissions", "§cDu hast hierfür keine Rechte");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.on", "§7Deine privaten Nachrichten sind jetzt §cgeschlossen§7.");
-        I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.off", "§7Deine privaten Nachrichten sind jetzt §eoffen§7.");
-        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime", "§7Deine OnlineZeit ist§e %h% h %m% m");
-        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime.other", "§e%player%'s OnlineZeit ist %h% h %m% m");
-        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime.player404", "§cDieser Spieler wurde nicht gefunden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.no_permissions", "§cDu hast hierfür keine Rechte");
-        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.on", "§7SocialSpy §aaktiviert");
-        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.off", "§7SocialSpy §cdeaktiviert");
-        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.no_permissions", "§cDu hast hierfür keine Rechte");
-        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.on", "§7CommandSpy §aaktiviert");
-        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.off", "§7CommandSpy §cdeaktiviert");
-        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.spy", "§e{player} verwendete soeben /{cmd}");
-        I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.title", "§2Freundesystem §7| §2Hilfe");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.list", "§2 /friend list §8» §aListet alle deine Freunde auf");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSende einem Freund eine Nachricht");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.add", "§2 /friend add [Spieler] §8» §aStellt eine Freundschaftsanfrage");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAkzeptiere eine Freundschaftsanfrage");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aLehne eine Freundschaftsanfrage ab");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aEntferne einen Freund von deiner Freundesliste");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.list", "§2Deine Freunde: {friends}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.title", "§2Freundesystem §7| §2Hilfe", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.list", "§2 /friend list §8» §aListet alle deine Freunde auf", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSende einem Freund eine Nachricht", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.add", "§2 /friend add [Spieler] §8» §aStellt eine Freundschaftsanfrage", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAkzeptiere eine Freundschaftsanfrage", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aLehne eine Freundschaftsanfrage ab", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aEntferne einen Freund von deiner Freundesliste", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.list", "§2Deine Freunde: {friends}", true);
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.list.none", "§cKeine");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.help", "§cBitte nutze §7/friend msg [Spieler] [Nachricht]");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.target", "§2{player} §a-> §2Du§2: §7{msg}");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.source", "§2Du §a-> §2{target}§2: §7{msg}");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.notfound", "§cDieser Spieler wurde nicht gefunden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.notonline", "§cDieser Spieler ist nicht online");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.friendnotfound", "§cDieser Freund wurde nicht gefunden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.notexists", "§cDiese Freundschaftsanfrage existiert nicht");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.deny.notexists", "§cDiese Freundschaftsanfrage existiert nicht");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.deny.ok", "§cDiese Freundschaftsanfrage wurde gelöscht");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.ok", "§aDiese Freundschaftsanfrage wurde akzeptiert");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.ok.other", "§a{player} hat deine Freundschaftsanfrage akzeptiert");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.help", "§cBitte nutze §7/friend add [Spieler]");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.ok", "§aDu hast eine Freundschaftsanfrage erstellt!");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.request", "§aDu hast eine Freundschaftsanfrage von {player} erhalten:");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.help", "§cBitte nutze §7/friend msg [Spieler] [Nachricht]", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.target", "§2{player} §a-> §2Du§2: §7{msg}", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.msg.source", "§2Du §a-> §2{target}§2: §7{msg}", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.notfound", "§cDieser Spieler wurde nicht gefunden", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.notonline", "§cDieser Spieler ist nicht online", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.friendnotfound", "§cDieser Freund wurde nicht gefunden", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.notexists", "§cDiese Freundschaftsanfrage existiert nicht", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.deny.notexists", "§cDiese Freundschaftsanfrage existiert nicht", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.deny.ok", "§cDiese Freundschaftsanfrage wurde gelöscht", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.ok", "§aDiese Freundschaftsanfrage wurde akzeptiert", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.accept.ok.other", "§a{player} hat deine Freundschaftsanfrage akzeptiert", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.help", "§cBitte nutze §7/friend add [Spieler]", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.ok", "§aDu hast eine Freundschaftsanfrage erstellt!", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.request", "§aDu hast eine Freundschaftsanfrage von {player} erhalten:", true);
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.yes", "§aAkzeptieren");
         I18N.setDefaultByLang("de_DE", "proxy.command.friend.add.no", "§cLöschen");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.help", "§cBitte nutze §7/friend remove [Spieler]");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.ok", "§aDu bist nun nicht mehr mit {player} befreundet");
-        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.other", "§aDu bist nun nicht mehr mit {player} befreundet");
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.help", "§cBitte nutze §7/friend remove [Spieler]", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.ok", "§aDu bist nun nicht mehr mit {player} befreundet", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.friend.remove.other", "§aDu bist nun nicht mehr mit {player} befreundet", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.noperms", "§cDu hast hierfür keine Rechte", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msg.locked", "§cDu darfst diesem Spieler keine Nachrichten senden", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.r.notfound", "§cDu hast in letzter Zeit niemandem eine private Nachricht geschrieben. Du kannst niemandem antworten (>_<)", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.no_permissions", "§cDu hast hierfür keine Rechte", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.on", "§7Deine privaten Nachrichten sind jetzt §cgeschlossen§7.", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.msgtoggle.off", "§7Deine privaten Nachrichten sind jetzt §eoffen§7.", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime", "§7Deine OnlineZeit ist§e %h% h %m% m", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime.other", "§e%player%'s OnlineZeit ist %h% h %m% m", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.onlinetime.player404", "§cDieser Spieler wurde nicht gefunden", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.no_permissions", "§cDu hast hierfür keine Rechte", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.on", "§7SocialSpy §aaktiviert", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.socialspy.off", "§7SocialSpy §cdeaktiviert", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.no_permissions", "§cDu hast hierfür keine Rechte", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.on", "§7CommandSpy §aaktiviert", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.off", "§7CommandSpy §cdeaktiviert", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.spy", "§e{player} verwendete soeben /{cmd}", true);
+        I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren", true);
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt", true);
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%", true);
+
+        I18N.setDefaultByLang("de_DE", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
+                "Spieler: {player}\n" +
+                "Grund: {reason}\n" +
+                "Bannpunkte: {banPoints}\n" +
+                "Von: {from}\n" +
+                "Bis: {until}\n" +
+                "Permanent: {permanent}\n" +
+                "Staff: {staff}");
+
+        I18N.setDefaultByLang("de_DE", "proxy.ban.muted.chat", "§cDu wurdest von einem Teammitglied gemutet, also kannst du im moment nicht schreiben!\n" +
+                "§cWenn du denkst, dass ein Fehler vorliegt, kontaktiere bitte den Support!");
+
+        I18N.setDefaultByLang("de_DE", "proxy.command.mute.cant_mute_yourself", "§cDu kannst dich nicht selbst muten!");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.mute.message", "Nachricht");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.anti_vpn", "§cBitte schalte deine VPN/deinen Proxy aus, um auf diesem Server zu spielen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.ip.usage", "§cBenutzung: §f/ip <player>", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.ip.ip_of_player", "§cIp von Spieler {player}: {ip}", true);
+
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -229,85 +247,104 @@ public class GalaxyCoreProxy {
                 "§8» §cTeamSpeak§8: §7GalaxyCore.net\n" +
                 "§8» §cDiscord§8: §7dc.GalaxyCore.net\n" +
                 "§8» §cWebsite§8: §7GalaxyCore.net\n");
-        I18N.setDefaultByLang("en_GB", "proxy.command.bauserver.int_required", "§cPlease provide a valid integer!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.wrong_usage", "§cPlease use §7/spd <player> <reason>!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.target_not_found", "§cPlayer not found!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.server_not_found", "§cServer not found!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.server", "§aServer");
-        I18N.setDefaultByLang("en_GB", "proxy.command.team.team", "§aTeam");
-        I18N.setDefaultByLang("en_GB", "proxy.command.broadcast", "\n§6Broadcast: §4§l");
-        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.");
-        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.not_in_lobby", "§cYou can´t execute this command in the lobby!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.joinme_not_found", "§cThis JounMe doesn´t exist");
-        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.click_to_join", "§cClick to Join");
-        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.player_sent_joinme", "§6%player% §7sent a Joinme for §e%server%");
-        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.in_cooldown", "§cYou are still in Cooldown");
-        I18N.setDefaultByLang("en_GB", "proxy.command.login.already_logged_in", "§cYou´re logged in already");
-        I18N.setDefaultByLang("en_GB", "proxy.command.login.logged_in", "§aYou´re logged in now");
-        I18N.setDefaultByLang("en_GB", "proxy.command.plugins.no_permission", "§aHmm§f, §aI§f, §athink§f, §athat§f, §ayou§f, §aown´t§f, §afind§f, §aanything§f, §ahere.");
-        I18N.setDefaultByLang("en_GB", "proxy.command.logout.not_logged_in", "§cYou´re not logged in");
-        I18N.setDefaultByLang("en_GB", "proxy.command.logout.logged_out", "§aYou´re logged out now");
-        I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
-        I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
-        I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
-        I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_player", "§cYou can´t ban this Player!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_yourself", "§cYou can´t ban yourself!");
-        I18N.setDefaultByLang("en_GB", "proxy.bansystem.kickscreen_text", "§cYou were kicked by a Staff Member\n§aReason: §f%reason%");
-        I18N.setDefaultByLang("en_GB", "proxy.command.kick.player_404", "§cThis Player was not found");
-        I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msg.usage", "§cPlease use §e/msg <Player> <Message>");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msg.player_not_found", "§cThis Player was not found");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.bauserver.int_required", "§cPlease provide a valid integer!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.wrong_usage", "§cPlease use §7/spd <player> <reason>!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.target_not_found", "§cPlayer not found!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.server_not_found", "§cServer not found!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.sendperdhl.server", "§aServer", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.team.team", "§aTeam", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.broadcast", "\n§6Broadcast: §4§l", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.not_in_lobby", "§cYou can´t execute this command in the lobby!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.joinme_not_found", "§cThis JoinMe doesn´t exist", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_exists", "§cThis JoinMe already exists", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.click_to_join", "§cClick to Join", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.player_sent_joinme", "§6%player% §7sent a Joinme for §e%server%", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.in_cooldown", "§cYou are still in Cooldown", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.login.already_logged_in", "§cYou´re logged in already", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.login.logged_in", "§aYou´re logged in now", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.plugins.no_permission", "§eProxyPlugins (9): §aHmm§f, §aI§f, §athink§f, §athat§f, §ayou§f, §aown´t§f, §afind§f, §aanything§f, §ahere.", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.logout.not_logged_in", "§cYou´re not logged in", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.logout.logged_out", "§aYou´re logged out now", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ", true);
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_player", "§cYou can´t ban this Player!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_yourself", "§cYou can´t ban yourself!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.kickscreen_text", "§cYou were kicked by a Staff Member\n§aReason: §f%reason%", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.kick.player_404", "§cThis Player was not found", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.usage", "§cPlease use §e/msg <Player> <Message>", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.player_not_found", "§cThis Player was not found", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.transmission", "§e{p1} §6-> §e{p2}§e: §7{msg}", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.msg.you", "You");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msg.noperms", "§cYou do not have enough permissions to use this Command");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msg.locked", "§cYou're not allowed to send a message to this person");
-        I18N.setDefaultByLang("en_GB", "proxy.command.r.notfound", "§cYou didn't send any private messages lately");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.no_permissions", "§cYou do not have enough permissions to use this Command");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.on", "§cNobody §ecan message you now");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§aEveryone §ecan message you now");
-        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime", "§eYour OnlineTime is %h% hours and %m% minutes");
-        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime.other", "§e%player%'s OnlineTime is %h% hours and %m% minutes");
-        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime.player404", "§cThis Player was not found");
-        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§eEveryone §ecan message you now");
-        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.no_permissions", "§cYou do not have enough permissions to use this Command");
-        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.on", "§7You now §acan§7 see the private Messages of others");
-        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.off", "§7You now §ccan't§7 see the private Messages of others");
-        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.no_permissions", "§cYou do not have enough permissions to use this Command");
-        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.on", "§7You now §acan§7 see the commands of others");
-        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.off", "§7You now §ccan't§7 see the commands of others");
-        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.spy", "§e{player} executed /{cmd}");
-        I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.title", "§2Friend System §7| §2Help");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.list", "§2 /friend list §8» §aLists your friends");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSend a message to a friend");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.add", "§2 /friend add [Spieler] §8» §aCreates a Friend Request");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAccept a Friend Request");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aDeny a Friend Request");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aRemove a Friend from your list");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.list", "§2Your Friends: {friends}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.title", "§2Friend System §7| §2Help", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.list", "§2 /friend list §8» §aLists your friends", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.msg", "§2 /friend msg [Spieler] [Nachricht] §8» §aSend a message to a friend", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.add", "§2 /friend add [Spieler] §8» §aCreates a Friend Request", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.accept", "§2 /friend accept §8» §aAccept a Friend Request", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.deny", "§2 /friend deny §8» §aDeny a Friend Request", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.help.remove", "§2 /friend remove [Spieler] §8» §aRemove a Friend from your list", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.list", "§2Your Friends: {friends}", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.list.none", "§cNone");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.help", "§cPlease use §7/friend msg [player] [message]");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.target", "§2{player} §a-> §2You§2: §7{msg}");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.source", "§2You §a-> §2{target}§2: §7{msg}");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.notfound", "§cThis player does not exist");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.notonline", "§cThis player is not online");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.friendnotfound", "§cThis friend was not found");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.notexists", "§cThis Friend Request does not exists");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.deny.notexists", "§cThis Friend Request does not exists");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.deny.ok", "§cThis Friend Request was deleted");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.ok", "§aYour Friend Request was accepted");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.ok.other", "§a{player} accepted your friend request");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.help", "§cPlease use §7/friend add [player]");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.ok", "§aYou sent the Friend Request!");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.request", "§aYou got a Friend Request from {player}:");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.help", "§cPlease use §7/friend msg [player] [message]", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.target", "§2{player} §a-> §2You§2: §7{msg}", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.msg.source", "§2You §a-> §2{target}§2: §7{msg}", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.notfound", "§cThis player does not exist", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.notonline", "§cThis player is not online", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.friendnotfound", "§cThis friend was not found", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.notexists", "§cThis Friend Request does not exists", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.deny.notexists", "§cThis Friend Request does not exists", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.deny.ok", "§cThis Friend Request was deleted", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.ok", "§aYour Friend Request was accepted", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.accept.ok.other", "§a{player} accepted your friend request", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.help", "§cPlease use §7/friend add [player]", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.ok", "§aYou sent the Friend Request!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.request", "§aYou got a Friend Request from {player}:", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.yes", "§aAccept");
         I18N.setDefaultByLang("en_GB", "proxy.command.friend.add.no", "§cDeny");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.help", "§cPlease use §7/friend remove [player]");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.ok", "§aYou are no longer friends with {player}");
-        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.other", "§aYou are no longer friends with {player}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.help", "§cPlease use §7/friend remove [player]", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.ok", "§aYou are no longer friends with {player}", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.friend.remove.other", "§aYou are no longer friends with {player}", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.noperms", "§cYou do not have enough permissions to use this Command", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msg.locked", "§cYou're not allowed to send a message to this person", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.r.notfound", "§cYou didn't send any private messages lately", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.no_permissions", "§cYou do not have enough permissions to use this Command", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.on", "§cNobody §ecan message you now", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§aEveryone §ecan message you now", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime", "§eYour OnlineTime is %h% hours and %m% minutes", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime.other", "§e%player%'s OnlineTime is %h% hours and %m% minutes", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.onlinetime.player404", "§cThis Player was not found", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.msgtoggle.off", "§eEveryone §ecan message you now", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.no_permissions", "§cYou do not have enough permissions to use this Command", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.on", "§7You now §acan§7 see the private Messages of others", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.socialspy.off", "§7You now §ccan't§7 see the private Messages of others", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.no_permissions", "§cYou do not have enough permissions to use this Command", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.on", "§7You now §acan§7 see the commands of others", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.off", "§7You now §ccan't§7 see the commands of others", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.commandspy.spy", "§e{player} executed /{cmd}", true);
+        I18N.setDefaultByLang("en_GB", "proxy.default_kick_reason", "§cYou got disconnected from the Server", true);
+
+        I18N.setDefaultByLang("en_GB", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
+                "player: {player}\n" +
+                "Reason: {reason}\n" +
+                "Banpoints: {banPoints}\n" +
+                "From: {from}\n" +
+                "Until: {until}\n" +
+                "Permanent: {permanent}\n" +
+                "Staff: {staff}");
+
+        I18N.setDefaultByLang("en_GB", "proxy.ban.muted.chat", "§cYou were muted by a staff member, so you can´t chat at the moment!\n" +
+                "§cIf you think this is wrong, please contact the Support!");
+
+        I18N.setDefaultByLang("en_GB", "proxy.command.mute.cant_mute_yourself", "§cYou can´t mute yourself!", true);
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.mute.message", "Message");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.anti_vpn", "§cPlease turn of your VPN/Proxy to play on this server");
+        I18N.setDefaultByLang("en_GB", "proxy.command.ip.usage", "§cUsage: §f/ip <player>", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.ip.ip_of_player", "§cIp of Player {player}: {ip}", true);
 
         I18N.load();
 
@@ -344,6 +381,8 @@ public class GalaxyCoreProxy {
         pluginCommandListener = new PluginCommandListener();
 
         playerDisconnectListener = new PlayerDisconnectListener();
+
+        new ChatListener();
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler();
