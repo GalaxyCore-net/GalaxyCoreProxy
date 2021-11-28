@@ -17,6 +17,7 @@ import net.galaxycore.galaxycoreproxy.configuration.*;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18N;
 import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
+import net.galaxycore.galaxycoreproxy.listener.ChatListener;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTime;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTimeCommand;
@@ -116,6 +117,7 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.ban.default_reason", "1");
         proxyNamespace.setDefault("proxy.commnad.kick.default_reason", "Fehlverhalten");
         proxyNamespace.setDefault("proxy.mute.default_reason", "1");
+        proxyNamespace.setDefault("forbiddenWords", "affenarsch|affenkopf|analpirat|analtaucher|ankotzer|anpinkler|anscheißer|antänzer|arschlecker|arschloch|arschnase|arschtonne|arschwichser|ausschiss|blindschleiche|blödmann|chemieunfall|donnerfotze|dumpfbacke|dummarsch|dummie|dummschwätzer|ekelalfred|ekelpaket|fickeumel|fickfotze|fickfresse|fickmuschi|flachkopp|flaschwichser|fotze|fotzenlecker|fressmuschi|fresspilz|gammelkerl|gammler|gehirnpfeife|gehirnzecke|gummimuschi|hackfresse|hirnfresse|hodenkobold|holzkopf|idiot|kackbratze|kackebacke|kackfresse|kackhaufen|kackstelze|kackvogel|kobold|klugscheißer|knallfrosch|knalltüte|kothaufen|kotzbrocken|lackaffe|luftikuss|luftsack|pimmel|pimmellutscher|pimmelnase|pissnelke|pissnudel|sackgassenjunge|sackratte|scheißhaufen|scheißkerl|schimmelnarr|schissbold|schlappschwanz|schmierfink|schwätzer|schwanzsauger|stinkbolzen|stinkmumie|stinksack|terrorclown|teufelsanbeter|tonnenlecker|topffresse|topflappen|torfkopf|torfnase|torfnudel|wichser|wuchtbrumme|zicke|zuckerschlucker");
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
@@ -313,6 +315,8 @@ public class GalaxyCoreProxy {
         pluginCommandListener = new PluginCommandListener();
 
         playerDisconnectListener = new PlayerDisconnectListener();
+
+        new ChatListener();
 
         // SCHEDULER //
         broadcastScheduler = new BroadcastScheduler();
