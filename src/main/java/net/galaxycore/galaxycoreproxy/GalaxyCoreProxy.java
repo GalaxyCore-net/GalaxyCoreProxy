@@ -216,7 +216,10 @@ public class GalaxyCoreProxy {
                 "§8» §7Bans§8: §c{bans}\n" +
                 "§8» §7Mutes§8: §c{mutes}\n" +
                 "§8» §7Warnungen§8: §c{warns}\n");
-        I18N.setDefaultByLang("de_DE", "proxy.command.unmute.usage", "§cBenutzung: §f/unmute <player>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.unmute.usage", "§cBenutzung: §f/unmute <spieler>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.history.usage", "§cBenutzung: §f/history <spieler>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.history.begin", "§cHistorie von §a{player}§c:");
+        I18N.setDefaultByLang("de_DE", "proxy.command.history.entry", "§a{id} | §c{action} | §e{reason} | §8{staff} | §b{date}");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -309,6 +312,9 @@ public class GalaxyCoreProxy {
                 "§8» §7mutes§8: §c{mutes}\n" +
                 "§8» §7warns§8: §c{warns}\n");
         I18N.setDefaultByLang("en_GB", "proxy.command.unmute.usage", "§cUsage: §f/unmute <player>");
+        I18N.setDefaultByLang("en_GB", "proxy.command.history.usage", "§cUsage: §f/history <player>");
+        I18N.setDefaultByLang("en_GB", "proxy.command.history.begin", "§cHistory of §a{player}§c:");
+        I18N.setDefaultByLang("en_GB", "proxy.command.history.entry", "§a{id} §f| §c{action} §f| §e{reason} §f| §8{staff} §f| §b{date}");
 
         I18N.load();
 
