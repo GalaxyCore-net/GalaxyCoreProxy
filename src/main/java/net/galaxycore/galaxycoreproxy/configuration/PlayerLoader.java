@@ -10,9 +10,11 @@ import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 @SuppressWarnings("unused") // API Usage
@@ -64,13 +66,14 @@ public class PlayerLoader {
     }
 
     @SneakyThrows
-    private static @Nullable PlayerLoader buildLoader(int id) {
+    public static @Nullable
+    PlayerLoader buildLoader(int id) {
         GalaxyCoreProxy proxy = ProxyProvider.getProxy();
         PreparedStatement load = proxy.getDatabaseConfiguration().getConnection().prepareStatement("SELECT * FROM core_playercache WHERE id=?");
         load.setInt(1, id);
         ResultSet loadResult = load.executeQuery();
 
-        if(!loadResult.next()) {
+        if (!loadResult.next()) {
             loadResult.close();
             load.close();
             return null;
@@ -181,11 +184,30 @@ public class PlayerLoader {
 
     @SneakyThrows
     public static Date parse(ResultSet resultSet, String field) {
-        if(ProxyProvider.getProxy().getDatabaseConfiguration().getInternalConfiguration().getConnection().equals("sqlite")) {
+        if (ProxyProvider.getProxy().getDatabaseConfiguration().getInternalConfiguration().getConnection().equals("sqlite")) {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(resultSet.getString(field));
-        }else {
+        } else {
             return resultSet.getDate(field);
         }
     }
 
+    public static Optional<PlayerLoader> load(String arg) throws SQLException {
+        GalaxyCoreProxy proxy = ProxyProvider.getProxy();
+        Connection connection = proxy.getDatabaseConfiguration().getConnection();
+        Optional<PlayerLoader> optionalPlayerLoader = Optional.empty();
+
+        PreparedStatement getID = connection.prepareStatement("SELECT id FROM core_playercache WHERE lastname=?");
+        getID.setString(1, arg);
+
+        ResultSet resultSet = getID.executeQuery();
+
+        if (resultSet.next()) {
+            optionalPlayerLoader = Optional.ofNullable(buildLoader(resultSet.getInt("id")));
+        }
+
+        resultSet.close();
+        getID.close();
+
+        return optionalPlayerLoader;
+    }
 }
