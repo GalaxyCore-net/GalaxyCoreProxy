@@ -171,7 +171,7 @@ public class BanManager {
         Player player = optionalPlayer.get();
 
         if (!MathUtils.isInt(reason)) {
-            MessageUtils.sendI18NMessage(player, "proxy.command.ban.not_a_number");
+            MessageUtils.sendI18NMessage(staff, "proxy.command.ban.not_a_number");
             return false;
         }
 
