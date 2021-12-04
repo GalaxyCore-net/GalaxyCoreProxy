@@ -41,6 +41,9 @@ public class BanSystem {
     @Getter
     private final HistoryCommand historyCommand;
 
+    @Getter
+    private final ReportCommand reportCommand;
+
     public BanSystem() {
         banManager = new BanManager();
 
@@ -63,6 +66,8 @@ public class BanSystem {
         unmuteCommand = new UnmuteCommand();
 
         historyCommand = new HistoryCommand();
+
+        reportCommand = new ReportCommand();
 
         PunishmentReason.loadReasons();
         registerDefaultPunishments();

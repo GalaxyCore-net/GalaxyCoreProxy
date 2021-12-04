@@ -1,6 +1,8 @@
 package net.galaxycore.galaxycoreproxy.bansystem;
 
 import com.velocitypowered.api.proxy.Player;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import lombok.SneakyThrows;
 import net.galaxycore.galaxycorecore.utils.DiscordWebhook;
 import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
@@ -22,6 +24,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @SuppressWarnings({"unused", "UnusedReturnValue", "DuplicatedCode"})
 public class BanManager {
@@ -220,9 +223,9 @@ public class BanManager {
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement("DELETE FROM core_mutes WHERE userid=?");
             int playerid = getPlayerID(player);
+            ps.setInt(1, playerid);
             ps.executeUpdate();
             ps.close();
-            ;
             createUnmuteLogEntry(player, staff);
             return true;
 
@@ -257,7 +260,7 @@ public class BanManager {
     }
 
     public boolean kickPlayer(Player player, Player staff) {
-        return kickPlayer(player, ProxyProvider.getProxy().getProxyNamespace().get("proxy.commnad.kick.default_reason"), staff);
+        return kickPlayer(player, ProxyProvider.getProxy().getProxyNamespace().get("proxy.command.kick.default_reason"), staff);
     }
 
     public boolean kickPlayer(String playerName, Player staff) {
@@ -436,6 +439,219 @@ public class BanManager {
         return mutePlayer(playerName, ProxyProvider.getProxy().getProxyNamespace().get("proxy.mute.default_reason"), staff, message);
     }
 
+    public boolean reportPlayer(String playerName, Player reporter) {
+        return reportPlayer(playerName, ProxyProvider.getProxy().getProxyNamespace().get("proxy.command.report.default_reason"), reporter);
+    }
+
+    public boolean reportPlayer(String playerName, String reason, Player reporter) {
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        if (optionalPlayer.isEmpty()) {
+            if (reporter == null)
+                ProxyProvider.getProxy().getServer().getConsoleCommandSource().sendMessage(Component.text("§cThis Player was not found"));
+            else
+                MessageUtils.sendI18NMessage(reporter, "proxy.player_404");
+            return false;
+        }
+
+        Player player = optionalPlayer.get();
+        return reportPlayer(player, reason, reporter);
+    }
+
+    public boolean reportPlayer(Player player, String reason, Player reporter) {
+
+        try {
+            if (reporter != null) {
+                if (player.hasPermission("group.team") && !reporter.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
+                    MessageUtils.sendI18NMessage(reporter, "proxy.command.report.cant_report_player");
+                    return false;
+                }
+                if (player.getUniqueId() == reporter.getUniqueId()) {
+                    MessageUtils.sendI18NMessage(reporter, "proxy.command.report.cant_report_yourself");
+                    return false;
+                }
+            }
+
+            if (!isPlayerForReasonReported(player.getUsername(), reason)) {
+
+                PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement("INSERT INTO core_reports (reported, reporter, reason, `date`, resolved, staff) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)");
+                ps.setInt(1, PlayerLoader.load(player).getId());
+                ps.setInt(2, reporter != null ? PlayerLoader.load(reporter).getId() : 0);
+                ps.setString(3, reason.toLowerCase());
+                ps.setTimestamp(4, convertUtilDate(new Date()));
+                ps.setBoolean(5, false);
+                ps.setInt(6, 0);
+                ps.executeUpdate();
+                ps.close();
+
+                PreparedStatement update = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement("UPDATE core_playercache SET reports=reports+1 WHERE id=?");
+                update.setInt(1, PlayerLoader.load(player).getId());
+                update.executeUpdate();
+                update.close();
+
+                createReportLogEntry(player.getUsername(), reason, reporter != null ? reporter.getUsername() : "Console");
+                return true;
+
+            } else {
+                if (reporter != null) {
+                    reporter.sendMessage(Component.text(MessageUtils.getI18NMessage(reporter, "proxy.command.report.player_already_reported")
+                            .replace("{player}", player.getUsername())));
+                } else {
+                    ProxyProvider.getProxy().getServer().getConsoleCommandSource().sendMessage(Component.text(MessageUtils.getI18NMessage(ProxyProvider.getProxy().getServer().getConsoleCommandSource(), "proxy.command.report.player_already_reported")
+                            .replace("{player}", player.getUsername())));
+                }
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public boolean claimReport(String playerName, Player staff) {
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        if (optionalPlayer.isEmpty()) {
+            MessageUtils.sendI18NMessage(staff, "proxy.player_404");
+            return false;
+        }
+
+        Player player = optionalPlayer.get();
+        return claimReport(player, staff);
+    }
+
+    @SneakyThrows
+    public boolean claimReport(Player player, Player staff) {
+
+        if (isPlayerReported(player.getUsername())) {
+
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "UPDATE core_reports SET staff=? WHERE reported=?"
+            );
+            ps.setInt(1, staff != null ? PlayerLoader.load(staff).getId() : 0);
+            ps.setInt(2, PlayerLoader.load(player).getId());
+            ps.executeUpdate();
+
+            PreparedStatement vanish = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "UPDATE core_playercache SET vanished=true WHERE id=?"
+            );
+            vanish.setInt(1, PlayerLoader.load(player).getId());
+
+            IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+            if (staff != null) {
+                playerManager.getPlayerExecutor(staff.getUniqueId()).connect(player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : ProxyProvider.getProxy().getProxyNamespace().get("proxy.command.report.default_server"));
+                MessageUtils.sendI18NMessage(staff, "proxy.command.report.report_claimed");
+            }
+            return true;
+
+        } else {
+
+            staff.sendMessage(Component.text(MessageUtils.getI18NMessage(staff, "proxy.command.report.player_not_reported")
+                    .replace("{player}", player.getUsername())));
+            return false;
+
+        }
+
+    }
+
+    public boolean denyReport(String playerName, Player staff) {
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        if (optionalPlayer.isEmpty()) {
+            MessageUtils.sendI18NMessage(staff, "proxy.player_404");
+            return false;
+        }
+
+        Player player = optionalPlayer.get();
+        return denyReport(player, staff);
+    }
+
+    @SneakyThrows
+    public boolean denyReport(Player player, Player staff) {
+
+        if (isPlayerReported(player.getUsername())) {
+
+            PreparedStatement reporterStmt = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_reports WHERE reported=?"
+            );
+            reporterStmt.setInt(1, PlayerLoader.load(player).getId());
+            ResultSet rs = reporterStmt.executeQuery();
+            if (rs.next()) {
+                int reporterID = rs.getInt("reporter");
+                if (reporterID > 0) {
+                    PreparedStatement playerCache = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                            "SELECT * FROM core_playercache WHERE id=?"
+                    );
+                    playerCache.setInt(1, reporterID);
+                    ResultSet playerCacheRs = playerCache.executeQuery();
+                    UUID uuid = UUID.fromString(playerCacheRs.getString("uuid"));
+                    Optional<Player> optionalReportPlayer = ProxyProvider.getProxy().getServer().getPlayer(uuid);
+                    optionalReportPlayer.ifPresent(reportPlayer -> MessageUtils.sendI18NMessage(reportPlayer, "proxy.command.report.report_denied"));
+                }
+                rs.close();
+                reporterStmt.close();
+            }
+
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "DELETE FROM core_reports WHERE reported=?"
+            );
+            ps.setInt(1, PlayerLoader.load(player).getId());
+            ps.executeUpdate();
+            MessageUtils.sendI18NMessage(staff, "proxy.command.report.this_report_was_denied");
+            return true;
+        } else {
+
+            staff.sendMessage(Component.text(MessageUtils.getI18NMessage(staff, "proxy.command.report.player_not_reported")
+                    .replace("{player}", player.getUsername())));
+            return false;
+
+        }
+
+    }
+
+    public boolean closeReport(String playerName, Player staff) {
+        Optional<Player> optionalPlayer = ProxyProvider.getProxy().getServer().getPlayer(playerName);
+
+        if (optionalPlayer.isEmpty()) {
+            MessageUtils.sendI18NMessage(staff, "proxy.player_404");
+            return false;
+        }
+
+        Player player = optionalPlayer.get();
+        return closeReport(player, staff);
+    }
+
+    @SneakyThrows
+    public boolean closeReport(Player player, Player staff) {
+        PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                "SELECT * FROM core_reports WHERE reported=?"
+        );
+        ps.setInt(1, PlayerLoader.load(player).getId());
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) {
+            staff.sendMessage(Component.text(MessageUtils.getI18NMessage(staff, "proxy.command.report.player_not_reported")
+                    .replace("{player}", player.getUsername())));
+            return false;
+        }
+        if ((PlayerLoader.load(staff).getId() == rs.getInt("staff")) || staff.hasPermission("proxy.command.report.close.bypass")) {
+            rs.close();
+            ps.close();
+            PreparedStatement delete = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "DELETE FROM core_reports WHERE reported=?"
+            );
+            delete.setInt(1, PlayerLoader.load(player).getId());
+            delete.executeUpdate();
+            delete.close();
+            MessageUtils.sendI18NMessage(staff, "proxy.command.report.report_closed");
+            return true;
+        } else {
+            MessageUtils.sendI18NMessage(staff, "proxy.command.report.only_claimed_staff");
+            return false;
+        }
+    }
+
     @SneakyThrows
     public int getPlayerID(String playerName) {
         PreparedStatement stmt = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -486,6 +702,41 @@ public class BanManager {
             return false;
         }
 
+    }
+
+    public boolean isPlayerForReasonReported(String player, String reason) {
+        try {
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_reports WHERE reported=? AND reason=?"
+            );
+            ps.setInt(1, getPlayerID(player));
+            ps.setString(2, reason.toLowerCase());
+            ResultSet rs = ps.executeQuery();
+            boolean hasNext = rs.next();
+            rs.close();
+            ps.close();
+            return hasNext;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isPlayerReported(String player) {
+        try {
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_reports WHERE reported=?"
+            );
+            ps.setInt(1, getPlayerID(player));
+            ResultSet rs = ps.executeQuery();
+            boolean hasNext = rs.next();
+            rs.close();
+            ps.close();
+            return hasNext;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @SneakyThrows
@@ -554,6 +805,9 @@ public class BanManager {
                 case "unban":
                     embed.setColor(Color.RED);
                     break;
+                case "report":
+                    embed.setColor(Color.YELLOW);
+                    break;
                 default:
                     embed.setColor(Color.BLACK);
                     break;
@@ -572,15 +826,16 @@ public class BanManager {
                     continue;
                 }
 
-                StringBuilder msg = new StringBuilder(MessageUtils.getI18NMessage(player1, "proxy.ban.banlog_entry")
-                        .replace("{action}", StringUtils.firstLetterUppercase(action))
-                        .replace("{player}", player)
-                        .replace("{reason}", reason != null ? reason : "Kein Grund angegeben")
-                        .replace("{banPoints}", Integer.toString(banPoints))
-                        .replace("{from}", dtf.format(from))
-                        .replace("{until}", dtf.format(until))
-                        .replace("{permanent}", permanent ? "Ja" : "Nein")
-                        .replace("{staff}", staff));
+                String i18nKey = MessageUtils.getI18NMessage(player1, "proxy.ban.banlog_entry");
+                i18nKey = i18nKey.replace("{action}", StringUtils.firstLetterUppercase(action));
+                i18nKey = i18nKey.replace("{player}", player);
+                i18nKey = i18nKey.replace("{reason}", reason != null ? reason : "No reason provided");
+                i18nKey = i18nKey.replace("{banPoints}", Integer.toString(banPoints));
+                i18nKey = i18nKey.replace("{from}", from != null ? dtf.format(from) : "N/A");
+                i18nKey = i18nKey.replace("{until}", until != null ? dtf.format(until) : "N/A");
+                i18nKey = i18nKey.replace("{permanent}", permanent ? "Ja" : "Nein");
+                i18nKey = i18nKey.replace("{staff}", staff);
+                StringBuilder msg = new StringBuilder(i18nKey);
 
                 boolean lineBreak = true;
                 for (Field field : optionalFields) {
@@ -605,11 +860,22 @@ public class BanManager {
     }
 
     private void createKickLogEntry(String player, String reason, String staff) {
-        createBanLogEntry("kick", player, reason, 0, null, null, false, staff);
+        createBanLogEntry("kick", player, reason, -1, null, null, false, staff);
     }
 
     private void createMuteLogEntry(String player, String reason, int mutePoints, Date from, Date until, boolean permanent, String staff, String message) {
         createBanLogEntry("mute", player, reason, mutePoints, from, until, permanent, staff, new Field("proxy.bansystem.mute.message", message));
+    }
+
+    private void createReportLogEntry(String player, String reason, String staff) {
+        createBanLogEntry("report", player, reason, -1, null, null, false, staff);
+        ProxyProvider.getProxy().getServer().getAllPlayers().stream().filter(player1 -> player1.hasPermission("proxy.bansystem.new_report")).forEach(player1 -> {
+
+            player1.sendMessage(Component.text(MessageUtils.getI18NMessage(player1, "proxy.command.report.accept"))
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/report claim " + player)));
+            player1.sendMessage(Component.text(MessageUtils.getI18NMessage(player1, "proxy.command.report.deny"))
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/report deny " + player)));
+        });
     }
 
     private String quote(Object s) {

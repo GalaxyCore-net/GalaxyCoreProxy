@@ -114,8 +114,9 @@ public class GalaxyCoreProxy {
         proxyNamespace.setDefault("proxy.bansystem.banscreen_url", "https://galaxycore.net/unban");
         proxyNamespace.setDefault("proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         proxyNamespace.setDefault("proxy.ban.default_reason", "1");
-        proxyNamespace.setDefault("proxy.commnad.kick.default_reason", "Fehlverhalten");
+        proxyNamespace.setDefault("proxy.command.kick.default_reason", "Fehlverhalten");
         proxyNamespace.setDefault("proxy.mute.default_reason", "1");
+        proxyNamespace.setDefault("proxy.command.report.default_reason", "Fehlverhalten");
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
@@ -200,6 +201,7 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("de_DE", "proxy.command.mute.cant_mute_yourself", "§cDu kannst dich nicht selbst muten!");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.mute.message", "Nachricht");
+        I18N.setDefaultByLang("de_DE", "proxy.command.mute.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_mute%");
         I18N.setDefaultByLang("de_DE", "proxy.bansystem.anti_vpn", "§cBitte schalte deine VPN/deinen Proxy aus, um auf diesem Server zu spielen");
         I18N.setDefaultByLang("de_DE", "proxy.command.ip.usage", "§cBenutzung: §f/ip <spieler>");
         I18N.setDefaultByLang("de_DE", "proxy.command.ip.ip_of_player", "§cIp von Spieler {player}: {ip}");
@@ -220,6 +222,19 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.history.usage", "§cBenutzung: §f/history <spieler>");
         I18N.setDefaultByLang("de_DE", "proxy.command.history.begin", "§cHistorie von §a{player}§c:");
         I18N.setDefaultByLang("de_DE", "proxy.command.history.entry", "§a{id} | §c{action} | §e{reason} | §8{staff} | §b{date}");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.usage", "§cBenutzung: §f/report <spieler>");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.cant_report_player", "§cDu kannst diesen Spieler nicht melden!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.cant_report_yourself", "§cDu kannst dich nicht selber melden!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.player_already_reported", "§cDieser Spieler ist bereits gemeldet");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.player_not_reported", "§cDieser Spieler wurde noch nicht gemeldet");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.report_denied", "§cDeine Meldung wurde abgelehnt");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.report_claimed", "§cDu hast diese Meldung angenommen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.accept", "§aAnnehmen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.deny", "§cAblehnen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.only_claimed_staff", "§cDiese Aktion kann nur von dem Teammitglied ausgeführt werden, welches diese Meldung angenommen hat!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.report_clossed", "§cDiese Meldung wurde geschlossen");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.no_permission", "§cDu hast hierfür keine Rechte!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.report.this_report_was_denied", "§cDieser Report wurde geschlossen");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -241,7 +256,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.click_to_join", "§cClick to Join");
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.player_sent_joinme", "§6%player% §7sent a Joinme for §e%server%");
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.in_cooldown", "§cYou are still in Cooldown");
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_exists", "§cThis JoinMe already exists");
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.joinme_exists", "§cThis JoinMe already exists");
         I18N.setDefaultByLang("en_GB", "proxy.command.login.already_logged_in", "§cYou´re logged in already");
         I18N.setDefaultByLang("en_GB", "proxy.command.login.logged_in", "§aYou´re logged in now");
         I18N.setDefaultByLang("en_GB", "proxy.command.plugins.no_permission", "§aHmm§f, §aI§f, §athink§f, §athat§f, §ayou§f, §aown´t§f, §afind§f, §aanything§f, §ahere.");
@@ -295,6 +310,7 @@ public class GalaxyCoreProxy {
 
         I18N.setDefaultByLang("en_GB", "proxy.command.mute.cant_mute_yourself", "§cYou can´t mute yourself!");
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.mute.message", "Message");
+        I18N.setDefaultByLang("en_GB", "proxy.command.mute.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_mute%");
         I18N.setDefaultByLang("en_GB", "proxy.bansystem.anti_vpn", "§cPlease turn of your VPN/Proxy to play on this server");
         I18N.setDefaultByLang("en_GB", "proxy.command.ip.usage", "§cUsage: §f/ip <player>");
         I18N.setDefaultByLang("en_GB", "proxy.command.ip.ip_of_player", "§cIp of Player {player}: {ip}");
@@ -315,6 +331,19 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.history.usage", "§cUsage: §f/history <player>");
         I18N.setDefaultByLang("en_GB", "proxy.command.history.begin", "§cHistory of §a{player}§c:");
         I18N.setDefaultByLang("en_GB", "proxy.command.history.entry", "§a{id} §f| §c{action} §f| §e{reason} §f| §8{staff} §f| §b{date}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.usage", "§cUsage: §f/report <player>");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.cant_report_player", "§cYou can´t report this player!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.cant_report_yourself", "§cYou can´t report yourself!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.player_already_reported", "§cThis player is already reported");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.player_not_reported", "§cThis player is not reported");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.report_denied", "§cYour report was denied");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.report_claimed", "§cYou claimed this report");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.accept", "§aAccept");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.deny", "§cDeny");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.only_claimed_staff", "§cOnly the Staff that claimed this report can perform this action!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.report_closed", "§cThis report was closed");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.no_permission", "§cYou do not have enough permissions to use this command");
+        I18N.setDefaultByLang("en_GB", "proxy.command.report.this_report_was_denied", "§cThis report was denied");
 
         I18N.load();
 
