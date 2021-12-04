@@ -112,7 +112,6 @@ public class GalaxyCoreProxy {
 
         proxyNamespace.setDefault("proxy.bansystem.banlog_webhook", "https://discord.com/api/webhooks/882263428591419442/eTztbTcJ5TvZMJJhLC5Q__dTqwLHe91ryfL5TGdmOhdNRj_j47N4GMeMwIguM15syQ1M");
         proxyNamespace.setDefault("proxy.bansystem.banscreen_url", "https://galaxycore.net/unban");
-        proxyNamespace.setDefault("proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         proxyNamespace.setDefault("proxy.ban.default_reason", "1");
         proxyNamespace.setDefault("proxy.command.kick.default_reason", "Fehlverhalten");
         proxyNamespace.setDefault("proxy.mute.default_reason", "1");
@@ -158,9 +157,8 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_player", "§cDu kannst diesen Spieler nicht bannen!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.cant_ban_yourself", "§cDu kannst dich nicht selber bannen!");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
         I18N.setDefaultByLang("de_DE", "proxy.player_404", "§cDer Spieler wurde nicht gefunden");
-        I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/ban <spieler> [grund]§c!");
+        I18N.setDefaultByLang("de_DE", "proxy.command.kick.too_few_args", "§cBitte benutze §7/kick <spieler> [grund]§c!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.not_a_number", "§cDies ist keine ganze Zahl!");
         I18N.setDefaultByLang("de_DE", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
         I18N.setDefaultByLang("de_DE", "proxy.command.msg.usage", "§cBitte nutze §e/msg <Spieler> <Nachricht>");
@@ -184,8 +182,31 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.off", "§7CommandSpy §cdeaktiviert");
         I18N.setDefaultByLang("de_DE", "proxy.command.commandspy.spy", "§e{player} verwendete soeben /{cmd}");
         I18N.setDefaultByLang("de_DE", "proxy.default_kick_reason", "§cVerbindung zum Server verloren");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.banscreen_text", "Du wurdest von einem Teammitglied gebannt");
-        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kickscreen_text", "§cDu wurdest von einem Teammitglied gekickt\n§aGrund: §f%reason%");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.temporary_banscreen_text", "§eGalaxyCore.net\n\n" +
+                "§cDu wurdest bis §e§l{until} §r§cvom Netzwerk gebannt.\n" +
+                "§cvon§8: §e{staff}\n\n" +
+                "§cVerbleibende Zeit§8: §e{remaining}\n\n" +
+                "§cEntbannungsantrag: §e{banscreen_url}");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.permanent_banscreen_text", "§eGalaxyCore.net\n\n" +
+                "§cDu wurdest §e§lpermanent §r§cvom Netzwerk gebannt.\n" +
+                "§cGrund§8: §e§l{reason}§r\n" +
+                "§cvon§8: §e{staff}\n\n" +
+                "§cEntbannungsantrag: §e{banscreen_url}");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.temporary_mutescreen_text", "§eGalaxyCore.net\n\n" +
+                "{prefix}§cDu wurdest bis §e{until} §caus dem Chat gemutet.\n" +
+                "§8» §cGrund§8: §e§l{reason}§r\n" +
+                "§8» §cvon§8: §e§l{staff}§r\n\n" +
+                "§8» §cVerbleibende Zeit§8: §e{remaining}\n\n" +
+                "§cEntbannungsantrag: §e{mutescreen_url}");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.permanent_mutescreen_text", "§eGalaxyCore.net\n\n" +
+                "{prefix}§cDu wurdest §epermanent §caus dem Chat gemutet.\n" +
+                "§8» §cGrund§8: §e§l{reason}§r\n" +
+                "§8» von§8: §e§l{staff}§r\n\n" +
+                "§cEntbannungsantrag: §e{mutescreen_url}");
+        I18N.setDefaultByLang("de_DE", "proxy.bansystem.kick_text", "§eGalaxyCore.net\n\n" +
+                "§cDu wurdest vom Netzwerk gekickt.\n" +
+                "§cGrund§8: §e§l{reason}§r\n" +
+                "§cvon§8: §e§l{staff}");
 
         I18N.setDefaultByLang("de_DE", "proxy.ban.banlog_entry", "§c« §f{action} §c»\n" +
                 "Spieler: {player}\n" +
@@ -264,13 +285,11 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.logout.logged_out", "§aYou´re logged out now");
         I18N.setDefaultByLang("en_GB", "proxy.command.adminchat.prefix", "§4AdminChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
         I18N.setDefaultByLang("en_GB", "proxy.command.teamchat.prefix", "§7TeamChat §8| §r%rank_prefix%%player%§7:%chat_important% ");
-        I18N.setDefaultByLang("en_GB", "proxy.bansystem.banscreen_text", "You were banned by a Staff Member");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_player", "§cYou can´t ban this Player!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.cant_ban_yourself", "§cYou can´t ban yourself!");
-        I18N.setDefaultByLang("en_GB", "proxy.bansystem.kickscreen_text", "§cYou were kicked by a Staff Member\n§aReason: §f%reason%");
         I18N.setDefaultByLang("en_GB", "proxy.player_404", "§cThis Player was not found");
-        I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/ban <player> [reason]§c!");
+        I18N.setDefaultByLang("en_GB", "proxy.command.kick.too_few_args", "§cPlease use §7/kick <player> [reason]§c!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.not_a_number", "§cThis is not a valid number!");
         I18N.setDefaultByLang("en_GB", "proxy.command.ban.reason_list", "§c%id% §8» §6%name% §8» §e%req_permission_ban%");
         I18N.setDefaultByLang("en_GB", "proxy.command.msg.usage", "§cPlease use §e/msg <Player> <Message>");
@@ -344,6 +363,31 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.report.report_closed", "§cThis report was closed");
         I18N.setDefaultByLang("en_GB", "proxy.command.report.no_permission", "§cYou do not have enough permissions to use this command");
         I18N.setDefaultByLang("en_GB", "proxy.command.report.this_report_was_denied", "§cThis report was denied");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.temporary_banscreen_text", "§eGalaxyCore.net\n\n" +
+                "§cYou were banned from the network until §e§l{until}§r§c.\n" +
+                "§cfrom§8: §e{staff}\n\n" +
+                "§cremaining time§8: §e{remaining}\n\n" +
+                "§cunban: §e{banscreen_url}");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.permanent_banscreen_text", "§eGalaxyCore.net\n\n" +
+                "§cYou were banned §e§lpermanently §r§cfrom the network.\n" +
+                "§creason§8: §e§l{reason}§r\n" +
+                "§cfrom§8: §e{staff}\n\n" +
+                "§cunban: §e{banscreen_url}");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.temporary_mutescreen_text", "§eGalaxyCore.net\n\n" +
+                "{prefix}§cYou were muted from the chat until §e{until}§c.\n" +
+                "§8» §creason§8: §e§l{reason}§r\n" +
+                "§8» §cfrom§8: §e§l{staff}§r\n\n" +
+                "§8» §cremaining time§8: §e{remaining}\n\n" +
+                "§cunban: §e{mutescreen_url}");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.permanent_mutescreen_text", "§eGalaxyCore.net\n\n" +
+                "{prefix}§cYou were muted §epermanently §cfrom the chat.\n" +
+                "§8» §creason§8: §e§l{reason}§r\n" +
+                "§8» from§8: §e§l{staff}§r\n\n" +
+                "§cunban: §e{mutescreen_url}");
+        I18N.setDefaultByLang("en_GB", "proxy.bansystem.kickscreen_text", "§eGalaxyCore.net\n\n" +
+                "§cYou were kicked from the Network.\n" +
+                "§creason§8: §e§l{reason}§r\n" +
+                "§cfrom§8: §e§l{staff}");
 
         I18N.load();
 

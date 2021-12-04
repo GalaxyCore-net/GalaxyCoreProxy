@@ -7,8 +7,8 @@ import lombok.SneakyThrows;
 import net.galaxycore.galaxycorecore.utils.DiscordWebhook;
 import net.galaxycore.galaxycoreproxy.bansystem.util.PunishmentReason;
 import net.galaxycore.galaxycoreproxy.configuration.PlayerLoader;
+import net.galaxycore.galaxycoreproxy.configuration.PrefixProvider;
 import net.galaxycore.galaxycoreproxy.configuration.ProxyProvider;
-import net.galaxycore.galaxycoreproxy.configuration.internationalisation.I18NPlayerLoader;
 import net.galaxycore.galaxycoreproxy.utils.Field;
 import net.galaxycore.galaxycoreproxy.utils.MathUtils;
 import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
@@ -144,7 +144,7 @@ public class BanManager {
             psExistingBansForSameReason.close();
             rsIncomingBan.close();
             rsExistingBansForSameReason.close();
-            player.disconnect(buildBanScreen(player));
+            player.disconnect(buildBanScreen(player, permanent));
             return banPlayer(player, reason, banPointsSum, new Date(), until, permanent, staff);
 
         } catch (Exception e) {
@@ -239,7 +239,7 @@ public class BanManager {
     public boolean kickPlayer(Player player, String reason, Player staff) {
 
         player.disconnect(buildKickScreen(player, staff, reason));
-        createKickLogEntry(player.getUsername(), reason, staff.getUsername());
+        createKickLogEntry(player.getUsername(), reason, staff != null ? staff.getUsername() : "Console");
         return true;
 
     }
@@ -307,6 +307,7 @@ public class BanManager {
                 update.close();
 
                 createMuteLogEntry(player.getUsername(), String.valueOf(reason), mutePoints, from, until, permanent, staff != null ? staff.getUsername() : "Console", message);
+                player.sendMessage(buildMuteScreen(player, permanent));
                 return true;
             }else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -890,12 +891,14 @@ public class BanManager {
             );
             ps.setInt(1, userID);
             ResultSet rs = ps.executeQuery();
+            rs.next();
 
             PreparedStatement psUserName = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_playercache WHERE id=?"
             );
             psUserName.setInt(1, userID);
             ResultSet rsUserName = psUserName.executeQuery();
+            rsUserName.next();
             String userName = rsUserName.getString("lastname");
             psUserName.close();
             rsUserName.close();
@@ -905,31 +908,33 @@ public class BanManager {
             );
             psStaffName.setInt(1, rs.getInt("staff"));
             ResultSet rsStaffName = psStaffName.executeQuery();
-            String staffName = rsStaffName.getString("lastname");
+            String staffName = "Console";
+            if (rsStaffName.next())
+                staffName = rsStaffName.getString("lastname");
             psStaffName.close();
             rsStaffName.close();
 
-            PreparedStatement psReason = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "SELECT * FROM core_punishment_reasons WHERE id=?"
-            );
-            psReason.setInt(1, rs.getInt("reason"));
-            ResultSet rsReason = psReason.executeQuery();
-            psReason.close();
-            rsReason.close();
-            PunishmentReason reason = customReasonString == null ? PunishmentReason.loadReason(rs.getInt("reason")) : null;
+            PunishmentReason reason = customReasonString == null ? PunishmentReason.loadReason(rs.getInt("reasonid")) : null;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date from = parseDate(rs, "from");
+            Date until = parseDate(rs, "until");
+            Date diff = new Date(until.getTime() - new Date().getTime());
 
             s = s
-                    .replace("%id%", rs.getString("id"))
-                    .replace("%userid%", rs.getString("userid"))
-                    .replace("%reasonid%", rs.getString("reasonid"))
-                    .replace("%banpoints%", rs.getString("banpoints"))
-                    .replace("%from%", parseDate(rs, "from").toString())
-                    .replace("%until%", parseDate(rs, "until").toString())
-                    .replace("%permanent%", rs.getBoolean("permanent") ? "Ja" : "Nein")
-                    .replace("%staffid%", rs.getString("staff"))
-                    .replace("%username%", userName)
-                    .replace("%staffname%", staffName)
-                    .replace("%reason%", customReasonString != null ? customReasonString : reason.getName());
+                    .replace("{id}", rs.getString("id"))
+                    .replace("{userid}", rs.getString("userid"))
+                    .replace("{reasonid}", rs.getString("reasonid"))
+                    .replace("{banpoints}", rs.getString("banpoints"))
+                    .replace("{from}", sdf.format(from))
+                    .replace("{until}", sdf.format(until))
+                    .replace("{permanent}", rs.getBoolean("permanent") ? "Ja" : "Nein")
+                    .replace("{staffid}", rs.getString("staff"))
+                    .replace("{username}", userName)
+                    .replace("{staff}", staffName)
+                    .replace("{reason}", customReasonString != null ? customReasonString : reason.getName())
+                    .replace("{banscreen_url}", ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url"))
+                    .replace("{remaining}", sdf.format(diff));
 
             rs.close();
             ps.close();
@@ -941,56 +946,96 @@ public class BanManager {
         return s;
     }
 
-    @SneakyThrows
-    public String replaceKickRelevant(String s, Player player, Player staff, String reason) {
-        PlayerLoader playerLoader = PlayerLoader.load(player);
-        PlayerLoader staffLoader = PlayerLoader.load(staff);
+    public String replaceKickRelevant(String s, Player staff, String reason) {
+        return s
+                .replace("{reason}", reason)
+                .replace("{staff}", staff != null ? staff.getUsername() : "Console");
+    }
 
-        PreparedStatement playerLanuguage = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                "SELECT * FROM I18N_languages WHERE lang=?"
-        );
-        playerLanuguage.setString(1, I18NPlayerLoader.getLocale(player));
-        ResultSet rs = playerLanuguage.executeQuery();
-        StringBuilder playerLanguageTimeFormat = new StringBuilder();
-        if (rs.next())
-            playerLanguageTimeFormat.append(replaceDateFormat(rs.getString("date_fmt"))).append(" ").append(rs.getString("time_fmt"));
+    public String replaceMuteRelevant(String s, Player player) {
+        try {
+            PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_mutes WHERE userid=?"
+            );
+            ps.setInt(1, getPlayerID(player.getUsername()));
+            ResultSet rs = ps.executeQuery();
+            rs.next();
 
-        s = s
-                .replace("%userid%", String.valueOf(playerLoader.getId()))
-                .replace("%date%", new SimpleDateFormat(playerLanguageTimeFormat.toString()).format(new Date()))
-                .replace("%staffid%", String.valueOf(staffLoader.getId()))
-                .replace("%username%", playerLoader.getLastName())
-                .replace("%staffname%", staffLoader.getLastName())
-                .replace("%reason%", reason);
+            PreparedStatement psStaffName = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
+                    "SELECT * FROM core_playercache WHERE id=?"
+            );
+            psStaffName.setInt(1, rs.getInt("staff"));
+            ResultSet rsStaffName = psStaffName.executeQuery();
+            String staffName = "Console";
+            if (rsStaffName.next()) {
+                staffName = rsStaffName.getString("lastname");
+            }
+            psStaffName.close();
+            rsStaffName.close();
+
+            PunishmentReason reason = PunishmentReason.loadReason(rs.getInt("reasonid"));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date from = parseDate(rs, "from");
+            Date until = parseDate(rs, "until");
+            Date diff = new Date(until.getTime() - new Date().getTime());
+
+            s = s
+                    .replace("{id}", rs.getString("id"))
+                    .replace("{userid}", rs.getString("userid"))
+                    .replace("{reasonid}", rs.getString("reasonid"))
+                    .replace("{mutepoints}", rs.getString("mutepoints"))
+                    .replace("{from}", sdf.format(from))
+                    .replace("{until}", sdf.format(until))
+                    .replace("{permanent}", rs.getBoolean("permanent") ? "Ja" : "Nein")
+                    .replace("{staffid}", rs.getString("staff"))
+                    .replace("{username}", player.getUsername())
+                    .replace("{staff}", staffName)
+                    .replace("{reason}", reason.getName())
+                    .replace("{mutescreen_url}", ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url"))
+                    .replace("{remaining}", sdf.format(diff))
+                    .replace("{prefix}", PrefixProvider.getPrefix());
+
+            rs.close();
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return s;
     }
 
-    public Component buildBanScreen(Player player) {
-        return Component.text(
-                BanSystemProvider.getBanSystem().getBanManager().replaceBanRelevant(
-                        MessageUtils.getI18NMessage(player, "proxy.bansystem.banscreen_text"),
+    public Component buildBanScreen(Player player, boolean permanent) {
+        return Component.text(replaceBanRelevant(permanent ?
+                                MessageUtils.getI18NMessage(player, "proxy.bansystem.permanent_banscreen_text") :
+                                MessageUtils.getI18NMessage(player, "proxy.bansystem.temporary_banscreen_text"),
                         PlayerLoader.load(player).getId(),
-                        null
-                )).clickEvent(ClickEvent.clickEvent(
-                ClickEvent.Action.OPEN_URL,
-                ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url")
-        ));
-    }
-
-    public Component buildKickScreen(Player player, Player staff, String reason) {
-        return Component.text(
-                replaceKickRelevant(
-                        MessageUtils.getI18NMessage(player, "proxy.bansystem.kickscreen_text"),
-                        player,
-                        staff,
-                        reason
+                        null))
+                .clickEvent(ClickEvent.clickEvent(
+                        ClickEvent.Action.OPEN_URL,
+                        ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url")
                 ));
     }
 
+    public Component buildKickScreen(Player player, Player staff, String reason) {
+        return Component.text(replaceKickRelevant(
+                MessageUtils.getI18NMessage(player, "proxy.bansystem.kickscreen_text"),
+                staff,
+                reason
+        ));
+    }
+
     public Component buildVPNScreen(Player player) {
+        return Component.text(MessageUtils.getI18NMessage(player, "proxy.bansystem.anti_vpn"));
+    }
+
+    public Component buildMuteScreen(Player player, boolean permanent) {
         return Component.text(
-                MessageUtils.getI18NMessage(player, "proxy.bansystem.anti_vpn")
-        );
+                replaceMuteRelevant(
+                        permanent ? MessageUtils.getI18NMessage(player, "proxy.bansystem.permanent_mutescreen_text") :
+                                MessageUtils.getI18NMessage(player, "proxy.bansystem.temporary_mutescreen_text"),
+                        player
+                )
+        ).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url")));
     }
 
     public String replaceDateFormat(String s) {
