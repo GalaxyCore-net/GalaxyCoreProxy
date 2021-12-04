@@ -288,7 +288,7 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.noperms", "§fUnknown command. Type \"/help\" for help.", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.not_in_lobby", "§cYou can´t execute this command in the lobby!", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.joinme_not_found", "§cThis JoinMe doesn´t exist", true);
-        I18N.setDefaultByLang("de_DE", "proxy.command.joinme.joinme_exists", "§cThis JoinMe already exists", true);
+        I18N.setDefaultByLang("en_GB", "proxy.command.joinme.joinme_exists", "§cThis JoinMe already exists", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.click_to_join", "§cClick to Join", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.player_sent_joinme", "§6%player% §7sent a Joinme for §e%server%", true);
         I18N.setDefaultByLang("en_GB", "proxy.command.joinme.in_cooldown", "§cYou are still in Cooldown", true);
