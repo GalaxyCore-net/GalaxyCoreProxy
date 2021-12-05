@@ -329,6 +329,12 @@ public class GalaxyCoreProxy {
         I18N.setDefaultByLang("de_DE", "proxy.command.report.this_report_was_denied", "§cDieser Report wurde geschlossen");
         I18N.setDefaultByLang("de_DE", "proxy.command.ip.usage", "§cBenutzung: §f/ip <player>", true);
         I18N.setDefaultByLang("de_DE", "proxy.command.ip.ip_of_player", "§cIp von Spieler {player}: {ip}", true);
+        I18N.setDefaultByLang("de_DE", "proxy.command.unban.player_not_banned", "§cDer Spieler {player} ist nicht gebannt");
+        I18N.setDefaultByLang("de_DE", "proxy.remaining.years", "Jahr(e)");
+        I18N.setDefaultByLang("de_DE", "proxy.remaining.days", "Tag(e)");
+        I18N.setDefaultByLang("de_DE", "proxy.remaining.hours", "Stunde(n)");
+        I18N.setDefaultByLang("de_DE", "proxy.remaining.minutes", "Minute(n)");
+        I18N.setDefaultByLang("de_DE", "proxy.remaining.seconds", "Sekunde(n)");
 
         // English Messages
         I18N.setDefaultByLang("en_GB", "proxy.command.help", "§6Information\n" +
@@ -491,6 +497,12 @@ public class GalaxyCoreProxy {
                 "§cYou were kicked from the Network.\n" +
                 "§creason§8: §e§l{reason}§r\n" +
                 "§cfrom§8: §e§l{staff}");
+        I18N.setDefaultByLang("en_GB", "proxy.command.unban.player_not_banned", "§cPlayer {player} ist not banned");
+        I18N.setDefaultByLang("en_GB", "proxy.remaining.years", "Year(s)");
+        I18N.setDefaultByLang("en_GB", "proxy.remaining.days", "Day(s)");
+        I18N.setDefaultByLang("en_GB", "proxy.remaining.hours", "Hour(s)");
+        I18N.setDefaultByLang("en_GB", "proxy.remaining.minutes", "Minute(s)");
+        I18N.setDefaultByLang("en_GB", "proxy.remaining.seconds", "Second(s)");
 
         I18N.load();
 

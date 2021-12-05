@@ -1,5 +1,6 @@
 package net.galaxycore.galaxycoreproxy.bansystem;
 
+import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
@@ -25,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"unused", "UnusedReturnValue", "DuplicatedCode"})
 public class BanManager {
@@ -56,6 +58,7 @@ public class BanManager {
                 update.close();
 
                 createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
+                player.disconnect(buildBanScreen(player, permanent));
                 return true;
             } else {
                 PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
@@ -80,6 +83,7 @@ public class BanManager {
                 update.close();
 
                 createBanLogEntry("ban", player.getUsername(), String.valueOf(reason), banPoints, from, until, permanent, staff != null ? staff.getUsername() : "Console");
+                player.disconnect(buildBanScreen(player, permanent));
                 return true;
             }
 
@@ -94,7 +98,7 @@ public class BanManager {
         try {
 
             if (staff != null) {
-                if (player.hasPermission("group.team") && !staff.hasPermission("ban.admin") && !player.hasPermission("ban.admin")) {
+                if (player.hasPermission("group.team") && !staff.hasPermission("ban.admin")) {
                     MessageUtils.sendI18NMessage(staff, "proxy.command.ban.cant_ban_player");
                     return false;
                 }
@@ -144,7 +148,6 @@ public class BanManager {
             psExistingBansForSameReason.close();
             rsIncomingBan.close();
             rsExistingBansForSameReason.close();
-            player.disconnect(buildBanScreen(player, permanent));
             return banPlayer(player, reason, banPointsSum, new Date(), until, permanent, staff);
 
         } catch (Exception e) {
@@ -164,7 +167,10 @@ public class BanManager {
 
         if (optionalPlayer.isEmpty()) {
             ProxyProvider.getProxy().getLogger().debug("Player not found");
-            MessageUtils.sendI18NMessage(staff, "proxy.player_404");
+            if (staff != null)
+                MessageUtils.sendI18NMessage(staff, "proxy.player_404");
+            else
+                ProxyProvider.getProxy().getServer().getConsoleCommandSource().sendMessage(Component.text("Player not found"));
             return false;
         }
 
@@ -186,12 +192,13 @@ public class BanManager {
                 .getProxyNamespace().get("proxy.ban.default_reason"), staff);
     }
 
-    public boolean unbanPlayer(String player, String staff) {
+    public boolean unbanPlayer(String player, CommandSource staff) {
 
         try {
 
             if (!isPlayerBanned(player)) {
-                ProxyProvider.getProxy().getLogger().info("Player %s is not banned {}", player);
+                ProxyProvider.getProxy().getLogger().info("Player {} is not banned", player);
+                staff.sendMessage(Component.text(MessageUtils.getI18NMessage(staff, "proxy.command.unban.player_not_banned").replace("{player}", player)));
                 return false;
             }
 
@@ -202,7 +209,7 @@ public class BanManager {
             ps.setInt(1, playerid);
             ps.executeUpdate();
             ps.close();
-            createUnbanLogEntry(player, staff);
+            createUnbanLogEntry(player, staff instanceof Player ? ((Player) staff).getUsername() : "Console");
             return true;
 
         } catch (Exception e) {
@@ -587,6 +594,9 @@ public class BanManager {
                     );
                     playerCache.setInt(1, reporterID);
                     ResultSet playerCacheRs = playerCache.executeQuery();
+                    if (!playerCacheRs.next()) {
+                        return true;
+                    }
                     UUID uuid = UUID.fromString(playerCacheRs.getString("uuid"));
                     Optional<Player> optionalReportPlayer = ProxyProvider.getProxy().getServer().getPlayer(uuid);
                     optionalReportPlayer.ifPresent(reportPlayer -> MessageUtils.sendI18NMessage(reportPlayer, "proxy.command.report.report_denied"));
@@ -762,16 +772,15 @@ public class BanManager {
             //SQL
             @SuppressWarnings("SqlResolve")
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
-                    "INSERT INTO core_banlog (`action`, userid, reason, `from`, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO core_banlog (`action`, userid, reason, `until`, permanent, staff, `date`) VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
             ps.setString(1, action);
             ps.setInt(2, playerid);
             ps.setString(3, reason);
-            ps.setTimestamp(4, convertUtilDate(from));
-            ps.setTimestamp(5, convertUtilDate(until));
-            ps.setBoolean(6, permanent);
-            ps.setInt(7, staffid);
-            ps.setTimestamp(8, new Timestamp(new Date().getTime()));
+            ps.setTimestamp(4, convertUtilDate(until));
+            ps.setBoolean(5, permanent);
+            ps.setInt(6, staffid);
+            ps.setTimestamp(7, new Timestamp(new Date().getTime()));
             ps.executeUpdate();
             ps.close();
 
@@ -883,20 +892,20 @@ public class BanManager {
         return "`" + s.toString() + "`";
     }
 
-    public String replaceBanRelevant(String s, int userID, String customReasonString) {
+    public String replaceBanRelevant(String s, Player player, String customReasonString) {
         try {
 
             PreparedStatement ps = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_bans WHERE userid=?"
             );
-            ps.setInt(1, userID);
+            ps.setInt(1, PlayerLoader.load(player).getId());
             ResultSet rs = ps.executeQuery();
             rs.next();
 
             PreparedStatement psUserName = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(
                     "SELECT * FROM core_playercache WHERE id=?"
             );
-            psUserName.setInt(1, userID);
+            psUserName.setInt(1, PlayerLoader.load(player).getId());
             ResultSet rsUserName = psUserName.executeQuery();
             rsUserName.next();
             String userName = rsUserName.getString("lastname");
@@ -919,7 +928,12 @@ public class BanManager {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date from = parseDate(rs, "from");
             Date until = parseDate(rs, "until");
-            Date diff = new Date(until.getTime() - new Date().getTime());
+            long[] remaining = calculateRemainingTime(until);
+            String remainingFormatted = remaining[0] + " " + MessageUtils.getI18NMessage(player, "proxy.remaining.years") + ", " +
+                    remaining[1] + " " + MessageUtils.getI18NMessage(player, "proxy.remaining.days") + ", " +
+                    remaining[2] + " " + MessageUtils.getI18NMessage(player, "proxy.remaining.hours") + ", " +
+                    remaining[3] + " " + MessageUtils.getI18NMessage(player, "proxy.remaining.minutes") + ", " +
+                    remaining[4] + " " + MessageUtils.getI18NMessage(player, "proxy.remaining.seconds") + ", ";
 
             s = s
                     .replace("{id}", rs.getString("id"))
@@ -934,7 +948,7 @@ public class BanManager {
                     .replace("{staff}", staffName)
                     .replace("{reason}", customReasonString != null ? customReasonString : reason.getName())
                     .replace("{banscreen_url}", ProxyProvider.getProxy().getProxyNamespace().get("proxy.bansystem.banscreen_url"))
-                    .replace("{remaining}", sdf.format(diff));
+                    .replace("{remaining}", remainingFormatted);
 
             rs.close();
             ps.close();
@@ -1008,7 +1022,7 @@ public class BanManager {
         return Component.text(replaceBanRelevant(permanent ?
                                 MessageUtils.getI18NMessage(player, "proxy.bansystem.permanent_banscreen_text") :
                                 MessageUtils.getI18NMessage(player, "proxy.bansystem.temporary_banscreen_text"),
-                        PlayerLoader.load(player).getId(),
+                        player,
                         null))
                 .clickEvent(ClickEvent.clickEvent(
                         ClickEvent.Action.OPEN_URL,
@@ -1018,7 +1032,7 @@ public class BanManager {
 
     public Component buildKickScreen(Player player, Player staff, String reason) {
         return Component.text(replaceKickRelevant(
-                MessageUtils.getI18NMessage(player, "proxy.bansystem.kickscreen_text"),
+                MessageUtils.getI18NMessage(player, "proxy.bansystem.kick_text"),
                 staff,
                 reason
         ));
@@ -1040,6 +1054,28 @@ public class BanManager {
 
     public String replaceDateFormat(String s) {
         return s.toLowerCase().replace("m", "M");
+    }
+
+    private long[] calculateRemainingTime(Date until) {
+
+        long timeDiff = until.getTime() - new Date().getTime();
+
+        long days = TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS);
+        timeDiff -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.HOURS.convert(timeDiff, TimeUnit.MILLISECONDS);
+        timeDiff -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MINUTES.convert(timeDiff, TimeUnit.MILLISECONDS);
+        timeDiff -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS);
+
+        long years = 0;
+        while (days >= 365) {
+            years++;
+            days -= 365;
+        }
+
+        return new long[]{years, days, hours, minutes, seconds};
+
     }
 
 }
