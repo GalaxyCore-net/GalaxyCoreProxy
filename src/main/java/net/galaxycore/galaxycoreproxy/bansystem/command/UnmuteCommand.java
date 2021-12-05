@@ -9,10 +9,10 @@ import net.galaxycore.galaxycoreproxy.utils.MessageUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UnbanCommand implements SimpleCommand {
+public class UnmuteCommand implements SimpleCommand {
 
-    public UnbanCommand() {
-        ProxyProvider.getProxy().registerCommand(this, "unban");
+    public UnmuteCommand() {
+        ProxyProvider.getProxy().registerCommand(this, "unmute");
     }
 
     @Override
@@ -20,16 +20,16 @@ public class UnbanCommand implements SimpleCommand {
 
         String[] args = invocation.arguments();
 
-        if(args.length == 0)
-            MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.unban.too_few_args");
+        if (args.length == 0)
+            MessageUtils.sendI18NMessage(invocation.source(), "proxy.command.unmute.usage");
         else
-            BanSystemProvider.getBanSystem().getBanManager().unbanPlayer(args[0], invocation.source() instanceof Player ? ((Player) invocation.source()).getUsername() : "Console");
+            BanSystemProvider.getBanSystem().getBanManager().unmutePlayer(args[0], invocation.source() instanceof Player ? ((Player) invocation.source()).getUsername() : "Console");
 
     }
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission("proxy.command.unban");
+        return invocation.source().hasPermission("proxy.command.unmute");
     }
 
     @Override

@@ -18,16 +18,16 @@ public class PunishmentReason {
     @Getter
     private static final HashMap<Integer, PunishmentReason> reasonHashMap = new HashMap<>();
 
-    public int id;
-    public String name;
-    public String requiredPermissionWarn, requiredPermissionMute, requiredPermissionBan;
-    public int points, pointsIncreasePercent;
-    public int duration;
-    public boolean permanent;
+    private int id;
+    private String name;
+    private String requiredPermissionWarn, requiredPermissionMute, requiredPermissionBan;
+    private int points, pointsIncreasePercent;
+    private int duration;
+    private boolean permanent;
 
     @SneakyThrows
     public static PunishmentReason loadReason(int id) {
-        if(reasonHashMap.containsKey(id))
+        if (reasonHashMap.containsKey(id))
             return reasonHashMap.get(id);
 
         PreparedStatement load = ProxyProvider.getProxy().getDatabaseConfiguration().getConnection().prepareStatement(

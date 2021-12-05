@@ -18,10 +18,9 @@ public class PluginCommandListener {
     public void onPlayerExecutePluginCommand(CommandExecuteEvent event) {
         // Check if Command checks plguins to hand down to Server
         if(ProxyProvider.getProxy().getPluginCommand().getCommands().contains(event.getCommand())) {
-            if(event.getCommandSource().hasPermission("velocity.command.plugins")) {
+            if (event.getCommandSource().hasPermission("velocity.command.plugins")) {
                 event.setResult(CommandExecuteEvent.CommandResult.command("velocity plugins"));
-            }
-            else
+            } else
                 event.getCommandSource().sendMessage(Component.text(MessageUtils.getI18NMessage(event.getCommandSource(), "proxy.command.plugins.no_permission")));
         }
 

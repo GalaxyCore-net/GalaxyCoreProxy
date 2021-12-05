@@ -177,7 +177,8 @@ public class FriendCommand implements SimpleCommand {
             Player friend = optionalFriend.get();
 
             MessageUtils.sendMessage(friend, MessageUtils.getI18NMessage(friend, "proxy.command.friend.remove.other").replace("{player}", player.getUsername()));
-        } else sendHelp(player);
+        } else
+            sendHelp(player);
     }
 
     /**
