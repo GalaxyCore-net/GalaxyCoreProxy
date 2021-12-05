@@ -2,8 +2,8 @@
     <servers>
         <server>
             <id>galaxycore</id>
-            <username>developer</username>
-            <password>${server.password}</password>
+            <username>admin</username>
+            <password>${env.NRM_PW}</password>
         </server>
     </servers>
 </settings>
