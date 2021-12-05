@@ -50,10 +50,10 @@ public class PlayerJoinListener {
                 psBan.close();
                 return;
             }
-            rsBan.close();
-            psBan.close();
 
-            event.setResult(ResultedEvent.ComponentResult.denied(BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer())));
+            event.setResult(ResultedEvent.ComponentResult.denied(BanSystemProvider.getBanSystem().getBanManager().buildBanScreen(event.getPlayer(), rsBan.getBoolean("permanent"))));
+            psBan.close();
+            rsBan.close();
         }
 
         if (hasVPN(event.getPlayer())) {

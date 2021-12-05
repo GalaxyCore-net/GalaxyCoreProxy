@@ -90,7 +90,7 @@ public class I18N implements I18NPort {
     }
 
     public String get(String lang, String key) {
-        return (usePrefix.getOrDefault(key, false)? PrefixProvider.getPrefix() : "") + languageData.get(languages.get(lang)).get(key);
+        return (usePrefix.getOrDefault(key, false) ? PrefixProvider.getPrefix() : "") + languageData.get(languages.get(lang)).get(key);
     }
 
     public String get(Player player, String key) {
