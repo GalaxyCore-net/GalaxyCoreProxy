@@ -22,6 +22,14 @@
     </properties>
     <url>https://galaxycore.net</url>
 
+    <distributionManagement>
+        <repository>
+            <id>galaxycore</id>
+            <name>GalaxyCore repository</name>
+            <url>https://nrm.galaxycore.net/repository/galaxycore/</url>
+        </repository>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <id>release</id>
