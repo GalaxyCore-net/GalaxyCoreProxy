@@ -79,7 +79,7 @@ public class JoinMeCommand implements SimpleCommand {
             joinMe.put(player, player.getCurrentServer().get().getServerInfo().getName());
             for (Player onlinePlayer : ProxyProvider.getProxy().getServer().getAllPlayers()) {
                 TextComponent message = Component.text(MessageUtils.getI18NMessage(onlinePlayer, "proxy.command.joinme.click_to_join"));
-                message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/joinme" + player));
+                message = message.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/joinme " + player.getUsername()));
                 message = message.hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(MessageUtils.getI18NMessage(onlinePlayer,
                         "proxy.command.joinme.click_to_join"))));
                 onlinePlayer.sendMessage(Component.text("\n" +

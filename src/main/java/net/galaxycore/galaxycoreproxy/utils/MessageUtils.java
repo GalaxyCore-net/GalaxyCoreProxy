@@ -37,7 +37,7 @@ public class MessageUtils {
     }
 
     public static void broadcastI18NMessage(String key) {
-        ProxyProvider.getProxy().getServer().getAllPlayers().forEach(player -> player.sendMessage(Component.text("\n" + getI18NMessage(player, key) + "\n")));
+        ProxyProvider.getProxy().getServer().getAllPlayers().forEach(player -> player.sendMessage(Component.text("\n" + getI18NMessage(player, key).replace("\r", "") + "\n")));
     }
 
 }
