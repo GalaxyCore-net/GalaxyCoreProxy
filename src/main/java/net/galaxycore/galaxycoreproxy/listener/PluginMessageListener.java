@@ -22,6 +22,7 @@ public class PluginMessageListener {
     @Subscribe
     public void onPluginMessage(PluginMessageEvent event) {
         ByteArrayDataInput data = event.dataAsDataStream();
+        if(!event.getIdentifier().getId().equals("GMC")) return;
 
         int id = data.readInt();
 
