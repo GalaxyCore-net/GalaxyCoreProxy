@@ -22,7 +22,7 @@ public class PluginMessageListener {
     @Subscribe
     public void onPluginMessage(PluginMessageEvent event) {
         ByteArrayDataInput data = event.dataAsDataStream();
-        if(!event.getIdentifier().getId().equals("GMC")) return;
+        if(!event.getIdentifier().getId().equals("GalaxyCore:GMC")) return;
 
         int id = data.readInt();
 
