@@ -9,6 +9,8 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystem;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
@@ -557,6 +559,9 @@ public class GalaxyCoreProxy {
 
         // MAINTENANCE //
         maintenance = new Maintenance(server.getCommandManager());
+
+        // PROXY COMMAND EXECUTOR //
+        MinecraftChannelIdentifier.create("galaxycore", "gmc");
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
     }
