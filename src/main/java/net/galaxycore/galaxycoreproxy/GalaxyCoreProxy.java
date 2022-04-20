@@ -21,6 +21,7 @@ import net.galaxycore.galaxycoreproxy.friends.FriendManager;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.listener.ChatListener;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
+import net.galaxycore.galaxycoreproxy.maintenance.Maintenance;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTime;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTimeCommand;
 import net.galaxycore.galaxycoreproxy.proxyPlayerControl.PlayerDisconnectListener;
@@ -47,7 +48,7 @@ import java.io.File;
 public class GalaxyCoreProxy {
 
     private final Logger logger;
-    private final ProxyServer server;
+    public final ProxyServer server;
 
     // CONFIGURATION //
     private DatabaseConfiguration databaseConfiguration;
@@ -94,6 +95,9 @@ public class GalaxyCoreProxy {
 
     // ONLINETIME //
     private OnlineTime onlineTime;
+
+    // MAINTENANCE //
+    private Maintenance maintenance;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -550,6 +554,9 @@ public class GalaxyCoreProxy {
 
         // ONLINE TIME //
         onlineTime = new OnlineTime(this.getServer());
+
+        // MAINTENANCE //
+        maintenance = new Maintenance(server.getCommandManager());
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
     }
