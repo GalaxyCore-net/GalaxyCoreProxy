@@ -29,6 +29,7 @@ import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTimeCommand;
 import net.galaxycore.galaxycoreproxy.proxyPlayerControl.PlayerDisconnectListener;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
+import net.galaxycore.galaxycoreproxy.verify.VerifyMC;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class GalaxyCoreProxy {
 
     // API //
     @SuppressWarnings({"unused"})
-    private ConfigNamespace proxyNamespace;
+    public ConfigNamespace proxyNamespace;
 
     // Friend //
     private FriendManager friendManager;
@@ -100,6 +101,9 @@ public class GalaxyCoreProxy {
 
     // MAINTENANCE //
     private Maintenance maintenance;
+
+    // VERIFY MC //
+    private VerifyMC verifyMC;
 
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
@@ -559,6 +563,9 @@ public class GalaxyCoreProxy {
 
         // MAINTENANCE //
         maintenance = new Maintenance(server.getCommandManager());
+
+        // VERIFY MC //
+        verifyMC = new VerifyMC(server.getCommandManager(), this);
 
         // PROXY COMMAND EXECUTOR //
         MinecraftChannelIdentifier.create("galaxycore", "gmc");
