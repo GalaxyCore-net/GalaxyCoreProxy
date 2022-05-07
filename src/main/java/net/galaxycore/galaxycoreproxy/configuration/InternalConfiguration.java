@@ -23,10 +23,12 @@ public class InternalConfiguration {
 
     private File dataFolder;
 
+    public YAMLConfiguration yamlConfig;
+
     public InternalConfiguration(File settingsDataFolder) {
         this.dataFolder = settingsDataFolder;
 
-        if(!settingsDataFolder.exists())
+        if (!settingsDataFolder.exists())
             //noinspection ResultOfMethodCallIgnored
             settingsDataFolder.mkdirs();
 
@@ -67,6 +69,7 @@ public class InternalConfiguration {
             mysqlPassword = config.getString("mysql.password");
             mysqlDatabase = config.getString("mysql.database");
             sqliteName = config.getString("sqlite.name");
+            yamlConfig = config;
         } catch (ConfigurationException | IOException e) {
             e.printStackTrace();
         }
