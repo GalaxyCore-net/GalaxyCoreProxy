@@ -223,7 +223,8 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                     <scmCommentPrefix xml:space="preserve">[RELEASE] </scmCommentPrefix>
-                    <goals>install deploy site-deploy</goals> <!-- install is here to fix javadoc generation in multi-module projects -->
+                    <goals>install deploy site-deploy
+                    </goals> <!-- install is here to fix javadoc generation in multi-module projects -->
                     <releaseProfiles>release</releaseProfiles>
                 </configuration>
             </plugin>
@@ -328,7 +329,7 @@
         <dependency>
             <groupId>net.galaxycore</groupId>
             <artifactId>galaxycorecore</artifactId>
-            <version>1.3.2</version>
+            <version>1.3.8</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
