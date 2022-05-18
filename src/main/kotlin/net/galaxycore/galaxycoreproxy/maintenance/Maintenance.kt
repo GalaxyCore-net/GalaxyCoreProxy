@@ -51,6 +51,10 @@ class Maintenance(commandManager: CommandManager) {
         rs.close()
         stmt.close()
 
+        if (connection.isClosed.not()) {
+            logger.warn("Connection to database is closed")
+        }
+
         logger.info("Maintenance subsystem initialized")
     }
 
@@ -161,7 +165,7 @@ class Maintenance(commandManager: CommandManager) {
                             false,
                             1,
                             mutableListOf<String>().toTypedArray(),
-                            if (ProxyProvider.proxy.proxyNamespace.get(scope + "_motd_header").isEmpty()) ProxyProvider.proxy.proxyNamespace.get(scope + "_motd_header") else null
+                            ProxyProvider.proxy.proxyNamespace.get(scope + "_motd_header").ifEmpty { null }
                     )
             )
 

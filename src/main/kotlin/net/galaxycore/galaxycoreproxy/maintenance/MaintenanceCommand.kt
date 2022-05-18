@@ -198,6 +198,7 @@ class MaintenanceCommand(
                             }
                         )
                     )
+                    .executes {it.source.sendMessage(Component.text(usage));0 }
                 )
                 .then(LiteralArgumentBuilder.literal<CommandSource>("beta")
                     .then(LiteralArgumentBuilder.literal<CommandSource>("enable")
@@ -348,23 +349,21 @@ class MaintenanceCommand(
                                 }
                         )
                     )
+                    .executes {it.source.sendMessage(Component.text(usage));0 }
                 )
                 .then(LiteralArgumentBuilder.literal<CommandSource>("emergency")
                     .executes {
                         maintenance.toggleEmergency()
                         it.source.sendMessage(
                             Component.text(
-                                "Emergency mode activated"
+                                "Emergency mode toggled. Now: ${ProxyProvider.proxy.proxyNamespace.get("maintenance_emergency")}"
                             )
                         )
 
                         0
                     }
                 )
-                .executes {
-                    it.source.sendMessage(Component.text(usage))
-                    0
-                }
+                .executes {it.source.sendMessage(Component.text(usage));0 }
                 .build()
         val brigadierCommand = BrigadierCommand(commandNode)
         commandManager.register(brigadierCommand)
