@@ -9,6 +9,8 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import lombok.Getter;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystem;
 import net.galaxycore.galaxycoreproxy.bansystem.BanSystemProvider;
@@ -21,11 +23,13 @@ import net.galaxycore.galaxycoreproxy.friends.FriendManager;
 import net.galaxycore.galaxycoreproxy.joinme.JoinMeCommand;
 import net.galaxycore.galaxycoreproxy.listener.ChatListener;
 import net.galaxycore.galaxycoreproxy.listener.PluginCommandListener;
+import net.galaxycore.galaxycoreproxy.maintenance.Maintenance;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTime;
 import net.galaxycore.galaxycoreproxy.onlinetime.OnlineTimeCommand;
 import net.galaxycore.galaxycoreproxy.proxyPlayerControl.PlayerDisconnectListener;
 import net.galaxycore.galaxycoreproxy.scheduler.BroadcastScheduler;
 import net.galaxycore.galaxycoreproxy.tabcompletion.TabCompletionListener;
+import net.galaxycore.galaxycoreproxy.verify.VerifyMC;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import org.slf4j.Logger;
@@ -47,14 +51,14 @@ import java.io.File;
 public class GalaxyCoreProxy {
 
     private final Logger logger;
-    private final ProxyServer server;
+    public final ProxyServer server;
 
     // CONFIGURATION //
-    private DatabaseConfiguration databaseConfiguration;
+    public DatabaseConfiguration databaseConfiguration;
 
     // API //
     @SuppressWarnings({"unused"})
-    private ConfigNamespace proxyNamespace;
+    public ConfigNamespace proxyNamespace;
 
     // Friend //
     private FriendManager friendManager;
@@ -95,6 +99,12 @@ public class GalaxyCoreProxy {
     // ONLINETIME //
     private OnlineTime onlineTime;
 
+    // MAINTENANCE //
+    private Maintenance maintenance;
+
+    // VERIFY MC //
+    private VerifyMC verifyMC;
+
     @Inject
     public GalaxyCoreProxy(ProxyServer server, Logger logger) {
         this.server = server;
@@ -127,6 +137,21 @@ public class GalaxyCoreProxy {
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
+        proxyNamespace.setDefault("maintenance", "false");
+        proxyNamespace.setDefault("maintenance_beta", "false");
+        proxyNamespace.setDefault("maintenance_emergency", "false");
+        proxyNamespace.setDefault("normal_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("normal_motd_2", "");
+        proxyNamespace.setDefault("normal_motd_header", "");
+        proxyNamespace.setDefault("maintenance_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("maintenance_motd_2", "             &cWartungen!");
+        proxyNamespace.setDefault("maintenance_motd_header", "&8➜ &c&lMaintenance &8┃ &c✘");
+        proxyNamespace.setDefault("beta_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("beta_motd_2", "             &2Jetzt&7: &bClosed Beta!");
+        proxyNamespace.setDefault("beta_motd_header", "");
+        proxyNamespace.setDefault("emergency_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("emergency_motd_2", "             &cWartungen!");
+        proxyNamespace.setDefault("emergency_motd_header", "&8➜ &c&lMaintenance &8┃ &c✘");
 
         // INTERNATIONALISATION //
 
@@ -550,6 +575,15 @@ public class GalaxyCoreProxy {
 
         // ONLINE TIME //
         onlineTime = new OnlineTime(this.getServer());
+
+        // MAINTENANCE //
+        maintenance = new Maintenance(server.getCommandManager());
+
+        // VERIFY MC //
+        verifyMC = new VerifyMC(server.getCommandManager(), this);
+
+        // PROXY COMMAND EXECUTOR //
+        MinecraftChannelIdentifier.create("galaxycore", "gmc");
 
         logger.info("Loaded GalaxyCore-Proxy plugin");
     }
