@@ -32,11 +32,17 @@ class LoginListener {
                 }
             } else {
                 if (maintenance) {
-                    loginEvent.result = denyMaintenance()
+                    if (!loginEvent.player.hasPermission("galaxycore.maintenance.bypass")) {
+                        loginEvent.result = denyMaintenance()
+                    }
                 } else if (beta) {
-                    loginEvent.result = denyBeta()
+                    if (!loginEvent.player.hasPermission("galaxycore.maintenance.bypass") && !loginEvent.player.hasPermission("galaxycore.beta.bypass")) {
+                        loginEvent.result = denyBeta()
+                    }
                 } else {
-                    loginEvent.result = denyEmergency()
+                    if (!loginEvent.player.hasPermission("galaxycore.emergency.bypass")) {
+                        loginEvent.result = denyEmergency()
+                    }
                 }
             }
         }
