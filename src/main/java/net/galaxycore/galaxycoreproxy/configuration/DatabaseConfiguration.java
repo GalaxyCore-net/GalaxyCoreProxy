@@ -11,10 +11,10 @@ import java.sql.SQLException;
 public class DatabaseConfiguration {
 
     @Getter
-    private final InternalConfiguration internalConfiguration;
+    public final InternalConfiguration internalConfiguration;
 
     @Getter
-    private Connection connection;
+    public Connection connection;
 
     @SneakyThrows
     public DatabaseConfiguration(InternalConfiguration internalConfiguration) {

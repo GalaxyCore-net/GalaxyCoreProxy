@@ -53,11 +53,11 @@ public class GalaxyCoreProxy {
     public final ProxyServer server;
 
     // CONFIGURATION //
-    private DatabaseConfiguration databaseConfiguration;
+    public DatabaseConfiguration databaseConfiguration;
 
     // API //
     @SuppressWarnings({"unused"})
-    private ConfigNamespace proxyNamespace;
+    public ConfigNamespace proxyNamespace;
 
     // Friend //
     private FriendManager friendManager;
@@ -133,6 +133,21 @@ public class GalaxyCoreProxy {
 
         PrefixProvider.setPrefix(proxyNamespace.get("global.prefix"));
         proxyNamespace.setDefault("proxy.commandblacklist", "chattools|velocity");
+        proxyNamespace.setDefault("maintenance", "false");
+        proxyNamespace.setDefault("maintenance_beta", "false");
+        proxyNamespace.setDefault("maintenance_emergency", "false");
+        proxyNamespace.setDefault("normal_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("normal_motd_2", "");
+        proxyNamespace.setDefault("normal_motd_header", "");
+        proxyNamespace.setDefault("maintenance_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("maintenance_motd_2", "             &cWartungen!");
+        proxyNamespace.setDefault("maintenance_motd_header", "&8➜ &c&lMaintenance &8┃ &c✘");
+        proxyNamespace.setDefault("beta_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("beta_motd_2", "             &2Jetzt&7: &bClosed Beta!");
+        proxyNamespace.setDefault("beta_motd_header", "");
+        proxyNamespace.setDefault("emergency_motd_1", "● &5GalaxyCore.net&r ● &gNetwork &r● &c1.8.x - 1.18.x&r ●");
+        proxyNamespace.setDefault("emergency_motd_2", "             &cWartungen!");
+        proxyNamespace.setDefault("emergency_motd_header", "&8➜ &c&lMaintenance &8┃ &c✘");
 
         // INTERNATIONALISATION //
 
