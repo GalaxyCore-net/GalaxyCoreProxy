@@ -14,7 +14,7 @@
 
     <description>Proxy Plugin for GalaxyCore.net</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.projectKey>GalaxyCore-net_GalaxyCoreProxy</sonar.projectKey>
         <kotlin.version>1.6.21</kotlin.version>
